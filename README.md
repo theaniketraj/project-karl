@@ -51,7 +51,7 @@ While initially conceived as the foundation for a [Proprietary SaaS Application]
 
 ## Getting Started 🚀
 
-Please refer to the [Getting Started Guide]().
+Please refer to the [Getting Started Guide](https://github.com/theaniketraj/project-karl/blob/main/GETTING_STARTED.md).
 
 For more details, see the [Full Documentation]().
 
