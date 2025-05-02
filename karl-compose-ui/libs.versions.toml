@@ -1,0 +1,10 @@
+toml
+[versions]
+compose-bom = "2023.03.00"
+
+[libraries]
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose-bom" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose-bom" }
+
+[bundles]
+compose-tooling = ["compose-ui-tooling","compose-ui-tooling-preview"]
