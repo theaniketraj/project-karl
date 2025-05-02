@@ -141,8 +141,8 @@ coroutineScope = applicationScope
 - DataSource: An interface implemented by your application to feed user interaction data (InteractionData) into the container.
 - InteractionData: Metadata representing user actions (e.g., command used, button clicked, preference set) – not sensitive content.
 - KarlInstruction: User-defined rules to guide the container's behavior (e.g., ignore certain data types, set confidence thresholds).
-- 
-For more details, see the Full Documentation.
+
+For more details, see the [Full Documentation]().
 
 **Modules Overview 📦**
 
@@ -166,7 +166,7 @@ Explore the code in this module to see a practical integration of KARL.
 **Documentation 📚**
 
 Detailed documentation covering concepts, integration, API reference, and contribution guidelines can be found
-in the `/docs` directory (or link to your hosted docs site).
+in the `/docs` directory or at [KARL-AI DOCS]().
 
 **Contributing ❤️**
 
