@@ -174,8 +174,8 @@ Contributions are welcome! Whether it's bug reports, feature suggestions, docume
 
 1. Reporting Issues: Use the GitHub Issues tab.
 2. Suggesting Features: Use the GitHub Issues tab with an appropriate label.
-3. Code Contributions: Please read our [Contribution Guidelines]() before submitting a Pull Request.
-4. Code of Conduct: Please adhere to our [Code of Conduct]().
+3. Code Contributions: Please read our [Contribution Guidelines](https://github.com/theaniketraj/project-karl/blob/main/CONTRIBUTING.md) before submitting a Pull Request.
+4. Code of Conduct: Please adhere to our [Code of Conduct](https://github.com/theaniketraj/project-karl/blob/main/CODE_OF_CONDUCT.md).
 
 **License 📄**
 
