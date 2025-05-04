@@ -344,6 +344,6 @@ Congratulations! You've set up a basic KARL container. Now you can explore furth
 - *Explore Instructions*: Implement user controls or application logic using `KarlInstruction`.
 - *Configure Implementations*: Dive deeper into the configuration options for your chosen `LearningEngine` and `DataStorage`.
 - *Check the Example App*: Explore the `:karl-example-desktop` module for a more complete integration example.
-- *Read Full Documentation*: Consult the `/docs` directory or the main [README.md]() for more in-depth information.
+- *Read Full Documentation*: Consult the `/docs` directory or the main [README.md](https://github.com/theaniketraj/project-karl/blob/main/README.md) for more in-depth information.
 
 We hope this guide helps you get started with building amazing, private AI experiences with Project KARL!

@@ -1,54 +1,37 @@
 plugins {
-    kotlin("multiplatform") // Use multiplatform plugin
-    // kotlin("jvm")
+    kotlin("multiplatform") version "1.9.23"          // or the desired KMP version
+    id("org.jetbrains.compose") version "1.7.3"      // Compose Multiplatform plugin
 }
 
 kotlin {
-    // Define targets. For now, we might only need JVM if targeting Desktop,
-    // but defining commonMain is good practice for core logic.
-    // If you plan Android/iOS/JS later, add android(), iosX64(), js() etc.
-    jvm() // Target the JVM platform
-
+    jvm {
+        withJava()  // Enable mixed Kotlin/Java if needed (Kotlin 2.1+ does this by default)
+    }
     sourceSets {
         val commonMain by getting {
             dependencies {
-                // Add dependencies needed in common code
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3") // For coroutines interfaces
+                // Add shared dependencies here (Kotlin stdlib, etc.)
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-common")
             }
         }
         val jvmMain by getting {
             dependencies {
-                implementation("androidx.compose.ui:ui-tooling")
-//                implementation(libs.bundles.compose.tooling)
-                // Add JVM-specific dependencies if any are needed for common types (rare)
+                implementation(kotlin("stdlib"))           // Kotlin/JVM standard library
+                // Compose Multiplatform libraries (use Compose plugin's coordinates)
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material)
+                // Compose Desktop runtime (native libs for current OS)
+                implementation(compose.desktop.currentOs)
+                // Compose BOM for version alignment (no explicit versions on the above libs)
+                implementation(project.dependencies.platform("androidx.compose:compose-bom:2025.04.00"))
             }
         }
-        // Define test source sets if needed
-        // val commonTest by getting
-        // val jvmTest by getting
+        // (other sourceSets like jvmTest can be configured similarly)
     }
 }
 
-// (Optional) Publishing configuration (future plan) to publish this as a library
-// publishing { ... }
-
-// (Optional) KDoc generation - later on, we can add Dokka for documentation generation
-// tasks.withType<org.jetbrains.dokka.gradle.DokkaTask> {
-//     outputDirectory.set(buildDir.resolve("dokka")) // Set output directory for Dokka
-//     dokkaSourceSets {
-//         configure(listOf(this)) {
-//             // Configure source sets for Dokka
-//             includeNonPublic.set(true) // Include non-public members if needed
-//             skipEmptyPackages.set(true) // Skip empty packages in the documentation
-//         }
-//     }
+// Optionally configure Compose Desktop application settings if needed:
+// compose.desktop {
+//     application { /* ... */ }
 // }
-// tasks.dokkaHtmlMultiModule.configure {
-//    outputDirectory.set(buildDir.resolve("dokka")) // Set output directory for Dokka
-//    dokkaSourceSets {
-//        configure(listOf(this)) {
-//            includeNonPublic.set(true) // Include non-public members if needed
-//            skipEmptyPackages.set(true) // Skip empty packages in the documentation
-//        }
-//    }
-//}

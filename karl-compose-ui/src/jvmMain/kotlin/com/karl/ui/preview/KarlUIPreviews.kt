@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 // Keep ONLY the standard Preview import from ui-tooling
 // This requires the compose.uiTooling dependency in jvmMain
 import androidx.compose.ui.tooling.preview.Preview
+import com.karl.core.models.Prediction
 
 // Correct the import path for Prediction! It's in the 'models' package directly under 'core'.
 import com.karl.core.models.Prediction // <-- CORRECTED IMPORT

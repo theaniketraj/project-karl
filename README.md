@@ -43,7 +43,7 @@ KARL empowers developers to add intelligent, personalized features without compr
 
 Traditional AI often requires sending user data to the cloud, creating significant privacy concerns, especially for sensitive data like developer workflows or personal habits. KARL offers an alternative: intelligent personalization *without* the data privacy trade-off. It's designed for applications where user trust and data locality are paramount.
 
-While initially conceived as the foundation for a [Proprietary SaaS Application](), the core KARL library is designed to be a general-purpose tool for any Kotlin developer looking to build private, on-device intelligence.
+While initially conceived as the foundation for a Proprietary SaaS Application, the core KARL library is designed to be a general-purpose tool for any Kotlin developer looking to build private, on-device intelligence.
 
 ### Project Status 🚧
 

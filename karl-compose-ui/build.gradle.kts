@@ -1,6 +1,6 @@
 // karl-project/karl-compose-ui/build.gradle.kts
 plugins {
-    kotlin("multiplatform") // Apply the multiplatform plugin
+    kotlin("multiplatform") version "1.9.23" // Apply the multiplatform plugin
     id("org.jetbrains.compose") // Apply the Jetpack Compose plugin
 }
 
@@ -46,6 +46,10 @@ kotlin {
                 // Example: compose.desktop.currentOs // If you need platform-specific desktop composites
                 implementation(compose.desktop.currentOs) // Needed for desktop-specific composites
                 implementation(compose.uiTooling) // <-- Add this for @Preview support in Desktop
+                implementation(project.dependencies.platform("androidx.compose:compose-bom:2024.01.00"))
+                implementation("androidx.compose.ui:ui-tooling-preview")
+                implementation(project.dependencies.platform("androidx.compose:compose-bom:2024.01.00"))
+//                debugImplementation("androidx.compose.ui:ui-tooling")
             }
         }
 
