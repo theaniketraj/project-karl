@@ -38,6 +38,9 @@ ext {
     set("kotlinVersion", "1.9.23")
     set("composeVersion", "1.6.10")
     set("multiplatformVersion", "1.9.23")
+    set("kotlinxCoroutinesVersion", "1.7.3")
+    set("kotlinDlVersion", "0.5.1")
+    set("sqldelightVersion", "2.0.1")
     // ... and so on
 }
 

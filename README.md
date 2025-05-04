@@ -17,12 +17,12 @@ KARL empowers developers to add intelligent, personalized features without compr
 ## Table of Contents
 
 1. [Introduction](#introduction)
-2. [Core-Philosophy--Features](#core-philosophy--features-)
+2. [Core Philosophy Features](#core-philosophy--features-)
 3. [Motivation](#motivation-)
 4. [Getting Started](#getting-started-)
-5. [Architecture--Internals](#architecture--internals-)
-6. [Project-Structure](#project-structure-)
-7. [Use-Cases--Example-Implementations](#use-cases--example-implementations-)
+5. [Architecture Internals](#architecture--internals-)
+6. [Project Structure](#project-structure-)
+7. [Use-Cases Example Implementations](#use-cases--example-implementations-)
 8. [Features](#features-)
 9. [Documentation](#documentation-)
 10. [Contributing](#contributing-)
