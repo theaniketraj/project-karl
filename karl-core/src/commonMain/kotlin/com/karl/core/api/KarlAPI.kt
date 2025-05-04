@@ -3,7 +3,7 @@ package com.karl.core.api
 import api.KarlContainer
 import api.LearningEngine
 import container.KarlContainerImpl // We'll implement this class next
-import com.karl.core.data.KarlInstruction
+import com.karl.core.models.KarlInstruction
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -119,6 +119,6 @@ class KarlContainerBuilder internal constructor(private val userId: String) { //
 // import com.karl.core.api.KarlCoreInterfaces.* // Alternative: import all
 
 //typealias LearningEngine = LearningEngine
-typealias DataStorage = com.karl.core.data.DataStorage
-typealias DataSource = com.karl.core.data.DataSource
+typealias DataStorage = com.karl.core.models.DataStorage
+typealias DataSource = com.karl.core.models.DataSource
 //typealias KarlContainer = KarlContainer

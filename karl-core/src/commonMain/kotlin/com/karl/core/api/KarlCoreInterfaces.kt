@@ -1,14 +1,14 @@
 package api
 
 // Import models and coroutines types needed by the remaining interfaces
-import com.karl.core.data.KarlContainerState
-import com.karl.core.data.KarlInstruction
-import com.karl.core.data.Prediction
+import com.karl.core.models.KarlContainerState
+import com.karl.core.models.KarlInstruction
+import com.karl.core.models.Prediction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import com.karl.core.data.DataSource // Now import from the data package
-import com.karl.core.data.DataStorage // Now import from the data package
-import com.karl.core.data.InteractionData
+import com.karl.core.models.DataSource // Now import from the data package
+import com.karl.core.models.DataStorage // Now import from the data package
+import com.karl.core.models.InteractionData
 
 /**
  * Represents the engine responsible for training and inference.

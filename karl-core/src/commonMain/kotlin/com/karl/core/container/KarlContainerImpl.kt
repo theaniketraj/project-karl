@@ -1,12 +1,12 @@
 package container
 
-import com.karl.core.data.DataSource // Import the interfaces
-import com.karl.core.data.DataStorage
+import com.karl.core.models.DataSource // Import the interfaces
+import com.karl.core.models.DataStorage
 import api.KarlContainer
 import api.LearningEngine
-import com.karl.core.data.InteractionData
-import com.karl.core.data.KarlInstruction
-import com.karl.core.data.Prediction
+import com.karl.core.models.InteractionData
+import com.karl.core.models.KarlInstruction
+import com.karl.core.models.Prediction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin // For releasing resources safely

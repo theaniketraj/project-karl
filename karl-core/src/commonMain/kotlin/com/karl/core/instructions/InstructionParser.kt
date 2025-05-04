@@ -1,6 +1,6 @@
 package com.karl.core.instructions
 
-import com.karl.core.data.KarlInstruction
+import com.karl.core.models.KarlInstruction
 // import com.karl.core.models.KarlInstruction // Import the data class/sealed class we defined earlier
 
 /**

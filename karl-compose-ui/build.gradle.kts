@@ -1,4 +1,5 @@
 // karl-project/karl-compose-ui/build.gradle.kts
+
 plugins {
     kotlin("multiplatform") version "1.9.23" // Apply the multiplatform plugin
     id("org.jetbrains.compose") // Apply the Jetpack Compose plugin
@@ -40,15 +41,28 @@ kotlin {
 
         val jvmMain by getting {
             dependencies {
-                implementation(project(":karl-core"))
+//                implementation(project(":karl-core"))
                 // JVM/Desktop specific dependencies if any.
                 // Often not needed for pure UI components unless they touch platform APIs.
                 // Example: compose.desktop.currentOs // If you need platform-specific desktop composites
-                implementation(compose.desktop.currentOs) // Needed for desktop-specific composites
-                implementation(compose.uiTooling) // <-- Add this for @Preview support in Desktop
-                implementation(project.dependencies.platform("androidx.compose:compose-bom:2024.01.00"))
-                implementation("androidx.compose.ui:ui-tooling-preview")
-                implementation(project.dependencies.platform("androidx.compose:compose-bom:2024.01.00"))
+
+                // 1. Compose runtime & foundation for desktop
+                implementation(compose.runtime)           // Compose common runtime
+                implementation(compose.foundation)        // Compose common foundation
+                implementation(compose.material)          // Compose common material
+
+                // 2. Compose Desktop host (windows/mac/linux native libs)
+                implementation(compose.desktop.currentOs) // Desktop artifacts for your OS
+
+                // 3. Desktop Preview Tooling API
+                implementation("org.jetbrains.compose.ui:ui-tooling-preview-desktop:1.8.0-beta02")
+                implementation("org.jetbrains.compose.ui:ui-tooling-desktop:1.8.0-beta02")
+
+//                implementation(compose.desktop.currentOs) // Needed for desktop-specific composites
+//                implementation(compose.uiTooling) // <-- Add this for @Preview support in Desktop
+//                implementation(project.dependencies.platform("androidx.compose:compose-bom:2024.01.00"))
+//                implementation("androidx.compose.ui:ui-tooling-preview")
+//                implementation(project.dependencies.platform("androidx.compose:compose-bom:2024.01.00"))
 //                debugImplementation("androidx.compose.ui:ui-tooling")
             }
         }

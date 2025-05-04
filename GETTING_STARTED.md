@@ -130,7 +130,7 @@ First, you need to implement the DataSource interface in your application code. 
 ```kotlin
 package com.karl
 
-import com.karl.core.data.DataSource
+import com.karl.core.models.DataSource
 import com.karl.core.models.InteractionData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job

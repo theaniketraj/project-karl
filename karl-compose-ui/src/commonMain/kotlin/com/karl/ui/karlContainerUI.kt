@@ -12,9 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import com.karl.core.data.Prediction
+import com.karl.core.models.Prediction
 
 // We'll need a way to expose the state from KarlContainer to Compose.
 // KarlContainerImpl itself doesn't currently expose state flows,

@@ -1,37 +1,41 @@
 plugins {
-    kotlin("multiplatform") version "1.9.23"          // or the desired KMP version
-    id("org.jetbrains.compose") version "1.7.3"      // Compose Multiplatform plugin
+    // ONLY apply the multiplatform plugin for the core module
+    kotlin("multiplatform") version "1.9.23" // Ensure version matches root if declared there
+    // DO NOT apply id("org.jetbrains.compose") here
 }
 
 kotlin {
-    jvm {
-        withJava()  // Enable mixed Kotlin/Java if needed (Kotlin 2.1+ does this by default)
+    // Define the targets this core module supports
+    jvm { // JVM target is needed if other JVM modules depend on it
+        // withJava() // Only include if you explicitly need Java interop *within* karl-core
     }
+    // Add other targets if you plan to support them later (e.g., android(), iosX64(), etc.)
+    // js { browser() }
+    // ...
+
     sourceSets {
         val commonMain by getting {
             dependencies {
-                // Add shared dependencies here (Kotlin stdlib, etc.)
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-common")
+                // Core Kotlin standard library for common code
+                implementation(kotlin("stdlib-common")) // Use the correct alias
+
+                // Core interfaces use CoroutineScope/Job, so add coroutines
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3") // Use version from rootProject.ext if defined
             }
         }
         val jvmMain by getting {
             dependencies {
-                implementation(kotlin("stdlib"))           // Kotlin/JVM standard library
-                // Compose Multiplatform libraries (use Compose plugin's coordinates)
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material)
-                // Compose Desktop runtime (native libs for current OS)
-                implementation(compose.desktop.currentOs)
-                // Compose BOM for version alignment (no explicit versions on the above libs)
-                implementation(project.dependencies.platform("androidx.compose:compose-bom:2025.04.00"))
+                // JVM-specific Kotlin standard library
+                implementation(kotlin("stdlib-jdk8")) // Use stdlib-jdk8 for JVM
+
+                // NO project(":karl-core") dependency here (self-dependency)
+                // NO compose dependencies here
             }
         }
-        // (other sourceSets like jvmTest can be configured similarly)
+        // Define test source sets if needed
+        // val commonTest by getting { dependencies { ... } }
+        // val jvmTest by getting { dependencies { ... } }
     }
 }
 
-// Optionally configure Compose Desktop application settings if needed:
-// compose.desktop {
-//     application { /* ... */ }
-// }
+// Remove any compose.desktop blocks from here
