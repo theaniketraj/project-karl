@@ -35,7 +35,7 @@ Ensure you have successfully built the parent project (`project-karl`) first, as
 
 You can run this example application using Gradle from the root directory of the `project-karl`:
 
-```bash
+```pgsql
 # Navigate to the root project directory
 cd /path/to/project-karl
 
@@ -61,12 +61,12 @@ Alternatively, you can set up an "Application" run configuration in IntelliJ IDE
 
 ## Technical Details & Implementation Notes
 
-- Threading & Coroutines: The application uses `rememberCoroutineScope` tied to the Compose `application` lifecycle. KARL initialization, prediction requests, and interaction processing are launched within this scope using `launch { ... }` to avoid blocking the main UI thread.
-- State Management: `MutableStateFlow` is used to hold the latest `Prediction` and simulated learning progress, allowing the `KarlContainerUI` composable to reactively update via `collectAsState()`.
-- Dependency Injection (Basic): Instances of `KLDLLearningEngine`, `SQLDelightDataStorage`, and `ExampleDataSource` are created directly within the `LaunchedEffect`. In a larger application, a proper dependency injection framework (like Koin, Hilt - although Hilt is Android-focused, or manual injection) would be used.
-- Database: An embedded SQLite database file (`karl_example_example-user-01.db`) will be created in the directory where the application is run. It uses `JdbcSqliteDriver`. Schema creation (`KarlDatabase.Schema.create`) is called within the `LaunchedEffect` for simplicity (idempotent).
-- Lifecycle: The Window's `onCloseRequest` lambda ensures `karlContainer.saveState()` and `karlContainer.release()` are called before `exitApplication()`, providing a clean shutdown path.
-- Error Handling: Basic `try-catch` blocks are used during KARL initialization. Robust error handling would be needed for a production application.
+- **Threading & Coroutines**: The application uses `rememberCoroutineScope` tied to the Compose `application` lifecycle. KARL initialization, prediction requests, and interaction processing are launched within this scope using `launch { ... }` to avoid blocking the main UI thread.
+- **State Management**: `MutableStateFlow` is used to hold the latest `Prediction` and simulated learning progress, allowing the `KarlContainerUI` composable to reactively update via `collectAsState()`.
+- **Dependency Injection (Basic)**: Instances of `KLDLLearningEngine`, `SQLDelightDataStorage`, and `ExampleDataSource` are created directly within the `LaunchedEffect`. In a larger application, a proper dependency injection framework (like Koin, Hilt - although Hilt is Android-focused, or manual injection) would be used.
+- **Database**: An embedded SQLite database file (`karl_example_example-user-01.db`) will be created in the directory where the application is run. It uses `JdbcSqliteDriver`. Schema creation (`KarlDatabase.Schema.create`) is called within the `LaunchedEffect` for simplicity (idempotent).
+- **Lifecycle**: The Window's `onCloseRequest` lambda ensures `karlContainer.saveState()` and `karlContainer.release()` are called before `exitApplication()`, providing a clean shutdown path.
+- **Error Handling**: Basic `try-catch` blocks are used during KARL initialization. Robust error handling would be needed for a production application.
 
 ## Exploring Further
 - Modify the `InteractionData` created in `ExampleDataSource` to include more details.
@@ -74,4 +74,4 @@ Alternatively, you can set up an "Application" run configuration in IntelliJ IDE
 - Observe the console output to see log messages from KARL components.
 - Inspect the created SQLite database file (`karl_example_... .db`) using a database tool to see how state is stored (though the model state itself might be a binary blob).
 - Modify the `KarlContainerUI` composable in the `:karl-compose-ui` module to display more information or add controls.
-- (**Advanced**) Swap out the `KLDLLearningEngine` for a custom implementation or configure its internal model differently (requires changes in the `:karl-kldl` module).
+- (Advanced) Swap out the `KLDLLearningEngine` for a custom implementation or configure its internal model differently (requires changes in the `:karl-kldl` module).
