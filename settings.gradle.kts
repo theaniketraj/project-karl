@@ -29,5 +29,14 @@ pluginManagement {
     }
     plugins {
         kotlin("jvm") version "1.9.23" apply false
+
+        // Declare Kotlin Multiplatform plugin
+        kotlin("multiplatform") version "1.9.23" apply false // Or your Kotlin version
+
+        // Declare Jetpack Compose plugin
+        id("org.jetbrains.compose") version "1.6.10" apply false // Or your Compose version
+
+        // Declare KSP plugin for Kotlin Multiplatform
+        id("com.google.devtools.ksp") version "1.9.23-1.0.19" apply false // KSP version compatible with our Kotlin version
     }
 }

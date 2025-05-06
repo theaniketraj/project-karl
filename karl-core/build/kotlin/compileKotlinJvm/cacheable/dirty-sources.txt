@@ -1,0 +1,9 @@
+D:\ceie\project-karl\karl-core\src\commonMain\kotlin\com\karl\core\learning\LearningModel.kt
+D:\ceie\project-karl\karl-core\src\commonMain\kotlin\com\karl\core\models\DataStorage.kt
+D:\ceie\project-karl\karl-core\src\commonMain\kotlin\com\karl\core\models\DataModels.kt
+D:\ceie\project-karl\karl-core\src\commonMain\kotlin\com\karl\core\api\KarlAPI.kt
+D:\ceie\project-karl\karl-core\src\commonMain\kotlin\com\karl\core\api\KarlCoreInterfaces.kt
+D:\ceie\project-karl\karl-core\src\commonMain\kotlin\com\karl\core\models\DataSource.kt
+D:\ceie\project-karl\karl-core\src\commonMain\kotlin\com\karl\core\learning\LearningEngine.kt
+D:\ceie\project-karl\karl-core\src\commonMain\kotlin\com\karl\core\instructions\InstructionParser.kt
+D:\ceie\project-karl\karl-core\src\commonMain\kotlin\com\karl\core\container\KarlContainerImpl.kt

@@ -41,6 +41,8 @@ ext {
     set("kotlinxCoroutinesVersion", "1.7.3")
     set("kotlinDlVersion", "0.5.1")
     set("sqldelightVersion", "2.0.1")
+    set("roomVersion", "2.6.1")
+    set("kspVersion", "1.9.23-1.0.19")
     // ... and so on
 }
 
