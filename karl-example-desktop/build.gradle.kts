@@ -38,7 +38,7 @@ dependencies {
     // --- KARL Module Dependencies ---
     implementation(project(":karl-core"))
     implementation(project(":karl-kldl"))       // Depends on KotlinDL implementation
-    implementation(project(":karl-sqldelight")) // Depends on SQLDelight implementation
+    implementation(project(":karl-room")) // Depends on SQLDelight implementation
     implementation(project(":karl-compose-ui")) // Depends on the Compose UI components
 
     // --- Dependencies needed by KARL Implementations ---

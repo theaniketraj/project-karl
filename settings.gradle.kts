@@ -9,7 +9,7 @@ rootProject.name = "karl-project"
 include(
     ":karl-core",
     ":karl-kldl",
-    ":karl-sqldelight",
+    ":karl-room",
     ":karl-compose-ui", // Include if you plan to use Compose UI module
     ":karl-example-desktop" // Include the example application module
     // Note: The 'docs' folder usually doesn't need to be a Gradle module
