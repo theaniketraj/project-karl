@@ -1,49 +1,53 @@
 // karl-project/karl-room/build.gradle.kts
-
 plugins {
-    kotlin("multiplatform") // KMP plugin
-    id("com.google.devtools.ksp") // KSP plugin - CRITICAL for Room
-    // No Compose plugin needed here
+    kotlin("multiplatform")
+    id("com.google.devtools.ksp") // KSP plugin is essential for Room
 }
 
-// Access versions from root project's ext block
-val roomVersion: String by rootProject.ext // Define "roomVersion" in root ext, e.g., "2.6.1"
-val kspVersion: String by rootProject.ext  // Define "kspVersion" in root ext, e.g., "1.9.23-1.0.19" (matches Kotlin)
+// Access versions from root project
+val roomVersion: String by rootProject.ext
+val kspVersion: String by rootProject.ext // Ensure this is defined in root and compatible
 val kotlinxCoroutinesVersion: String by rootProject.ext
 
+dependencies {
+    ksp("androidx.room:room-compiler:$roomVersion")
+}
+
+
 kotlin {
-    jvm { // Define JVM target
+    jvm {
         // withJava() // Optional
-        // testRuns["test"].executionTask.configure { useJUnitPlatform() }
     }
-    // Add other targets if needed (androidTarget(), etc.)
+    // Add other targets like androidTarget() if you plan to support Room on Android
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(project(":karl-core")) // Expose core interfaces/models transitively
-                // Coroutines might be inherited via :karl-core, but explicit is fine
+                api(project(":karl-core")) // Expose core interfaces
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+
+                // Room KMP common dependencies (if any, check latest Room KMP docs)
+                // Sometimes room-common or similar might be needed here.
+                // For now, let's assume room-runtime and room-ktx in jvmMain cover enough.
             }
         }
         val jvmMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-jdk8"))
 
-                // Room Dependencies for JVM/KMP
+                // Room Dependencies for JVM
                 api("androidx.room:room-runtime:$roomVersion")
-                // Room Kotlin Extensions (provides suspend functions, Flow support etc.)
                 api("androidx.room:room-ktx:$roomVersion")
+                // ksp("androidx.room:room-compiler:$roomVersion") // KSP annotation processor for Room
 
-                // You might need a specific driver/backend for Room on Desktop/JVM
-                // Often uses SQLite via androidx.sqlite:sqlite-framework and a native driver
-                // Check Room KMP documentation for the exact Desktop setup.
-                // Example (might vary based on Room KMP version):
-                api("androidx.sqlite:sqlite-framework:2.4.0") // Provides SQLite APIs
-                api("androidx.sqlite:sqlite-driver:2.4.0")   // Provides the actual driver (can be platform specific)
+                // SQLite framework APIs needed by Room
+                api("androidx.sqlite:sqlite-framework:2.4.0") // Or latest stable
+
+                // The actual SQLite JDBC driver for JVM environments
+                implementation("org.xerial:sqlite-jdbc:3.43.0.0") // Or latest stable
             }
         }
-        // commonTest, jvmTest dependencies...
+        // commonTest, jvmTest ...
         // val jvmTest by getting {
         //     dependencies {
         //         implementation("androidx.room:room-testing:$roomVersion")
@@ -52,19 +56,10 @@ kotlin {
     }
 }
 
-// KSP Configuration - Tell KSP which target uses the Room annotation processor
-// The exact configuration might depend on the Room/KSP version for KMP.
-// Refer to the official Room KMP setup guide.
-// Example structure:
 ksp {
-    // This tells KSP to run the Room compiler for the jvm target's sources
-    arg("room.schemaLocation", "$projectDir/schemas") // Recommended: Export DB schema for migrations
-    arg("room.incremental", "true") // Enable incremental processing
-    // Specify target platforms if needed by KSP configuration for KMP
+    arg("room.schemaLocation", "$projectDir/schemas")
+    arg("room.incremental", "true")
+    // Potentially configure target for KSP if needed by specific KSP/Room KMP versions
+    // Find the correct syntax from Room KMP documentation if this is an issue
+    // Currently, KSP usually runs for each target that applies it.
 }
-
-// Ensure KSP task runs before Kotlin compilation for the target
-// This dependency might be configured automatically by newer KSP/Gradle versions
-// tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-//    dependsOn(tasks.withType<com.google.devtools.ksp.gradle.KspTask>())
-// }
