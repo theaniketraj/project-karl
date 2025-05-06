@@ -1,6 +1,7 @@
 // karl-project/karl-kldl/build.gradle.kts
 plugins {
-    kotlin("multiplatform")
+//    kotlin("multiplatform") apply false
+    id("org.jetbrains.kotlin.multiplatform")
 }
 
 // Access versions from root project
@@ -8,7 +9,9 @@ val kotlinxCoroutinesVersion: String by rootProject.ext
 val kotlinDlVersion: String by rootProject.ext
 
 kotlin {
-    jvm()
+    jvm{
+        // JVM Target version
+    }
 
     sourceSets {
         val commonMain by getting {

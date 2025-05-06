@@ -1,6 +1,9 @@
 package com.karl.kldl
 
 import com.karl.core.api.LearningEngine
+import com.karl.core.models.* // (for InteractionData, KarlContainerState, Prediction, KarlInstruction)
+import kotlinx.coroutines.* // (for CoroutineScope, Job, Dispatchers, launch, withContext)
+import kotlinx.coroutines.sync.* // (for Mutex, withLock)
 import com.karl.core.models.InteractionData
 import com.karl.core.models.KarlContainerState
 import com.karl.core.models.KarlInstruction
@@ -19,6 +22,7 @@ import org.jetbrains.kotlinx.dl.api.core.layer.core.Input
 import org.jetbrains.kotlinx.dl.api.core.loss.Losses
 import org.jetbrains.kotlinx.dl.api.core.metric.Metrics
 import org.jetbrains.kotlinx.dl.api.core.optimizer.Adam
+import org.jetbrains.kotlinx.dl.api.inference.keras.* // (for loadModelConfiguration, loadWeights, etc.)
 import org.jetbrains.kotlinx.dl.api.inference.keras.loadModelConfiguration
 import org.jetbrains.kotlinx.dl.api.inference.keras.loadWeights
 import org.jetbrains.kotlinx.dl.api.inference.keras.saveModelConfiguration

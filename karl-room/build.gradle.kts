@@ -1,65 +1,71 @@
 // karl-project/karl-room/build.gradle.kts
 plugins {
     kotlin("multiplatform")
-    id("com.google.devtools.ksp") // KSP plugin is essential for Room
+    id("com.google.devtools.ksp") // KSP plugin itself
 }
 
 // Access versions from root project
 val roomVersion: String by rootProject.ext
-val kspVersion: String by rootProject.ext // Ensure this is defined in root and compatible
+// val kspVersion: String by rootProject.ext // Not directly used in dependency string here
 val kotlinxCoroutinesVersion: String by rootProject.ext
 
-dependencies {
-    ksp("androidx.room:room-compiler:$roomVersion")
-}
-
+// REMOVE any top-level ksp dependency declaration if you had one
+// dependencies {
+//    // ksp("androidx.room:room-compiler:$roomVersion") // <-- REMOVE FROM HERE
+// }
 
 kotlin {
-    jvm {
+    jvm { // Your JVM target
         // withJava() // Optional
     }
-    // Add other targets like androidTarget() if you plan to support Room on Android
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(project(":karl-core")) // Expose core interfaces
+                api(project(":karl-core"))
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
 
-                // Room KMP common dependencies (if any, check latest Room KMP docs)
-                // Sometimes room-common or similar might be needed here.
-                // For now, let's assume room-runtime and room-ktx in jvmMain cover enough.
+                // Common Room KMP dependencies (if any are needed at this level)
+                // api("androidx.room:room-common:$roomVersion") // Example, check Room docs
             }
         }
         val jvmMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-jdk8"))
 
-                // Room Dependencies for JVM
+                // Room Runtime & KTX for JVM
                 api("androidx.room:room-runtime:$roomVersion")
                 api("androidx.room:room-ktx:$roomVersion")
-                // ksp("androidx.room:room-compiler:$roomVersion") // KSP annotation processor for Room
 
-                // SQLite framework APIs needed by Room
+                // SQLite framework APIs
                 api("androidx.sqlite:sqlite-framework:2.4.0") // Or latest stable
 
-                // The actual SQLite JDBC driver for JVM environments
+                // SQLite JDBC driver for JVM
                 implementation("org.xerial:sqlite-jdbc:3.43.0.0") // Or latest stable
+
+                // KSP dependency for the JVM target
+                // Use the target-specific KSP configuration 'kspJvm'
+                kspJvm("androidx.room:room-compiler:$roomVersion")
+//                add("kspJvm", "androidx.room:room-compiler:$roomVersion") // <-- CORRECTED WAY
+                // OR, if using older Gradle/KSP, it might just be:
+                // ksp("androidx.room:room-compiler:$roomVersion") // But this was giving you issues
+                // The add("kspJvm", ...) is more robust for KMP
             }
         }
-        // commonTest, jvmTest ...
+        // ... commonTest, jvmTest ...
         // val jvmTest by getting {
         //     dependencies {
+        //         add("kspJvmTest", "androidx.room:room-compiler:$roomVersion") // For running KSP during tests
         //         implementation("androidx.room:room-testing:$roomVersion")
         //     }
         // }
     }
 }
 
-ksp {
+ksp { // KSP arguments block remains the same
     arg("room.schemaLocation", "$projectDir/schemas")
     arg("room.incremental", "true")
-    // Potentially configure target for KSP if needed by specific KSP/Room KMP versions
-    // Find the correct syntax from Room KMP documentation if this is an issue
-    // Currently, KSP usually runs for each target that applies it.
+    // If KSP needs to know about all targets, this might be needed,
+    // but usually it runs per target where 'ksp<TargetName>' is used.
+    // blockTestProcessing(true) // Example KSP argument
 }
