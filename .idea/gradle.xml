@@ -14,7 +14,7 @@
             <option value="$PROJECT_DIR$/karl-core" />
             <option value="$PROJECT_DIR$/karl-example-desktop" />
             <option value="$PROJECT_DIR$/karl-kldl" />
-            <option value="$PROJECT_DIR$/karl-sqldelight" />
+            <option value="$PROJECT_DIR$/karl-room" />
           </set>
         </option>
       </GradleProjectSettings>
