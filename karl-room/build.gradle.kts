@@ -16,6 +16,18 @@ val kotlinxCoroutinesVersion: String by rootProject.ext
 //      }
 // --- END TOP-LEVEL DEPENDENCIES BLOCK ---
 
+//kotlin {
+    // ...
+//    sourceSets {
+        // ...
+//        val jvmMain by getting {
+//            dependencies {
+                // ...
+//                kspJvm("androidx.room:room-compiler:$roomVersion")
+//            }
+//        }
+//    }
+//}
 
 kotlin {
     jvm {
@@ -59,4 +71,29 @@ kotlin {
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
     arg("room.incremental", "true")
+}
+
+afterEvaluate {
+    println("Available configurations in :karl-room:")
+    project.configurations.forEach { conf ->
+        println("- ${conf.name}")
+    }
+
+    kotlin.sourceSets.forEach { sourceSet ->
+        println("KSP configurations for sourceSet ${sourceSet.name}:")
+        try {
+            // Try to find KSP configurations by convention
+            // This is highly dependent on KSP internal naming
+            val kspConfigName = "ksp${sourceSet.name.capitalize()}" // e.g., kspJvm, kspCommonMain
+            project.configurations.findByName(kspConfigName)?.let {
+                println("  - Found: $kspConfigName")
+            }
+            val kspMetadataConfigName = "ksp${sourceSet.name.capitalize()}Metadata" // e.g., kspCommonMainMetadata
+            project.configurations.findByName(kspMetadataConfigName)?.let {
+                println("  - Found: $kspMetadataConfigName")
+            }
+        } catch (e: Exception) {
+            println("  - Error inspecting KSP configurations for ${sourceSet.name}: ${e.message}")
+        }
+    }
 }
