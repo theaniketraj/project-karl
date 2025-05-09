@@ -1,24 +1,35 @@
 // karl-project/karl-room/build.gradle.kts
 plugins {
     kotlin("multiplatform")
-    id("com.google.devtools.ksp") version "1.9.23-1.0.19" // Explicit KSP version
+    id("com.google.devtools.ksp") version "1.9.23-1.0.19" // Ensure version is explicit if not in settings.gradle.kts pluginManagement
 }
 
+// Access versions
 val roomVersion: String by rootProject.ext
 val kotlinxCoroutinesVersion: String by rootProject.ext
 
+// ---  TOP-LEVEL DEPENDENCIES BLOCK ---
+//      dependencies
+            // Declare KSP annotation processors at this top level.
+            // This is the most common and robust way for KMP modules.
+//          ksp("androidx.room:room-compiler:$roomVersion") // <-- KSP PROCESSOR DECLARED HERE
+//      }
+// --- END TOP-LEVEL DEPENDENCIES BLOCK ---
+
+
 kotlin {
     jvm {
-        compilations.all { kotlinOptions.jvmTarget = "1.8" }
+        compilations.all {
+            kotlinOptions.jvmTarget = "1.8" // Or "11"
+        }
     }
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(project(":karl-core")) // To see core models if Room entities map to/from them
+                api(project(":karl-core"))
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
-                // Common Room dependencies (check latest Room KMP docs if needed)
-                // api("androidx.room:room-common:$roomVersion")
+                // api("androidx.room:room-common:$roomVersion") // Example
             }
         }
         val jvmMain by getting {
@@ -30,9 +41,18 @@ kotlin {
                 implementation("org.xerial:sqlite-jdbc:3.43.0.0") // Or latest
 
                 // KSP processor for the JVM target
-                add("kspJvm", "androidx.room:room-compiler:$roomVersion") // Using add("kspJvm", ...)
+                // ksp("androidx.room:room-compiler:$roomVersion") // <-- USE THIS DIRECT SYNTAX
+                // add("kspJvm", "androidx.room:room-compiler:$roomVersion")
+                kspJvm("androidx.room:room-compiler:$roomVersion")
             }
         }
+        // commonTest, jvmTest ...
+        // val jvmTest by getting {
+        //     dependencies {
+        //         kspJvmTest("androidx.room:room-compiler:$roomVersion")
+        //         implementation("androidx.room:room-testing:$roomVersion")
+        //     }
+        // }
     }
 }
 
