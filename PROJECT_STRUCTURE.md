@@ -45,18 +45,16 @@ project-karl/
 │               └── com/karl/kldl/  // KotlinDL specific implementation
 │                   └── KLDLLearningEngine.kt // Implementation of LearningEngine
 │
-├── karl-sqldelight/            // KARL SQLDelight Implementation Module
-│   ├── build.gradle.kts        // SQLDelight module build script (JVM / Multiplatform)
-│   ├── README.md               // SQLDelight module documentation
+├── karl-room/            // KARL ROOM Implementation Module
+│   ├── build.gradle.kts        // ROOM module build script (JVM / Multiplatform)
+│   ├── README.md               // ROOM module documentation
 │   └── src/
-│       ├── commonMain/           // Common SQLDelight schema
-│       │   └── sqldelight/
-│       │       └── com/karl/sqldelight/
-│       │           └── KarlData.sq // SQL schema definition
 │       └── jvmMain/              // JVM implementation for DataStorage
 │           └── kotlin/
-│               └── com/karl/sqldelight/
-│                   └── SQLDelightDataStorage.kt // Implementation of DataStorage
+│               └── com/karl/room/
+│                   └── KarlDao.kt // Implementation of DataStorage
+│                   └── KarlRoomDatabase.kt // ROOM Database definition
+│                   └── RoomDataStorage.kt // ROOM DataStorage implementatione
 │
 ├── karl-compose-ui/            // KARL Jetpack Compose UI Components Module
 │   ├── build.gradle.kts        // Compose UI module build script (Multiplatform)

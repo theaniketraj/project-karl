@@ -1,37 +1,39 @@
+// karl-project/karl-kldl/build.gradle.kts
 plugins {
-    kotlin("multiplatform") // Ensure version is correctly inherited or specified from root/settings
+    kotlin("multiplatform") // Version from settings.gradle.kts or root
 }
 
-// Access versions from the root project's ext block
-val kotlinxCoroutinesVersion: String by rootProject.ext
+// Access versions from root project
+val kotlinxCoroutinesVersion: String by rootProject.ext // Though this might be inherited via :karl-core
 val kotlinDlVersion: String by rootProject.ext
 
 kotlin {
     jvm { // Define the JVM target
-        // withJava() // Optional
+        compilations.all {
+            kotlinOptions.jvmTarget = "1.8" // Or "11"
+        }
     }
-    // NO OTHER KMP TARGETS DEFINED HERE (unless you specifically intend and configure them)
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                // Crucial: :karl-core provides LearningEngine, InteractionData, etc.
-                // 'api' ensures transitive visibility to modules depending on :karl-kldl
+                // Depends on the common part of karl-core.
+                // This makes com.karl.core.api.LearningEngine and com.karl.core.models.* available.
                 api(project(":karl-core"))
 
-                // Coroutines are needed for KLDLLearningEngine's interface methods (Job, CoroutineScope)
-                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+                // Coroutines should be inherited from :karl-core if it uses 'api'.
+                // If not, add it here:
+                // api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
             }
         }
         val jvmMain by getting {
             dependencies {
+                implementation(kotlin("stdlib-jdk8"))
+
                 // KotlinDL library for the JVM implementation
                 implementation("org.jetbrains.kotlinx:kotlin-deeplearning-api:$kotlinDlVersion")
-                // If using TensorFlow backend (common with KotlinDL for advanced features):
+                // Add -tensorflow or -onnx if KLDLLearningEngine.kt uses features requiring them
                 // implementation("org.jetbrains.kotlinx:kotlin-deeplearning-tensorflow:$kotlinDlVersion")
-
-                // Kotlin standard library for JVM
-                implementation(kotlin("stdlib-jdk8"))
             }
         }
     }

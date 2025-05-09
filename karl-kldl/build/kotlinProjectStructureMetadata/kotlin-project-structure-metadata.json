@@ -22,7 +22,6 @@
         "dependsOn": [],
         "moduleDependency": [
           "karl-project:karl-core",
-          "org.jetbrains.kotlinx:kotlinx-coroutines-core",
           "org.jetbrains.kotlin:kotlin-stdlib"
         ],
         "binaryLayout": "klib"

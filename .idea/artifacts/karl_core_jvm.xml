@@ -1,8 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="karl-core-jvm">
     <output-path>$PROJECT_DIR$/karl-core/build/libs</output-path>
-    <root id="archive" name="karl-core-jvm.jar">
-      <element id="module-output" name="karl-project.karl-core.jvmMain" />
-    </root>
+    <root id="archive" name="karl-core-jvm.jar" />
   </artifact>
 </component>
