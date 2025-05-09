@@ -1,31 +1,37 @@
-// karl-project/karl-kldl/build.gradle.kts
 plugins {
-//    kotlin("multiplatform") apply false
-    id("org.jetbrains.kotlin.multiplatform")
+    kotlin("multiplatform") // Ensure version is correctly inherited or specified from root/settings
 }
 
-// Access versions from root project
+// Access versions from the root project's ext block
 val kotlinxCoroutinesVersion: String by rootProject.ext
 val kotlinDlVersion: String by rootProject.ext
 
 kotlin {
-    jvm{
-        // JVM Target version
+    jvm { // Define the JVM target
+        // withJava() // Optional
     }
+    // NO OTHER KMP TARGETS DEFINED HERE (unless you specifically intend and configure them)
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(project(":karl-core")) // Makes LearningEngine interface available
-                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion") // For CoroutineScope, Job etc.
+                // Crucial: :karl-core provides LearningEngine, InteractionData, etc.
+                // 'api' ensures transitive visibility to modules depending on :karl-kldl
+                api(project(":karl-core"))
+
+                // Coroutines are needed for KLDLLearningEngine's interface methods (Job, CoroutineScope)
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
             }
         }
         val jvmMain by getting {
             dependencies {
-                implementation(kotlin("stdlib-jdk8"))
+                // KotlinDL library for the JVM implementation
                 implementation("org.jetbrains.kotlinx:kotlin-deeplearning-api:$kotlinDlVersion")
-                // Add other DL artifacts if needed:
+                // If using TensorFlow backend (common with KotlinDL for advanced features):
                 // implementation("org.jetbrains.kotlinx:kotlin-deeplearning-tensorflow:$kotlinDlVersion")
+
+                // Kotlin standard library for JVM
+                implementation(kotlin("stdlib-jdk8"))
             }
         }
     }

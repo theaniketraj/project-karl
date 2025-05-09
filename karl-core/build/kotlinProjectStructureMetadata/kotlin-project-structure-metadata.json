@@ -21,6 +21,7 @@
         "name": "commonMain",
         "dependsOn": [],
         "moduleDependency": [
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core",
           "org.jetbrains.kotlin:kotlin-stdlib"
         ],
         "binaryLayout": "klib"
