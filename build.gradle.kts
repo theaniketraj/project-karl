@@ -11,6 +11,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "1.9.23" apply false // Apply false means modules apply it explicitly
     // kotlin("jvm") apply false // Apply false means modules apply it explicitly (used by example app) //
     kotlin("multiplatform") version "1.9.23" apply false // Apply false means modules apply it explicitly (used by core, kldl)
+//    id("com.google.devtools.ksp")  apply false
 }
 
 // Define repositories where Gradle should look for dependencies and plugins.
