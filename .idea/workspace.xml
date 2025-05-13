@@ -6,23 +6,20 @@
   <component name="ChangeListManager">
     <list default="true" id="cadb1a15-9ae7-4771-9d13-8b00f324ff33" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.gradle/8.10/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.10/checksums/checksums.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/8.10/checksums/md5-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.10/checksums/md5-checksums.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/8.10/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.10/checksums/sha1-checksums.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/8.10/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.10/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/appInsightsSettings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/artifacts/karl_compose_ui_jvm.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/artifacts/karl_core_jvm.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/artifacts/karl_kldl_jvm.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/artifacts/karl_room_jvm.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/kotlinc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/karl-compose-ui/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/karl-compose-ui/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/karl-room/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/karl-room/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
-    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="true" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="ClangdSettings">
@@ -43,6 +40,10 @@
     &quot;accountId&quot;: &quot;58dc84b5-0e1a-4690-bd79-474091b3e963&quot;
   }
 }</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+    <option name="showPreview" value="true" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 6
@@ -61,11 +62,41 @@
     &quot;android.gradle.sync.needed&quot;: &quot;true&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/ceie/project-karl&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;advanced.settings&quot;
   }
 }</component>
+  <component name="ScriptDefinitionSettings">
+    <option name="settings">
+      <list>
+        <ScriptDefinitionSetting>
+          <option name="definitionId" value="org.jetbrains.kotlin.mainKts.MainKtsScript" />
+        </ScriptDefinitionSetting>
+        <ScriptDefinitionSetting>
+          <option name="definitionId" value="org.gradle.kotlin.dsl.KotlinInitScript" />
+        </ScriptDefinitionSetting>
+        <ScriptDefinitionSetting>
+          <option name="definitionId" value="org.gradle.kotlin.dsl.KotlinSettingsScript" />
+        </ScriptDefinitionSetting>
+        <ScriptDefinitionSetting>
+          <option name="definitionId" value="org.gradle.kotlin.dsl.KotlinBuildScript" />
+        </ScriptDefinitionSetting>
+        <ScriptDefinitionSetting>
+          <option name="definitionId" value="kotlin.Any" />
+        </ScriptDefinitionSetting>
+        <ScriptDefinitionSetting>
+          <option name="definitionId" value="kotlin.Any" />
+        </ScriptDefinitionSetting>
+      </list>
+    </option>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration>C:\Users\annii\AppData\Roaming\Subversion</configuration>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="cadb1a15-9ae7-4771-9d13-8b00f324ff33" name="Changes" comment="" />
@@ -75,5 +106,16 @@
       <updated>1746986679601</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

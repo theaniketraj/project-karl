@@ -1,8 +1,9 @@
 // karl-project/karl-compose-ui/build.gradle.kts
 
 plugins {
-    kotlin("multiplatform") version "1.9.23" // Apply the multiplatform plugin
+    kotlin("multiplatform") version "2.1.21" // Apply the multiplatform plugin
     id("org.jetbrains.compose") // Apply the Jetpack Compose plugin
+    // id("org.jetbrains.kotlin.plugin.compose") // Apply the Kotlin Compose plugin
 }
 
 // Access dependency versions defined in the root project's build.gradle.kts
@@ -35,7 +36,7 @@ kotlin {
                 implementation(compose.ui)
 //                implementation(compose.uiToolingPreview)
                 // State management helpers for Compose with Coroutines
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3") // Ensure coroutines version matches root
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2") // Ensure coroutines version matches root
             }
         }
 

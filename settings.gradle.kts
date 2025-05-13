@@ -28,15 +28,15 @@ pluginManagement {
          // Add any other repositories needed for plugins (e.g., SQLDelight plugin)
     }
     plugins {
-        kotlin("jvm") version "1.9.23" apply false
+        kotlin("jvm") version "2.1.21" apply false
 
         // Declare Kotlin Multiplatform plugin
-        kotlin("multiplatform") version "1.9.23" apply false // Or your Kotlin version
+        kotlin("multiplatform") version "2.1.21" apply false // Or your Kotlin version
 
         // Declare Jetpack Compose plugin
         id("org.jetbrains.compose") version "1.6.10" apply false // Or your Compose version
 
         // Declare KSP plugin for Kotlin Multiplatform
-        id("com.google.devtools.ksp") version "1.9.23-1.0.27" apply false // KSP version compatible with our Kotlin version
+        id("com.google.devtools.ksp") version "2.2.0-Beta2-2.0.1" apply false // KSP version compatible with our Kotlin version
     }
 }
