@@ -30,9 +30,19 @@ kotlin {
                 implementation("org.xerial:sqlite-jdbc:3.43.0.0")
 
                 // KSP processor for Room
-                ksp("androidx.room:room-compiler:$roomVersion")
+//                val room_version = "2.7.1"
+//                ksp("androidx.room:room-compiler:$roomVersion")
             }
         }
+
+        dependencies {
+            ksp("androidx.room:room-compiler:$roomVersion")
+        }
+
+//        configure<com.google.devtools.ksp.gradle.KspExtension> {
+//            arg("room.schemaLocation", "$projectDir/schemas")
+//            arg("room.incremental", "true")
+//        }
 
         val jvmTest by getting {
             dependencies {
