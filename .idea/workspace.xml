@@ -5,12 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cadb1a15-9ae7-4771-9d13-8b00f324ff33" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gradle/8.10/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.10/checksums/checksums.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.10/checksums/md5-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.10/checksums/md5-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.10/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.10/checksums/sha1-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.10/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.10/fileHashes/fileHashes.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/karl-compose-ui/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/karl-compose-ui/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/karl-core/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/karl-core/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/karl-example-desktop/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/karl-example-desktop/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/karl-kldl/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/karl-kldl/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/karl-room/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/karl-room/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
     </list>

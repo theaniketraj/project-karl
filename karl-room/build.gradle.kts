@@ -1,6 +1,6 @@
 plugins {
     kotlin("multiplatform")
-    id("com.google.devtools.ksp") version "2.2.0-Beta2-2.0.1"
+    id("com.google.devtools.ksp") version "2.1.20-2.0.1"
 }
 
 val roomVersion: String by rootProject.ext

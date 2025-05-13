@@ -37,7 +37,7 @@ pluginManagement {
         id("org.jetbrains.compose") version "1.8.0" apply false // Or your Compose version
 
         // Declare KSP plugin for Kotlin Multiplatform
-        id("com.google.devtools.ksp") version "2.2.0-Beta2-2.0.1" apply false // KSP version compatible with our Kotlin version
+        id("com.google.devtools.ksp") version "2.1.20-2.0.1" apply false // KSP version compatible with our Kotlin version
 
         id("org.jetbrains.kotlin.plugin.compose") version "2.1.21" apply false
     }
