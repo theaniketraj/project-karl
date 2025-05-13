@@ -7,7 +7,9 @@ val kotlinxCoroutinesVersion: String by rootProject.ext
 
 kotlin {
     jvm { // This target ensures JVM artifacts are published
-        compilations.all { kotlinOptions.jvmTarget = "1.8" } // Or your target JVM
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+        }
     }
     // Add other targets (androidTarget, iosX64, etc.) if karl-core is truly multiplatform
 

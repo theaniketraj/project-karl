@@ -3,7 +3,7 @@
 plugins {
     kotlin("multiplatform") version "2.1.21" // Apply the multiplatform plugin
     id("org.jetbrains.compose") // Apply the Jetpack Compose plugin
-    // id("org.jetbrains.kotlin.plugin.compose") // Apply the Kotlin Compose plugin
+    id("org.jetbrains.kotlin.plugin.compose") // Apply the Kotlin Compose plugin
 }
 
 // Access dependency versions defined in the root project's build.gradle.kts

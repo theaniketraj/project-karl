@@ -3,6 +3,7 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 plugins {
     kotlin("jvm") // Apply Kotlin JVM plugin for the desktop app
     id("org.jetbrains.compose") // Apply Compose plugin
+    id("org.jetbrains.kotlin.plugin.compose")
     // Apply SQLDelight plugin IF your DataStorage implementation requires it
     // and needs code generation in this module (usually not needed if the implementation
     // is self-contained in :karl-sqldelight)
