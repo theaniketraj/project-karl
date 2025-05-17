@@ -1,7 +1,7 @@
 // karl-project/karl-compose-ui/build.gradle.kts
 
 plugins {
-    kotlin("multiplatform") version "2.1.21" // Apply the multiplatform plugin
+    kotlin("multiplatform") version "2.1.20" // Apply the multiplatform plugin
     id("org.jetbrains.compose") // Apply the Jetpack Compose plugin
     id("org.jetbrains.kotlin.plugin.compose") // Apply the Kotlin Compose plugin
 }

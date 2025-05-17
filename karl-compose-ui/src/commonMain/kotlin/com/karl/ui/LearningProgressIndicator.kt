@@ -27,7 +27,7 @@ fun KarlLearningProgressIndicator(
     ) {
         Text(label)
         LinearProgressIndicator(
-            progress = progress,
+            progress = { progress },
             modifier = Modifier.width(128.dp) // Example fixed width
         )
         // Optional: Add a text representation of the percentage

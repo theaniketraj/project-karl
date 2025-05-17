@@ -7,9 +7,9 @@ val kotlinxCoroutinesVersion: String by rootProject.ext // Potentially inherited
 val kotlinDlVersion: String by rootProject.ext
 
 kotlin {
-    jvm { // This module targets JVM
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+    jvm {
+        compilations.all {
+            kotlinOptions.jvmTarget = "1.8"
         }
     }
 
@@ -24,7 +24,8 @@ kotlin {
                 // uses coroutine builders (launch, async) or other coroutine features not
                 // just types from the LearningEngine interface, then it needs its own coroutine dependency.
                 // If :karl-core uses 'api' for coroutines, this might be redundant but harmless.
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
             }
         }
         val jvmMain by getting {
@@ -32,6 +33,7 @@ kotlin {
                 implementation(kotlin("stdlib-jdk8"))
                 // KotlinDL library for the JVM implementation
                 implementation("org.jetbrains.kotlinx:kotlin-deeplearning-api:$kotlinDlVersion")
+                implementation("org.jetbrains.kotlinx:kotlin-deeplearning-dataset:$kotlinDlVersion")
                 // If you use TensorFlow specific features from KotlinDL:
                 // implementation("org.jetbrains.kotlinx:kotlin-deeplearning-tensorflow:$kotlinDlVersion")
             }

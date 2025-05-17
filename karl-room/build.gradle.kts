@@ -26,7 +26,9 @@ kotlin {
                 implementation(kotlin("stdlib-jdk8"))
                 api("androidx.room:room-runtime:$roomVersion")   // Room runtime
                 api("androidx.room:room-ktx:$roomVersion")       // Room coroutine extensions
-                api("androidx.sqlite:sqlite-framework:2.4.0")
+//                api("androidx.sqlite:sqlite-framework:2.4.0")
+                project.configurations.getByName("jvmRuntimeClasspath").resolutionStrategy.force("androidx.sqlite:sqlite-framework:2.4.0")
+                project.configurations.getByName("jvmCompileClasspath").resolutionStrategy.force("androidx.sqlite:sqlite-framework:2.4.0")
                 implementation("org.xerial:sqlite-jdbc:3.43.0.0")
 
                 // KSP processor for Room
