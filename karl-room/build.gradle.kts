@@ -1,6 +1,7 @@
 plugins {
     kotlin("multiplatform")
     id("com.google.devtools.ksp") version "2.1.20-2.0.1"
+    kotlin("plugin.serialization") version "2.1.20"
 }
 
 val roomVersion: String by rootProject.ext
@@ -20,6 +21,7 @@ kotlin {
                 api(project(":karl-core"))
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
                 api("androidx.room:room-common:$roomVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
             }
         }
 
