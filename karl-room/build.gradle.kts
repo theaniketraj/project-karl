@@ -9,7 +9,8 @@ val kotlinxCoroutinesVersion: String by rootProject.ext
 kotlin {
     jvm {
         compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8) // Or JVM_11, JVM_17
+            // freeCompilerArgs.add("-Xcontext-receivers") // Example of another option
         }
     }
 
@@ -18,6 +19,7 @@ kotlin {
             dependencies {
                 api(project(":karl-core"))
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+                api("androidx.room:room-common:$roomVersion")
             }
         }
 

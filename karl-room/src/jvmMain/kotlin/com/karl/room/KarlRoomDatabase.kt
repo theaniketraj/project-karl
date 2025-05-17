@@ -32,7 +32,6 @@ object MapConverter {
 }
 // --- End Type Converters ---
 
-
 @Database(
     entities = [
         InteractionData::class,
