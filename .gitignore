@@ -1,0 +1,68 @@
+# IntelliJ IDEA / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+modules.xml
+workspace.xml
+tasks.xml
+shelf/
+compiler.xml
+gradle.xml # Often generated, better to keep root build.gradle.kts
+caches/ # Android Studio specific caches (sometimes outside .idea)
+
+# VS Code
+.vscode/
+
+# Gradle
+.gradle/
+build/ # Standard Gradle build output directory for all modules
+
+# Kotlin
+.kotlin/ # If you see this generated at the root or module level
+*.kst # Kotlin Script Tasks cache
+*.kts_cache/ # Kotlin Script cache
+
+# Build artifacts
+*.jar
+*.war
+*.ear
+*.apk
+*.aab
+*.aar
+
+# Local configuration files (if any)
+local.properties # Common for Android SDK path, API keys etc.
+*.local # General local config extension
+
+# OS generated files
+.DS_Store # macOS
+Thumbs.db # Windows
+ehthumbs.db # Windows
+Desktop.ini # Windows
+
+# Log files
+*.log
+logs/
+
+# Node.js (if you ever use JS tooling alongside, e.g., for Compose for Web)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json # Some prefer to commit, others ignore; depends on workflow
+yarn.lock # Some prefer to commit, others ignore
+
+# Secrets (NEVER commit these)
+# Add specific secret file names or patterns here if you use them
+# e.g., secrets.json, .env
+
+# Specific to your project if needed:
+# If you have other generated files or local config, add them here.
+
+# For Jetpack Compose Desktop native distributions (installer files)
+# Often these are put in build/compose/binaries/ or similar
+# You might want to ignore the packaged executables/installers if you
+# only want to commit the source for them.
+# Example:
+# /karl-example-desktop/build/compose/binaries/
