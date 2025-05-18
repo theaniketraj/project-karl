@@ -1,2 +1,0 @@
-D:\ceie\project-karl\karl-kldl\src\jvmMain\kotlin\com\karl\kldl\models\SimpleMLPModel.kt
-D:\ceie\project-karl\karl-kldl\src\jvmMain\kotlin\com\karl\kldl\KLDLLearningEngine.kt

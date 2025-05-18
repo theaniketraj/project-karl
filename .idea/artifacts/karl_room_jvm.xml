@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="karl-room-jvm">
-    <output-path>$PROJECT_DIR$/karl-room/build/libs</output-path>
-    <root id="archive" name="karl-room-jvm.jar">
-      <element id="module-output" name="karl-project.karl-room.jvmMain" />
-    </root>
-  </artifact>
-</component>

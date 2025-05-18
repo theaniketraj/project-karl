@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="karl-kldl-jvm">
-    <output-path>$PROJECT_DIR$/karl-kldl/build/libs</output-path>
-    <root id="archive" name="karl-kldl-jvm.jar">
-      <element id="module-output" name="karl-project.karl-kldl.jvmMain" />
-    </root>
-  </artifact>
-</component>
