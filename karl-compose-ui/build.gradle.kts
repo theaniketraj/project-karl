@@ -1,81 +1,69 @@
 // karl-project/karl-compose-ui/build.gradle.kts
 
 plugins {
-    kotlin("multiplatform") version "2.1.20" // Apply the multiplatform plugin
-    id("org.jetbrains.compose") // Apply the Jetpack Compose plugin
-    id("org.jetbrains.kotlin.plugin.compose") // Apply the Kotlin Compose plugin
+    alias(libs.plugins.kotlinMultiplatform) // Assumes 'kotlinMultiplatform' is defined in libs.versions.toml [plugins]
+    alias(libs.plugins.jetbrainsCompose)    // Assumes 'jetbrainsCompose' is defined for the main Compose plugin
+    alias(libs.plugins.kotlinComposeCompiler) // Assumes 'kotlinComposeCompiler' is defined for the compiler plugin
 }
 
-// Access dependency versions defined in the root project's build.gradle.kts
-// Using `the<ExtraPropertiesExtension>()` is one way to access 'ext' properties
-val composeVersion: String by rootProject.ext
-val kotlinVersion: String by rootProject.ext // Although often not explicitly needed here
-val kotlinxCoroutinesVersion: String by rootProject.ext
+// No need for these val by rootProject.ext if versions are managed by the catalog and plugins above
+// val composeVersion: String by rootProject.ext
+// val kotlinVersion: String by rootProject.ext
+// val kotlinxCoroutinesVersion: String by rootProject.ext
 
 kotlin {
-    // Define targets that support Compose.
-    // For desktop, we need the JVM target.
-    jvm()
-    // If targeting Android later, add: androidTarget()
-    // If targeting Web later, add: js { browser() }
-    // If targeting iOS later, add: iosX64(); iosArm64(); iosSimulatorArm64()
+    jvm { // Define the JVM target for desktop components
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8) // Or your desired JVM target
+        }
+        // testRuns.named("test") { useJUnitPlatform() } // Optional: for JVM tests
+    }
+    // Add other targets like androidTarget(), iosX64() if this UI module becomes truly multiplatform
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                // Core dependencies needed regardless of platform
-                implementation(project(":karl-core")) // Dependency on the karl-core module
+                implementation(project(":karl-core")) // Dependency on your core module
 
-                // Compose Runtime - essential for Compose features
-                implementation(compose.runtime)
-                // Compose Foundation - basic UI elements and layouts
-                implementation(compose.foundation)
-                // Compose material3 or material - depending on your desired design system
-                implementation(compose.material3) // Or compose.material for Material 2
-                // Compose UI - core UI toolkit components
-                implementation(compose.ui)
-//                implementation(compose.uiToolingPreview)
-                // State management helpers for Compose with Coroutines
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2") // Ensure coroutines version matches root
+                // Compose libraries are typically brought in by the org.jetbrains.compose plugin.
+                // You usually don't need to declare compose.runtime, compose.foundation, etc. explicitly here
+                // when the plugin is applied. If you DO need them (e.g., for specific versions not managed
+                // by the plugin's BOM, or for clarity), use aliases from libs.versions.toml:
+                // implementation(libs.compose.runtime)
+                // implementation(libs.compose.ui)
+                // implementation(libs.compose.foundation)
+                // implementation(libs.compose.material3) // Or libs.compose.material
+
+                // Coroutines
+                implementation(libs.kotlinx.coroutines.core) // Assumes 'kotlinx-coroutines-core' is in libs.versions.toml
             }
         }
 
         val jvmMain by getting {
             dependencies {
-//                implementation(project(":karl-core"))
-                // JVM/Desktop specific dependencies if any.
-                // Often not needed for pure UI components unless they touch platform APIs.
-                // Example: compose.desktop.currentOs // If you need platform-specific desktop composites
+                implementation(libs.kotlin.stdlib.jdk8) // Assumes 'kotlin-stdlib-jdk8' is in libs.versions.toml
 
-                // 1. Compose runtime & foundation for desktop
-                implementation(compose.runtime)           // Compose common runtime
-                implementation(compose.foundation)        // Compose common foundation
-                implementation(compose.material)          // Compose common material
+                // Compose Desktop specific host libraries (windows/mac/linux natives)
+                // This is typically brought in by the org.jetbrains.compose plugin when you configure
+                // compose.desktop { ... } in a module that *is* an application.
+                // For a library module like :karl-compose-ui, you might not need it directly,
+                // or if you do, it would be `implementation(compose.desktop.currentOs)` if that accessor is available.
+                // Let's rely on the plugin for now, unless specific errors occur.
+                // implementation(compose.desktop.currentOs) // If needed and accessor works
 
-                // 2. Compose Desktop host (windows/mac/linux native libs)
-                implementation(compose.desktop.currentOs) // Desktop artifacts for your OS
-
-                // 3. Desktop Preview Tooling API
-                implementation("org.jetbrains.compose.ui:ui-tooling-preview-desktop:1.8.0-beta02")
-                implementation("org.jetbrains.compose.ui:ui-tooling-desktop:1.8.0-beta02")
-
-//                implementation(compose.desktop.currentOs) // Needed for desktop-specific composites
-//                implementation(compose.uiTooling) // <-- Add this for @Preview support in Desktop
-//                implementation(project.dependencies.platform("androidx.compose:compose-bom:2024.01.00"))
-//                implementation("androidx.compose.ui:ui-tooling-preview")
-//                implementation(project.dependencies.platform("androidx.compose:compose-bom:2024.01.00"))
-//                debugImplementation("androidx.compose.ui:ui-tooling")
+                // Desktop Preview Tooling API
+                // The `compose.uiTooling` accessor should provide the correct artifact.
+                // The explicit "org.jetbrains.compose.ui:ui-tooling-preview-desktop:..." is less common.
+                implementation(compose.uiTooling) // This should bring in ui-tooling for @Preview
             }
         }
-
-        // Add other platform source sets if you target them later (androidMain, jsMain, iosMain, etc.)
+        // ... commonTest, jvmTest ...
     }
 }
 
-// Configure the Compose compiler extension (usually handled by the plugin, but good to know)
-// compose.experimental {
-//     enableLiveLiterals = true // Example experimental flag
+// If this module itself needs specific desktop configurations (unlikely for a pure UI library)
+// compose.desktop {
+//     // Example:
+//     // Jvm specific configuration for this module if it were an application.
+//     // For a library, this block might not be needed here.
 // }
-
-// (Optional) KDoc generation
-// tasks.dokkaHtml { ... }

@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm") // Apply Kotlin JVM plugin for the desktop app
     id("org.jetbrains.compose") // Apply Compose plugin
     id("org.jetbrains.kotlin.plugin.compose")
+    id("androidx.room") version "2.7.1" apply false
     // Apply SQLDelight plugin IF your DataStorage implementation requires it
     // and needs code generation in this module (usually not needed if the implementation
     // is self-contained in :karl-sqldelight)
@@ -69,7 +70,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm) // Choose desired formats
-            packageName = "KarlExampleApp" // Name for installer/package
+            packageName = "KarlApp" // Name for installer/package
             packageVersion = "1.0.0" // Version for installer/package
 
             // Optional: Configure vendor, description, icons, etc.

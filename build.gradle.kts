@@ -1,60 +1,22 @@
 // karl-project/build.gradle.kts
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-
 plugins {
-    // Apply plugins required at the root level.
-    // For Compose Desktop/Multiplatform, the Compose plugin is often applied here.
-    // For SQLDelight, the SQLDelight plugin is also applied here.
-//    id("org.gradle.build-cache")
-    id("org.jetbrains.compose") version "1.8.0" apply false // Apply false means modules apply it explicitly
-    id("app.cash.sqldelight") version "2.0.1" apply false // Apply false means modules apply it explicitly
-    id("org.jetbrains.kotlin.jvm") version "2.1.20" apply false // Apply false means modules apply it explicitly
-    // kotlin("jvm") apply false // Apply false means modules apply it explicitly (used by example app) //
-    kotlin("multiplatform") version "2.1.20" apply false // Apply false means modules apply it explicitly (used by core, kldl)
-//    id("com.google.devtools.ksp")  apply false
+    // Apply plugins using aliases from the version catalog
+    // The 'alias(...)' function is automatically available.
+    alias(libs.plugins.jetbrainsCompose) apply false
+    // alias(libs.plugins.sqldelight) apply false // If you still use it
+    alias(libs.plugins.kotlinJvm) apply false
+    alias(libs.plugins.kotlinMultiplatform) apply false
+    // KSP plugin is usually applied in modules, not root with 'apply false'
 }
 
-// Define repositories where Gradle should look for dependencies and plugins.
 allprojects {
     repositories {
-        mavenCentral() // Standard Java/Kotlin libraries
-        google()       // Google/Android related libraries (often needed even for Compose Desktop)
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev") // Jetpack Compose libraries
-        // Add any other repositories your specific dependencies or plugins require
+        mavenCentral()
+        google()
+        maven("https.maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }
 
-// Central place to define dependency versions.
-// Using a versions catalog (gradle/libs.versions.toml) is the recommended modern approach,
-// but defining them here directly is simpler for this example.
-// You'll reference these versions in the module build.gradle.kts files.
-val kotlinVersion = "2.1.20" // Or whatever your current Kotlin version is
-val composeVersion = "1.8.0" // Should match the plugin version or compatible
-val kotlinxCoroutinesVersion = "1.7.3"
-val kotlinDlVersion = "0.5.1"
-val sqldelightVersion = "2.0.2" // Should match the plugin version or compatible
-
-// Example of defining versions using ext (less type-safe than versions catalog but works)
-ext {
-    set("kotlinVersion", "2.1.20")
-    set("composeVersion", "1.8.0")
-    set("multiplatformVersion", "2.1.20")
-    set("kotlinxCoroutinesVersion", "1.7.3")
-    set("kotlinDlVersion", "0.6.0-alpha-1")
-    set("sqldelightVersion", "2.0.1")
-    set("roomVersion", "2.7.1")
-    set("kspVersion", "2.1.20-2.0.1")
-    // ... and so on
-}
-
-// Configure subprojects (optional, often better to configure in module build files)
-// subprojects {
-//     tasks.withType<Test> {
-//         useJUnitPlatform()
-//     }
-// }
-
-// Clean task for the root project
 tasks.register("clean") {
     delete(rootProject.layout.buildDirectory)
 }
