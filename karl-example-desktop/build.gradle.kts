@@ -1,84 +1,46 @@
+// karl-project/karl-example-desktop/build.gradle.kts
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile // For setting jvmTarget in a 'kotlin("jvm")' module
 
 plugins {
-    kotlin("jvm") // Apply Kotlin JVM plugin for the desktop app
-    id("org.jetbrains.compose") // Apply Compose plugin
-    id("org.jetbrains.kotlin.plugin.compose")
-    id("androidx.room") version "2.7.1" apply false
-    // Apply SQLDelight plugin IF your DataStorage implementation requires it
-    // and needs code generation in this module (usually not needed if the implementation
-    // is self-contained in :karl-sqldelight)
-    // id("app.cash.sqldelight") version "2.0.1" // Use version from root project if defined
+    alias(libs.plugins.kotlinJvm) // This module is a pure JVM application
+    alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.kotlinComposeCompiler) // Needed if using Kotlin 2.0+ with Compose
 }
 
-// Access versions from root project
-val kotlinVersion: String by rootProject.ext
-val composeVersion: String by rootProject.ext
-val kotlinxCoroutinesVersion: String by rootProject.ext
-val sqldelightVersion: String by rootProject.ext // Get SQLDelight version if needed
-
-group = "com.karl.example" // Define group ID for this application module
-version = "1.0.0" // Define version for this application module
-
-repositories {
-    // Repositories are usually inherited from root project's allprojects block
-    // If not, declare mavenCentral(), google(), etc. here
-}
+group = "com.karl.example"
+version = "1.0.0"
 
 dependencies {
-    // Kotlin standard library
-    implementation(kotlin("stdlib-jdk8")) // Use JVM stdlib
+    implementation(libs.kotlin.stdlib.jdk8)
+    implementation(libs.kotlinx.coroutines.core)
 
-    // Coroutines (if not pulled transitively, good to be explicit)
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+    // Compose Desktop. The 'jetbrainsCompose' plugin usually provides the 'compose.' accessors.
+    // If not, or for clarity, define them in libs.versions.toml [libraries]
+    // For an application, compose.desktop.application or compose.desktop.currentOs are key
+    implementation(compose.desktop.currentOs) // Or compose.desktop.application if preferred for app setup
 
-    // Compose Desktop Application Runtime
-    // Use implementation(compose.desktop.currentOs) if you just need libs
-    // Use implementation(compose.desktop.application) for full app setup helpers
-    implementation(compose.desktop.currentOs) // Provides 'application' entry point and packaging
-
-    // --- KARL Module Dependencies ---
+    // KARL Module Dependencies
     implementation(project(":karl-core"))
-    implementation(project(":karl-kldl"))       // Depends on KotlinDL implementation
-    implementation(project(":karl-room")) // Depends on SQLDelight implementation
-    implementation(project(":karl-compose-ui")) // Depends on the Compose UI components
+    implementation(project(":karl-kldl"))
+    implementation(project(":karl-room"))
+    implementation(project(":karl-compose-ui"))
 
-    // --- Dependencies needed by KARL Implementations ---
-    // Example: SQLDelight driver (must match the one used in :karl-sqldelight if setup there)
-    // If :karl-sqldelight handles its own driver dependency, you might not need this here.
-    // Check the requirements of your :karl-sqldelight module.
-    implementation("app.cash.sqldelight:sqlite-driver:$sqldelightVersion") // Example: JDBC SQLite driver
-
-    // Add any other specific libraries your example app needs
+    // Dependencies needed by KARL Implementations that aren't transitive via 'api'
+    implementation(libs.sqlite.jdbc) // For :karl-room's SQLite backend
 }
 
-// SQLDelight configuration (only if generating DB classes directly in this module)
-// sqldelight {
-//     databases {
-//         create("KarlDatabase") { // Must match the database name used in SQLDelightDataStorage
-//             packageName.set("com.karl.example.db") // Package for generated classes
-//             // If the .sq files are in :karl-sqldelight module, link them:
-//             // srcDirs.setFrom(files("../karl-sqldelight/src/commonMain/sqldelight"))
-//         }
-//     }
-// }
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+}
 
 compose.desktop {
     application {
-        // Main entry point class (generated from file name usually)
-        mainClass = "com.karl.example.DesktopExampleAppKt" // Adjust if your file name/package differs
-
+        mainClass = "com.karl.example.DesktopExampleAppKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm) // Choose desired formats
-            packageName = "KarlApp" // Name for installer/package
-            packageVersion = "1.0.0" // Version for installer/package
-
-            // Optional: Configure vendor, description, icons, etc.
-            // vendor = "Karl Inc."
-            // description = "Example Desktop App for Project KARL"
-            // windows { ... }
-            // macOS { ... }
-            // linux { ... }
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
+            packageName = "KarlExampleApp"
+            packageVersion = "1.0.0"
         }
     }
 }

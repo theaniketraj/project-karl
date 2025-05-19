@@ -1,30 +1,25 @@
 // karl-project/karl-core/build.gradle.kts
 plugins {
-    kotlin("multiplatform") // Version inherited from settings or root
+    alias(libs.plugins.kotlinMultiplatform)
 }
 
-val kotlinxCoroutinesVersion: String by rootProject.ext
-
 kotlin {
-    jvm { // This target ensures JVM artifacts are published
+    jvm {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
         }
     }
-    // Add other targets (androidTarget, iosX64, etc.) if karl-core is truly multiplatform
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(kotlin("stdlib-common"))
-                // Use 'api' so that modules depending on :karl-core also get these transitive types
-                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+                implementation(libs.kotlin.stdlib.common)
+                api(libs.kotlinx.coroutines.core)
             }
         }
         val jvmMain by getting {
             dependencies {
-                implementation(kotlin("stdlib-jdk8"))
-                // commonMain is implicitly a dependency here
+                implementation(libs.kotlin.stdlib.jdk8)
             }
         }
     }
