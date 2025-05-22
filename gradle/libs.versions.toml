@@ -2,13 +2,14 @@
 
 [versions]
 # Kotlin Ecosystem
-kotlin = "2.1.20" # Or your target Kotlin version (e.g., "2.0.0")
-ksp = "2.1.21-2.0.1" # KSP version aligned with your Kotlin version
+kotlin = "1.9.10" # Or your target Kotlin version (e.g., "2.0.0")
+kotlinComposeCompiler = "1.9.10"
+ksp = "1.9.10-1.0.13" # KSP version aligned with your Kotlin version
 coroutines = "1.7.3" # Or version compatible with your Kotlin (e.g., "1.8.0" for Kotlin 2.0)
-serialization = "2.1.20" # Kotlin Serialization plugin version, matches Kotlin version
+serialization = "1.5.1" # Kotlin Serialization plugin version, matches Kotlin version
 
 # Jetpack Compose (JetBrains Multiplatform)
-composePlugin = "1.8.0" # Compose Multiplatform plugin version (for Kotlin 1.9.23)
+composePlugin = "1.5.2" # Compose Multiplatform plugin version (for Kotlin 1.9.23)
 # If using Kotlin 2.0.0, this might be a different version.
 # Ensure composeCompiler below is also compatible or implicitly handled by composePlugin.
 # composeCompiler = "1.5.4" # Usually, composePlugin manages this. For Kotlin 2.0, it's explicit.
@@ -33,7 +34,7 @@ kotlin-stdlib-jdk8 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 
 # Kotlinx Serialization
-kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.6.3" } # Example specific version
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" } # Example specific version
 
 # Jetpack Compose (JetBrains Multiplatform) - Core libraries are accessed via plugin usually,
 # but if you needed to declare them explicitly:
@@ -71,8 +72,8 @@ sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version.ref = "sqlit
 # Kotlin & KSP
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-kotlinComposeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlinComposeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlinComposeCompiler" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serialization" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 # Jetpack Compose (JetBrains Multiplatform)
@@ -89,4 +90,4 @@ jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "composePlugin"
 
 [bundles]
 # Example: Group common Room dependencies
-# room = ["androidx-room-runtime", "androidx-room-ktx"]
+room = ["androidx-room-runtime", "androidx-room-ktx"]

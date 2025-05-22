@@ -1,4 +1,8 @@
 // karl-project/build.gradle.kts
+//buildscript {
+//    ext.ksp_version = "2.0.21-1.0.27"
+//    ext.kotlin_version = "1.5.31"
+//}
 plugins {
     // Apply plugins using aliases from the version catalog
     // The 'alias(...)' function is automatically available.
@@ -12,6 +16,7 @@ plugins {
 allprojects {
     repositories {
         mavenCentral()
+        gradlePluginPortal()
         google()
         maven("https.maven.pkg.jetbrains.space/public/p/compose/dev")
     }

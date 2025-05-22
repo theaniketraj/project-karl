@@ -1,14 +1,15 @@
-// karl-project/karl-room/build.gradle.kts
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.kotlinSerialization) // For MapConverter with kotlinx.serialization
+    kotlin("multiplatform") version "1.9.10"
+    id("com.google.devtools.ksp") version "1.9.10-1.0.13" apply false
+    kotlin("plugin.serialization") version "1.5.1"
 }
 
 kotlin {
     jvm {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+        compilations.all {
+            compilerOptions {
+                jvmTarget.set("1.8")
+            }
         }
     }
 
@@ -16,33 +17,38 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(project(":karl-core"))
-                api(libs.kotlinx.coroutines.core)
-                api(libs.androidx.room.common)
-                implementation(libs.kotlinx.serialization.json)
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+                api("androidx.room:room-common:2.6.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
             }
         }
 
         val jvmMain by getting {
             dependencies {
-                implementation(libs.kotlin.stdlib.jdk8)
-                api(libs.androidx.room.runtime)
-                api(libs.androidx.room.ktx)
-                api(libs.androidx.sqlite.framework)
-                implementation(libs.sqlite.jdbc)
-
-                kspJvm(libs.androidx.room.compiler)
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10")
+                api("androidx.room:room-runtime:2.7.1")
+                api("androidx.room:room-ktx:2.7.1")
+                api("androidx.sqlite:sqlite-framework:2.4.0")
+                implementation("org.xerial:sqlite-jdbc:3.43.0.0")
+                implementation("com.google.devtools.ksp:symbol-processing-api:1.9.10-1.0.13")
+                implementation("com.google.devtools.ksp:symbol-processing:1.9.10-1.0.13")
+                // ksp("androidx.room:room-compiler:2.7.1")
+                add("ksp", "androidx.room:room-compiler:2.7.1")
             }
         }
+
         val jvmTest by getting {
             dependencies {
-                implementation(libs.androidx.room.testing)
-                // kspJvmTest(libs.androidx.room.compiler) // If tests use KSP
+                implementation("androidx.room:room-testing:2.7.1")
+                add("kspJvm", "androidx.room:room-compiler:2.7.1")
+                // If tests use KSP:
+                // kspJvm("androidx.room:room-compiler:2.6.0")
             }
         }
     }
 }
 
-ksp {
+configure<com.google.devtools.ksp.gradle.KspExtension> {
     arg("room.schemaLocation", "$projectDir/schemas")
     arg("room.incremental", "true")
 }
