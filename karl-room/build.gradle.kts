@@ -23,6 +23,12 @@ kotlin {
             }
         }
 
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+
         val jvmMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10")
@@ -38,6 +44,7 @@ kotlin {
         }
 
         val jvmTest by getting {
+            dependsOn(commonTest)
             dependencies {
                 implementation("androidx.room:room-testing:2.7.1")
                 add("kspJvm", "androidx.room:room-compiler:2.7.1")
