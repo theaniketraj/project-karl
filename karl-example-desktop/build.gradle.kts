@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile // For setting jvmTarget 
 plugins {
     alias(libs.plugins.kotlinJvm) // This module is a pure JVM application
     alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.kotlinComposeCompiler) // Needed if using Kotlin 2.0+ with Compose
+    // alias(libs.plugins.kotlinComposeCompiler) // Needed if using Kotlin 2.0+ with Compose
 }
 
 group = "com.karl.example"
@@ -30,8 +30,10 @@ dependencies {
     implementation(libs.sqlite.jdbc) // For :karl-room's SQLite backend
 }
 
-tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions {
+        jvmTarget = "1.8" // Set the JVM target version
+    }
 }
 
 compose.desktop {
