@@ -1,9 +1,9 @@
 // karl-project/karl-compose-ui/build.gradle.kts
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform) // Assumes 'kotlinMultiplatform' is defined in libs.versions.toml [plugins]
-    alias(libs.plugins.jetbrainsCompose)    // Assumes 'jetbrainsCompose' is defined for the main Compose plugin
-    alias(libs.plugins.kotlinComposeCompiler) // Assumes 'kotlinComposeCompiler' is defined for the compiler plugin
+    kotlin("multiplatform") // Version inherited from settings
+    id("org.jetbrains.compose")    // Version inherited from settings
+    // id("org.jetbrains.kotlin.plugin.compose") // Version inherited from settings
 }
 
 // No need for these val by rootProject.ext if versions are managed by the catalog and plugins above
@@ -13,11 +13,13 @@ plugins {
 
 kotlin {
     jvm { // Define the JVM target for desktop components
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8) // Or your desired JVM target
+        tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+            kotlinOptions {
+                jvmTarget = "1.8" // Set JVM target compatibility
+            }
         }
-        // testRuns.named("test") { useJUnitPlatform() } // Optional: for JVM tests
     }
+        // testRuns.named("test") { useJUnitPlatform() } // Optional: for JVM tests
     // Add other targets like androidTarget(), iosX64() if this UI module becomes truly multiplatform
 
     sourceSets {
@@ -36,6 +38,14 @@ kotlin {
 
                 // Coroutines
                 implementation(libs.kotlinx.coroutines.core) // Assumes 'kotlinx-coroutines-core' is in libs.versions.toml
+            }
+        }
+
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test")) // Standard Kotlin test library
+                // If you need Compose specific testing libraries, you can add them here
+                // e.g., implementation(libs.compose.ui.test) if needed
             }
         }
 

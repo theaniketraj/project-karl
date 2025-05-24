@@ -3,7 +3,7 @@
 [versions]
 # Kotlin Ecosystem
 kotlin = "1.9.10" # Or your target Kotlin version (e.g., "2.0.0")
-kotlinComposeCompiler = "1.9.10"
+# kotlinComposeCompiler = "1.9.10"
 ksp = "1.9.10-1.0.13" # KSP version aligned with your Kotlin version
 coroutines = "1.7.3" # Or version compatible with your Kotlin (e.g., "1.8.0" for Kotlin 2.0)
 serialization = "1.5.1" # Kotlin Serialization plugin version, matches Kotlin version
@@ -72,14 +72,14 @@ sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version.ref = "sqlit
 # Kotlin & KSP
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-kotlinComposeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlinComposeCompiler" }
+# kotlinComposeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlinComposeCompiler" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serialization" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 # Jetpack Compose (JetBrains Multiplatform)
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "composePlugin" }
 # For Kotlin 2.0.0+ with newer Compose, you'll need this one too for compiler plugin
-# kotlinComposeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlinComposeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 
 # AndroidX Room (Not needed as a plugin in this KMP/JVM setup)

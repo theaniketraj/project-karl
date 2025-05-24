@@ -13,16 +13,16 @@ pluginManagement {
     // If you keep it, ensure versions match libs.versions.toml.
 
     plugins {
-        kotlin("multiplatform") version "1.9.23" apply false // Or referenced from libs.versions.toml if possible
-        kotlin("jvm") version "1.9.23" apply false           // If used
-        kotlin("plugin.serialization") version "2.1.20" apply false // If used
+        kotlin("multiplatform") version "1.9.10" apply false // Or referenced from libs.versions.toml if possible
+        kotlin("jvm") version "1.9.10" apply false           // If used
+        kotlin("plugin.serialization") version "1.5.1" apply false // If used
 
         // Ensure your Jetpack Compose plugin version is here
-        id("org.jetbrains.compose") version "1.8.0" apply false // For Kotlin 1.9.23
-        id("org.jetbrains.kotlin.plugin.compose") version "1.9.23" apply false // For Kotlin 1.9.23 + Compose 1.6.10
+        id("org.jetbrains.compose") version "1.5.2" apply false // For Kotlin 1.9.23
+        // id("org.jetbrains.kotlin.plugin.compose") version "1.9.10" apply false // For Kotlin 1.9.23 + Compose 1.6.10
 
         // ---> ADD OR VERIFY THIS LINE FOR KSP <---
-        id("com.google.devtools.ksp") version "2.1.20-1.0.31" apply false // KSP version aligned with Kotlin 1.9.23
+        id("com.google.devtools.ksp") version "1.9.10-1.0.13" apply false // KSP version aligned with Kotlin 1.9.23
 
         // SQLDelight (if you still have plans for it or use it in other modules)
         // id("app.cash.sqldelight") version "2.0.1" apply false
