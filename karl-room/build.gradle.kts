@@ -1,14 +1,14 @@
 plugins {
     kotlin("multiplatform") version "1.9.10"
     id("com.google.devtools.ksp") version "1.9.10-1.0.13" apply false
-    kotlin("plugin.serialization") version "1.5.1"
+    kotlin("plugin.serialization") version "1.9.10"
 }
 
 kotlin {
     jvm {
         compilations.all {
-            compilerOptions {
-                jvmTarget.set("1.8")
+            kotlinOptions {
+                jvmTarget = "1.8"
             }
         }
     }
