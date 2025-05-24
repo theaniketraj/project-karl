@@ -5,8 +5,11 @@ plugins {
 
 kotlin {
     jvm {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+        withJava()
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "1.8"
+            }
         }
     }
 
@@ -17,10 +20,18 @@ kotlin {
                 api(libs.kotlinx.coroutines.core)
             }
         }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
         val jvmMain by getting {
             dependencies {
                 implementation(libs.kotlin.stdlib.jdk8)
             }
+        }
+        val jvmTest by getting {
+            dependsOn(commonTest)
         }
     }
 }
