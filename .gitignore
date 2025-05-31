@@ -55,7 +55,8 @@ yarn.lock # Some prefer to commit, others ignore
 
 # Secrets (NEVER commit these)
 # Add specific secret file names or patterns here if you use them
-# e.g., secrets.json, .env
+secrets.json
+.env
 
 # Specific to your project if needed:
 # If you have other generated files or local config, add them here.
