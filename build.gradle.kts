@@ -10,6 +10,7 @@ plugins {
     // alias(libs.plugins.sqldelight) apply false // If you still use it
     alias(libs.plugins.kotlinJvm) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
+    id("com.google.devtools.ksp") apply false
     // KSP plugin is usually applied in modules, not root with 'apply false'
 }
 

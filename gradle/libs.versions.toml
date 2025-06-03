@@ -6,7 +6,7 @@ kotlin = "1.9.10" # Or your target Kotlin version (e.g., "2.0.0")
 # kotlinComposeCompiler = "1.9.10"
 ksp = "1.9.10-1.0.13" # KSP version aligned with your Kotlin version
 coroutines = "1.7.3" # Or version compatible with your Kotlin (e.g., "1.8.0" for Kotlin 2.0)
-serialization = "1.5.1" # Kotlin Serialization plugin version, matches Kotlin version
+serialization = "1.6.0" # Kotlin Serialization plugin version, matches Kotlin version
 
 # Jetpack Compose (JetBrains Multiplatform)
 composePlugin = "1.5.2" # Compose Multiplatform plugin version (for Kotlin 1.9.23)
@@ -15,7 +15,7 @@ composePlugin = "1.5.2" # Compose Multiplatform plugin version (for Kotlin 1.9.2
 # composeCompiler = "1.5.4" # Usually, composePlugin manages this. For Kotlin 2.0, it's explicit.
 
 # AndroidX Room (Jetpack Persistence)
-room = "2.7.1"
+room = "2.6.1"
 sqliteFramework = "2.4.0" # Or "2.5.0" if confirmed needed by Room
 
 # Other Libraries
