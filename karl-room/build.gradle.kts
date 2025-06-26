@@ -41,7 +41,8 @@ kotlin {
                 implementation("com.google.devtools.ksp:symbol-processing-api:1.9.10-1.0.13")
                 implementation("com.google.devtools.ksp:symbol-processing:1.9.10-1.0.13")
                 // ksp("androidx.room:room-compiler:2.7.1")
-                add("ksp", "androidx.room:room-compiler:2.6.1")
+                //add("ksp", "androidx.room:room-compiler:2.6.1")
+                implementation(libs.androidx.room.compiler)
             }
         }
 
