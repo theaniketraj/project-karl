@@ -1,6 +1,6 @@
 # Project KARL: The Kotlin Adaptive Reasoning Learner
 
-[![Build and Test Project KARL](https://github.com/theaniketraj/project-karl/actions/workflows/build.yml/badge.svg)](https://github.com/theaniketraj/project-karl/actions/workflows/build.yml)
+[![Build Status](https://github.com/theaniketraj/project-karl/actions/workflows/build.yml/badge.svg)](https://github.com/theaniketraj/project-karl/actions/workflows/build.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
 [![Kotlin Version](https://img.shields.io/badge/Kotlin-1.9.23%2B-blue.svg?style=flat-square)](https://kotlinlang.org)
 [![Platforms](https://img.shields.io/badge/Platform-JVM%20%7C%20Multiplatform%20Core-orange?style=flat-square)](#project-structure-)
