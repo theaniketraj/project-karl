@@ -3,12 +3,18 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
 kotlin {
     jvm {
         withJava()
         compilations.all {
             kotlinOptions {
-                jvmTarget = "1.8"
+                jvmTarget = "21"
             }
         }
     }

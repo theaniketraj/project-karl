@@ -10,6 +10,10 @@ plugins {
 }
 
 allprojects {
+    tasks.withType<JavaCompile> {
+        sourceCompatibility = "21"
+        targetCompatibility = "21"
+    }
     repositories {
         mavenCentral()
         gradlePluginPortal()
