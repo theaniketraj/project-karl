@@ -16,17 +16,22 @@ KARL empowers developers to add intelligent, personalized features without compr
 
 ## Table of Contents
 
-1. [Introduction](#introduction)
-2. [Core Philosophy Features](#core-philosophy--features-)
-3. [Motivation](#motivation-)
-4. [Getting Started](#getting-started-)
-5. [Architecture Internals](#architecture--internals-)
-6. [Project Structure](#project-structure-)
-7. [Use-Cases Example Implementations](#use-cases--example-implementations-)
-8. [Features](#features-)
-9. [Documentation](#documentation-)
-10. [Contributing](#contributing-)
-11. [License](#license-)
+- [Project KARL: The Kotlin Adaptive Reasoning Learner](#project-karl-the-kotlin-adaptive-reasoning-learner)
+  - [Introduction](#introduction)
+  - [Table of Contents](#table-of-contents)
+  - [Core Philosophy \& Features ✨](#core-philosophy--features-)
+  - [Motivation](#motivation)
+    - [Why KARL? 🤔](#why-karl-)
+    - [Project Status 🚧](#project-status-)
+  - [Getting Started 🚀](#getting-started-)
+  - [Architecture \& Internals 🛠️](#architecture--internals-️)
+- [Project Structure 📂](#project-structure-)
+  - [Use Cases / Example Implementations 💡](#use-cases--example-implementations-)
+  - [Features ✨](#features-)
+  - [Documentation 📚](#documentation-)
+  - [Contributing ❤️](#contributing-️)
+  - [Security Policy 🛡️](#security-policy-️)
+  - [License 📄](#license-)
 
 
 ## Core Philosophy & Features ✨
@@ -117,6 +122,14 @@ Contributions are welcome! Whether it's bug reports, feature suggestions, docume
 2. Suggesting Features: Use the GitHub Issues tab with an appropriate label.
 3. Code Contributions: Please read our [Contribution Guidelines](https://github.com/theaniketraj/project-karl/blob/main/CONTRIBUTING.md) before submitting a Pull Request.
 4. Code of Conduct: Please adhere to our [Code of Conduct](https://github.com/theaniketraj/project-karl/blob/main/CODE_OF_CONDUCT.md).
+
+## Security Policy 🛡️
+
+The security of Project KARL is a top priority. We take vulnerabilities seriously and appreciate the community's help in keeping our software secure.
+
+If you discover a security vulnerability, please follow our responsible disclosure policy. **Do not report security vulnerabilities through public GitHub issues.**
+
+👉 Please refer to our detailed [**Security Policy**](https://github.com/theaniketraj/project-karl/blob/main/SECURITY.md) for information on how to report a vulnerability.
 
 ## License 📄
 
