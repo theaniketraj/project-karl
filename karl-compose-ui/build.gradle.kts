@@ -3,13 +3,7 @@
 plugins {
     kotlin("multiplatform") // Version inherited from settings
     id("org.jetbrains.compose")    // Version inherited from settings
-    // id("org.jetbrains.kotlin.plugin.compose") // Version inherited from settings
 }
-
-// No need for these val by rootProject.ext if versions are managed by the catalog and plugins above
-// val composeVersion: String by rootProject.ext
-// val kotlinVersion: String by rootProject.ext
-// val kotlinxCoroutinesVersion: String by rootProject.ext
 
 kotlin {
     jvm { // Define the JVM target for desktop components
