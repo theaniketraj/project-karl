@@ -20,7 +20,12 @@
       {
         "name": "commonMain",
         "dependsOn": [],
-        "moduleDependency": [],
+        "moduleDependency": [
+          "karl-project:karl-core",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+          "androidx.room:room-common",
+          "org.jetbrains.kotlin:kotlin-stdlib-common"
+        ],
         "binaryLayout": "klib"
       }
     ]

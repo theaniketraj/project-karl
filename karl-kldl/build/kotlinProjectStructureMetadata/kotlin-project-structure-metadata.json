@@ -20,7 +20,10 @@
       {
         "name": "commonMain",
         "dependsOn": [],
-        "moduleDependency": [],
+        "moduleDependency": [
+          "karl-project:karl-core",
+          "org.jetbrains.kotlin:kotlin-stdlib-common"
+        ],
         "binaryLayout": "klib"
       }
     ]

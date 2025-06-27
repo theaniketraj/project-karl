@@ -4,7 +4,7 @@ plugins {
     kotlin("plugin.serialization") version "1.9.10"
 }
 
-sourceSets["main"].java.srcDir("build/generated/ksp/main/kotlin")
+// sourceSets["main"].java.srcDir("build/generated/ksp/main/kotlin")
 
 kotlin {
     jvm {
