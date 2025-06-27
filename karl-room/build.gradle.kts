@@ -50,7 +50,8 @@ kotlin {
             dependsOn(commonTest)
             dependencies {
                 implementation("androidx.room:room-testing:2.6.1")
-                ksp("androidx.room:room-compiler:2.6.1")
+                //ksp("androidx.room:room-compiler:2.6.1")
+                implementation(libs.androidx.room.compiler)
                 // If tests use KSP:
                 // kspJvm("androidx.room:room-compiler:2.6.0")
             }
