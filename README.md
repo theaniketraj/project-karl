@@ -58,7 +58,7 @@ While initially conceived as the foundation for a Proprietary SaaS Application, 
 
 Please refer to the [Getting Started Guide](https://github.com/theaniketraj/project-karl/blob/main/GETTING_STARTED.md).
 
-For more details, see the [Full Documentation]().
+For more details, see the [Full Documentation](https://karldocs.netlify.app/).
 
 **Example Application 🖥️**
 
@@ -112,7 +112,7 @@ The key is any application where personalization is desired, but sending behavio
 ## Documentation 📚
 
 Detailed documentation covering concepts, integration, API reference, and contribution guidelines can be found
-in the `/docs` directory or at [KARL-AI DOCS]().
+in the `/docs` directory or at [KARL-AI DOCS](https://karldocs.netlify.app/).
 
 ## Contributing ❤️
 
@@ -129,7 +129,7 @@ The security of Project KARL is a top priority. We take vulnerabilities seriousl
 
 If you discover a security vulnerability, please follow our responsible disclosure policy. **Do not report security vulnerabilities through public GitHub issues.**
 
-👉 Please refer to our detailed [**Security Policy**](https://github.com/theaniketraj/project-karl/blob/main/SECURITY.md) for information on how to report a vulnerability.
+Please refer to our detailed [**Security Policy**](https://github.com/theaniketraj/project-karl/blob/main/SECURITY.md) for information on how to report a vulnerability.
 
 ## License 📄
 
