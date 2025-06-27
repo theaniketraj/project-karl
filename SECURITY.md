@@ -13,19 +13,25 @@ We are committed to providing security updates for the latest stable release ver
 
 ## Reporting a Vulnerability
 
-We ask that you do not report security vulnerabilities through public GitHub issues, discussions, or other public channels. Instead, we encourage responsible disclosure directly to our security team. This allows us to address the issue before it becomes publicly known.
+We take all security bugs in Project KARL seriously. We appreciate your efforts and responsible disclosure and will make every effort to acknowledge your contributions.
 
-**To report a security vulnerability, please send an email to:**
+To report a security vulnerability, please use the **[Private Vulnerability Reporting feature](https://github.com/theaniketraj/project-karl/security/advisories/new)** on GitHub.
 
-**`EMAIL_ADDRESS_FOR_SECURITY_REPORTS`**
+This is the fastest and most secure way to reach the maintainers.
 
-Please include the following information in your report:
+**Please do not report security vulnerabilities through public GitHub issues.**
 
-* **A clear and descriptive title** for the vulnerability.
-* **A detailed description** of the vulnerability and its potential impact.
-* **The specific version(s)** of the Project KARL module(s) affected.
-* **Steps to reproduce the vulnerability:** Provide a clear, step-by-step guide, including any necessary code snippets, configurations, or proof-of-concept code.
-* **Any potential mitigations or suggestions** for a fix, if you have them.
+Instead, use the private reporting feature to ensure your report is handled confidentially and promptly.
+
+When reporting a vulnerability, please include:
+
+- A clear description of the vulnerability, including steps to reproduce it if possible.
+- The version of Project KARL you are using.
+- Any relevant logs, screenshots, or code snippets that can help us understand the issue.
+- Your contact information (email or GitHub username) so we can follow up with you.
+- Any additional context that may help us assess the impact and severity of the vulnerability.
+- If you have a proposed fix or mitigation, please include that as well.
+- If you prefer to remain anonymous, please let us know, and we will respect your wishes.
 
 ### Our Commitment
 
@@ -43,9 +49,9 @@ We kindly ask that you do not disclose the vulnerability publicly until a patch 
 
 Project KARL's core philosophy is **privacy-first and on-device processing**. As such, our primary security concerns revolve around:
 
-* **Local Data Security:** Vulnerabilities that could lead to unauthorized access, modification, or exfiltration of data stored locally by KARL's `DataStorage` implementations (e.g., weaknesses in encryption, insecure file permissions).
-* **Model Integrity:** Vulnerabilities that could allow an attacker to tamper with the locally stored AI model state (`KarlContainerState`), potentially leading to malicious or biased predictions.
-* **Denial of Service:** Vulnerabilities where malformed input could cause the `LearningEngine` or other components to crash or enter an infinite loop, consuming excessive device resources.
+- **Local Data Security:** Vulnerabilities that could lead to unauthorized access, modification, or exfiltration of data stored locally by KARL's `DataStorage` implementations (e.g., weaknesses in encryption, insecure file permissions).
+- **Model Integrity:** Vulnerabilities that could allow an attacker to tamper with the locally stored AI model state (`KarlContainerState`), potentially leading to malicious or biased predictions.
+- **Denial of Service:** Vulnerabilities where malformed input could cause the `LearningEngine` or other components to crash or enter an infinite loop, consuming excessive device resources.
 
 Issues related to the security of the *host application* integrating KARL (e.g., an application's own insecure network communication, improper handling of user input outside of KARL) are generally considered out of scope for KARL's security policy, unless they are caused by a flaw in KARL's API design or implementation.
 
