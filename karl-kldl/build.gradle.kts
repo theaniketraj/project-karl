@@ -1,6 +1,7 @@
 // karl-project/karl-kldl/build.gradle.kts
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
+    id("org.jlleitschuh.gradle.ktlint")
 }
 
 kotlin {

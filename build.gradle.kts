@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     id("com.google.devtools.ksp") apply false
     // KSP plugin is usually applied in modules, not root with 'apply false'
+    id("org.jlleitschuh.gradle.ktlint") version "13.0.0-rc.1"
 }
 
 allprojects {

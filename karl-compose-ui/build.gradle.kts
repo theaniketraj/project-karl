@@ -3,6 +3,7 @@
 plugins {
     kotlin("multiplatform") // Version inherited from settings
     id("org.jetbrains.compose")    // Version inherited from settings
+    id("org.jlleitschuh.gradle.ktlint")
 }
 
 kotlin {
