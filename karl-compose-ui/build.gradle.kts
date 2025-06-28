@@ -1,4 +1,5 @@
 // karl-project/karl-compose-ui/build.gradle.kts
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     kotlin("multiplatform") // Version inherited from settings
