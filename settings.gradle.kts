@@ -29,6 +29,17 @@ pluginManagement {
     }
 
 }
+
+toolchainManagement {
+    jvm {
+        javaRepositories {
+            repository("foojay") {
+                vendor.set(org.gradle.jvm.toolchain.JvmVendorSpec.ADOPTIUM)
+            }
+        }
+    }
+}
+
 //dependencyResolutionManagement {
 //    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 //    repositories {
