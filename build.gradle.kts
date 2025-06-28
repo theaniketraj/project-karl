@@ -10,6 +10,15 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "13.0.0-rc.1"
 }
 
+subprojects {
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+    ktlint {
+        version.set("13.0.0-rc.1")
+        verbose.set(true)
+    }
+}
+
 allprojects {
     tasks.withType<JavaCompile> {
         sourceCompatibility = "21"

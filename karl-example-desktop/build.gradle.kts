@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.kotlinJvm) // This module is a pure JVM application
     alias(libs.plugins.jetbrainsCompose)
     // alias(libs.plugins.kotlinComposeCompiler) // Needed if using Kotlin 2.0+ with Compose
-    id("org.jlleitschuh.gradle.ktlint")
 }
 
 group = "com.karl.example"

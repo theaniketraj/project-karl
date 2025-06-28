@@ -2,7 +2,6 @@ plugins {
     kotlin("multiplatform") version "1.9.10"
     id("com.google.devtools.ksp") version "1.9.10-1.0.13"
     kotlin("plugin.serialization") version "1.9.10"
-    id("org.jlleitschuh.gradle.ktlint")
 }
 
 // sourceSets["main"].java.srcDir("build/generated/ksp/main/kotlin")
