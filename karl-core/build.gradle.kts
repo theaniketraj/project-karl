@@ -1,20 +1,22 @@
 // karl-project/karl-core/build.gradle.kts
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 
 kotlin {
     jvm {
-        withJava()
+        // withJava() // Optional, only if you mix Java and Kotlin source files in this module
         compilations.all {
             kotlinOptions {
-                jvmTarget = "21"
+                jvmTarget = "17"
             }
         }
     }
