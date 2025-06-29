@@ -8,6 +8,7 @@ plugins {
     id("com.google.devtools.ksp") apply false
     // KSP plugin is usually applied in modules, not root with 'apply false'
     id("org.jlleitschuh.gradle.ktlint") version "13.0.0-rc.1"
+    id("io.github.theaniketraj.vista") version "1.0.7"
 }
 
 subprojects {
