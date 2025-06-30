@@ -34,9 +34,7 @@ toolchainManagement {
     jvm {
         javaRepositories {
             repository("foojay") {
-                vendorFilter.set {
-                    it == org.gradle.jvm.toolchain.JvmVendorSpec.ADOPTIUM
-                }
+                vendorFilter.set(org.gradle.jvm.toolchain.vendor.FoojayVendorFilter.withJdkVersion("17"))
             }
         }
     }
