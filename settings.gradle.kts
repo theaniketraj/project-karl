@@ -34,7 +34,11 @@ toolchainManagement {
     jvm {
         javaRepositories {
             repository("foojay") {
-                vendorFilter.set(org.gradle.jvm.toolchain.vendor.FoojayVendorFilter.withJdkVersion("17"))
+                vendorFilter.set(org.gradle.api.artifacts.dsl.RepositoryHandler.FoojayVendorFilter(
+                    "17", // Specify the JDK version you want to use
+                    "adoptium", // Vendor name, can be 'adoptium', 'bellsoft', etc.
+                    "openjdk" // Distribution type, can be 'openjdk', 'oracle', etc.
+                ))
             }
         }
     }
