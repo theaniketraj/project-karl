@@ -26,6 +26,7 @@ pluginManagement {
 
         // SQLDelight (if you still have plans for it or use it in other modules)
         // id("app.cash.sqldelight") version "2.0.1" apply false
+        id("org.gradle.toolchains.foojay-resolver-convention").version("0.10.0")
     }
 
 }
