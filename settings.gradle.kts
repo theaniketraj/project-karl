@@ -35,7 +35,7 @@ toolchainManagement {
     jvm {
         javaRepositories {
             repository("foojay") {
-                vendor.set(org.gradle.jvm.toolchain.JvmVendorSpec.ADOPTIUM)
+                resolverClass.set(org.gradle.toolchains.foojay.FoojayToolchainResolver::class.java)
             }
         }
     }
