@@ -33,7 +33,7 @@ dependencies {
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     kotlinOptions {
-        jvmTarget = "17" // Set the JVM target version
+        jvmTarget = "21" // Set the JVM target version
     }
 }
 
