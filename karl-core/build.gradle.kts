@@ -7,7 +7,7 @@ plugins {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
@@ -16,7 +16,7 @@ kotlin {
         // withJava() // Optional, only if you mix Java and Kotlin source files in this module
         compilations.all {
             kotlinOptions {
-                jvmTarget = "17"
+                jvmTarget = "21"
             }
         }
     }
