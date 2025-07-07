@@ -1,5 +1,4 @@
 // karl-project/karl-kldl/build.gradle.kts
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -10,7 +9,6 @@ kotlin {
         compilations.all {
             kotlinOptions {
                 jvmTarget = "20"
-
             }
         }
     }
