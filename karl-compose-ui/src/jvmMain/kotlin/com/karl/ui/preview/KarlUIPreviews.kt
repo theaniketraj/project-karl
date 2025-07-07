@@ -1,12 +1,8 @@
 package com.karl.ui.preview
 
-import androidx.compose.runtime.Composable
-// Keep ONLY the standard Preview import from ui-tooling
-// This requires the compose.uiTooling dependency in jvmMain
-// import androidx.compose.ui.tooling.preview.Preview
-import com.karl.core.models.Prediction
 import androidx.compose.desktop.ui.tooling.preview.Preview // Desktop-specific Preview
-
+import androidx.compose.runtime.Composable
+import com.karl.core.models.Prediction
 import com.karl.ui.KarlContainerUI // Import your common composables
 import com.karl.ui.KarlLearningProgressIndicator
 import kotlinx.coroutines.flow.MutableStateFlow // Use StateFlow for preview state
@@ -46,7 +42,10 @@ fun PreviewKarlContainerUI_NoSuggestion() {
 fun PreviewKarlContainerUI_WithSuggestion() {
     // Create dummy StateFlows for this preview
     // Prediction should now be resolved via the corrected import
-    val dummyPrediction = MutableStateFlow(Prediction(suggestion = "git commit", confidence = 0.9f, type = "next_command"))
+    val dummyPrediction =
+        MutableStateFlow(
+            Prediction(suggestion = "git commit", confidence = 0.9f, type = "next_command"),
+        )
     val dummyProgress = MutableStateFlow(0.75f) // Higher progress
 
     KarlContainerUI(
