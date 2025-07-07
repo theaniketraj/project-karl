@@ -3,9 +3,9 @@ package com.karl.ui.preview
 import androidx.compose.runtime.Composable
 // Keep ONLY the standard Preview import from ui-tooling
 // This requires the compose.uiTooling dependency in jvmMain
-//import androidx.compose.ui.tooling.preview.Preview
+// import androidx.compose.ui.tooling.preview.Preview
 import com.karl.core.models.Prediction
-import androidx.compose.desktop.ui.tooling.preview.Preview   // Desktop-specific Preview
+import androidx.compose.desktop.ui.tooling.preview.Preview // Desktop-specific Preview
 
 import com.karl.ui.KarlContainerUI // Import your common composables
 import com.karl.ui.KarlLearningProgressIndicator
@@ -37,7 +37,7 @@ fun PreviewKarlContainerUI_NoSuggestion() {
 
     KarlContainerUI(
         predictionState = dummyPrediction,
-        learningProgressState = dummyProgress
+        learningProgressState = dummyProgress,
     )
 }
 
@@ -51,7 +51,7 @@ fun PreviewKarlContainerUI_WithSuggestion() {
 
     KarlContainerUI(
         predictionState = dummyPrediction,
-        learningProgressState = dummyProgress
+        learningProgressState = dummyProgress,
     )
 }
 

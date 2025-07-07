@@ -37,7 +37,7 @@ fun createSimpleMLPModel(
     numClasses: Int,
     hiddenLayerSizes: List<Int> = listOf(16, 8), // Default: two hidden layers
     hiddenLayerActivation: Activations = Activations.Relu,
-    outputLayerActivation: Activations? = null // Often handled by the loss function
+    outputLayerActivation: Activations? = null, // Often handled by the loss function
 ): Sequential {
     println("Creating SimpleMLPModel: inputSize=$inputSize, numClasses=$numClasses, hiddenLayers=$hiddenLayerSizes")
 
@@ -59,7 +59,7 @@ fun createSimpleMLPModel(
                 // kernelInitializer = Initializers.HE_NORMAL, // Example initializer
                 // biasInitializer = Initializers.ZEROS      // Example initializer
                 // name = "hidden_layer_${index + 1}"       // Optional name
-            )
+            ),
         )
         currentInputSize = layerSize // Output of this layer is input to the next
     }
@@ -75,7 +75,7 @@ fun createSimpleMLPModel(
             outputSize = numClasses,
             activation = outputLayerActivation ?: Activations.Linear, // Linear if null, or specified
             // name = "output_layer"
-        )
+        ),
     )
 
     return Sequential.of(layers)
@@ -89,20 +89,22 @@ fun main() {
     val NUM_ACTIONS_CONST = 4
 
     // Create a model with default hidden layers
-    val model1 = createSimpleMLPModel(
-        inputSize = INPUT_SIZE_CONST,
-        numClasses = NUM_ACTIONS_CONST
-    )
+    val model1 =
+        createSimpleMLPModel(
+            inputSize = INPUT_SIZE_CONST,
+            numClasses = NUM_ACTIONS_CONST,
+        )
     model1.summary() // Print model summary
 
     println("\n-------------------\n")
 
     // Create a model with custom hidden layers and softmax output
-    val model2 = createSimpleMLPModel(
-        inputSize = INPUT_SIZE_CONST,
-        numClasses = NUM_ACTIONS_CONST,
-        hiddenLayerSizes = listOf(32, 16, 8),
-        outputLayerActivation = Activations.Softmax // Explicit softmax
-    )
+    val model2 =
+        createSimpleMLPModel(
+            inputSize = INPUT_SIZE_CONST,
+            numClasses = NUM_ACTIONS_CONST,
+            hiddenLayerSizes = listOf(32, 16, 8),
+            outputLayerActivation = Activations.Softmax, // Explicit softmax
+        )
     model2.summary()
 }

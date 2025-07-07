@@ -2,21 +2,20 @@ package com.karl.kldl
 
 import com.karl.core.api.LearningEngine
 import com.karl.core.models.* // (for InteractionData, KarlContainerState, Prediction, KarlInstruction)
-import kotlinx.coroutines.* // (for CoroutineScope, Job, Dispatchers, launch, withContext)
-import kotlinx.coroutines.sync.* // (for Mutex, withLock)
 import com.karl.core.models.InteractionData
 import com.karl.core.models.KarlContainerState
 import com.karl.core.models.KarlInstruction
 import com.karl.core.models.Prediction
+import kotlinx.coroutines.* // (for CoroutineScope, Job, Dispatchers, launch, withContext)
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.* // (for Mutex, withLock)
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.jetbrains.kotlinx.dl.api.core.Sequential
-import org.jetbrains.kotlinx.dl.dataset.OnHeapDataset
 import org.jetbrains.kotlinx.dl.api.core.activation.Activations
 import org.jetbrains.kotlinx.dl.api.core.layer.core.Dense
 import org.jetbrains.kotlinx.dl.api.core.layer.core.Input
@@ -24,10 +23,8 @@ import org.jetbrains.kotlinx.dl.api.core.loss.Losses
 import org.jetbrains.kotlinx.dl.api.core.metric.Metrics
 import org.jetbrains.kotlinx.dl.api.core.optimizer.Adam
 import org.jetbrains.kotlinx.dl.api.inference.keras.* // (for loadModelConfiguration, loadWeights, etc.)
-import org.jetbrains.kotlinx.dl.api.inference.keras.loadModelConfiguration
 import org.jetbrains.kotlinx.dl.api.inference.keras.loadWeights
-import org.jetbrains.kotlinx.dl.api.inference.keras.saveModelConfiguration
-import org.jetbrains.kotlinx.dl.api.inference.keras.saveWeights
+import org.jetbrains.kotlinx.dl.dataset.OnHeapDataset
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
@@ -52,9 +49,8 @@ private const val ACTIONS_OFFSET = 1 // Assuming action types are encoded starti
  */
 class KLDLLearningEngine(
     // Optional configuration can be passed here
-    private val learningRate: Float = 0.001f
+    private val learningRate: Float = 0.001f,
 ) : LearningEngine {
-
     private var model: Sequential = createSimpleMLPModel() // The KotlinDL model
     private lateinit var engineScope: CoroutineScope // Scope for background tasks
     private val isInitialized = AtomicBoolean(false)
@@ -64,7 +60,10 @@ class KLDLLearningEngine(
     // Warning: This basic history only keeps action *types* encoded numerically
     private val recentHistory = mutableListOf<Int>()
 
-    override suspend fun initialize(state: KarlContainerState?, coroutineScope: CoroutineScope) {
+    override suspend fun initialize(
+        state: KarlContainerState?,
+        coroutineScope: CoroutineScope,
+    ) {
         if (!isInitialized.compareAndSet(false, true)) {
             println("KLDLLearningEngine: Already initialized.")
             return
@@ -99,7 +98,7 @@ class KLDLLearningEngine(
             model.compile(
                 optimizer = Adam(learningRate = learningRate.toDouble()), // Note: Adam takes Double
                 loss = Losses.SOFT_MAX_CROSS_ENTROPY_WITH_LOGITS,
-                metric = Metrics.ACCURACY
+                metric = Metrics.ACCURACY,
             )
             println("KLDLLearningEngine: Model compiled.")
         }
@@ -153,16 +152,16 @@ class KLDLLearningEngine(
                 println("KLDLLearningEngine: Starting training step for action code $actionCode...")
                 modelMutex.withLock { // Ensure exclusive access to the model for training
                     model.fit(
-                        trainingDataset = org.jetbrains.kotlinx.dl.dataset.OnHeapDataset.create(
-                            features = arrayOf(inputFeatures), // Batch size of 1
-                            labels = arrayOf(targetLabel)      // Batch size of 1
-                        ),
+                        trainingDataset =
+                            org.jetbrains.kotlinx.dl.dataset.OnHeapDataset.create(
+                                features = arrayOf(inputFeatures), // Batch size of 1
+                                labels = arrayOf(targetLabel), // Batch size of 1
+                            ),
                         epochs = 1, // Train for one epoch on this single data point
-                        batchSize = 1
+                        batchSize = 1,
                     )
                 }
                 println("KLDLLearningEngine: Training step complete.")
-
             } catch (e: Exception) {
                 println("KLDLLearningEngine ERROR during trainStep: ${e.message}")
                 e.printStackTrace()
@@ -171,7 +170,10 @@ class KLDLLearningEngine(
         }
     }
 
-    override suspend fun predict(contextData: List<InteractionData>, instructions: List<KarlInstruction>): Prediction? {
+    override suspend fun predict(
+        contextData: List<InteractionData>,
+        instructions: List<KarlInstruction>,
+    ): Prediction? {
         if (!isInitialized.get()) {
             println("KLDLLearningEngine WARN: predict called before initialization.")
             return null
@@ -212,7 +214,7 @@ class KLDLLearningEngine(
                     suggestion = suggestion,
                     confidence = confidence,
                     type = "next_action_prediction", // Example type
-                    metadata = mapOf("predicted_code" to predictedActionCode)
+                    metadata = mapOf("predicted_code" to predictedActionCode),
                 )
             } catch (e: Exception) {
                 println("KLDLLearningEngine ERROR during predict: ${e.message}")
@@ -242,7 +244,7 @@ class KLDLLearningEngine(
             model.compile(
                 optimizer = Adam(learningRate = learningRate.toDouble()),
                 loss = Losses.SOFT_MAX_CROSS_ENTROPY_WITH_LOGITS,
-                metric = Metrics.ACCURACY
+                metric = Metrics.ACCURACY,
             )
             synchronized(recentHistory) {
                 recentHistory.clear() // Clear history
@@ -269,7 +271,7 @@ class KLDLLearningEngine(
             Input(INPUT_SIZE.toLong()), // Input layer expects Long for shape
             Dense(16, activation = Activations.Relu), // Hidden layer 1
             Dense(8, activation = Activations.Relu), // Hidden layer 2
-            Dense(NUM_ACTIONS) // Output layer (Softmax applied by loss function)
+            Dense(NUM_ACTIONS), // Output layer (Softmax applied by loss function)
         )
     }
 
@@ -299,13 +301,14 @@ class KLDLLearningEngine(
     private fun prepareInputFeatures(excludeCurrentActionCode: Int? = null): FloatArray? {
         val historyToUse: List<Int>
         synchronized(recentHistory) {
-            historyToUse = if (excludeCurrentActionCode != null) {
-                // Get history *before* the action we are training on
-                recentHistory.dropLast(1)
-            } else {
-                // Get the latest history for prediction
-                recentHistory.toList()
-            }
+            historyToUse =
+                if (excludeCurrentActionCode != null) {
+                    // Get history *before* the action we are training on
+                    recentHistory.dropLast(1)
+                } else {
+                    // Get the latest history for prediction
+                    recentHistory.toList()
+                }
         }
 
         if (historyToUse.size < INPUT_SIZE) {

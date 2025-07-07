@@ -19,16 +19,16 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun KarlLearningProgressIndicator(
     progress: Float,
-    label: String = "Learning Progress"
+    label: String = "Learning Progress",
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier.padding(8.dp),
     ) {
         Text(label)
         LinearProgressIndicator(
             progress = { progress },
-            modifier = Modifier.width(128.dp) // Example fixed width
+            modifier = Modifier.width(128.dp), // Example fixed width
         )
         // Optional: Add a text representation of the percentage
         // Text("${(progress * 100).toInt()}%")
@@ -36,8 +36,8 @@ fun KarlLearningProgressIndicator(
 }
 
 // Example Usage (for Preview or within another Composable)
-//@Preview
-//@Composable
-//fun PreviewKarlLearningProgressIndicator() {
+// @Preview
+// @Composable
+// fun PreviewKarlLearningProgressIndicator() {
 //     KarlLearningProgressIndicator(progress = 0.75f)
-//}
+// }

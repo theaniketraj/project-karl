@@ -12,8 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.flow.StateFlow
 import com.karl.core.models.Prediction
+import kotlinx.coroutines.flow.StateFlow
 
 // We'll need a way to expose the state from KarlContainer to Compose.
 // KarlContainerImpl itself doesn't currently expose state flows,
@@ -55,24 +55,25 @@ fun KarlContainerUI(
     val currentProgress by learningProgressState.collectAsState()
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .border(2.dp, Color.Blue) // Visual border for the "container" feel
-            .padding(16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .border(2.dp, Color.Blue) // Visual border for the "container" feel
+                .padding(16.dp),
         horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(8.dp) // Add spacing between elements
+        verticalArrangement = Arrangement.spacedBy(8.dp), // Add spacing between elements
     ) {
         Text(
             text = "KARL AI Container",
             fontWeight = FontWeight.Bold,
-            fontSize = 18.sp
+            fontSize = 18.sp,
         )
 
         Text(
             text = "Status: Active (User: [Display User ID if needed])",
             fontSize = 12.sp,
-            color = Color.Gray
+            color = Color.Gray,
         )
 
         // Display Learning Progress
@@ -83,7 +84,7 @@ fun KarlContainerUI(
         Text("Current Suggestion:")
         Text(
             text = currentPrediction?.suggestion ?: "No suggestion yet...",
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
         )
         // Optional: Display prediction confidence or type
         currentPrediction?.let { prediction ->
@@ -98,9 +99,9 @@ fun KarlContainerUI(
 }
 
 // Example Usage (for Preview or within an application screen)
-//@Preview
-//@Composable
-//fun PreviewKarlContainerUI() {
+// @Preview
+// @Composable
+// fun PreviewKarlContainerUI() {
 //    // Create dummy StateFlows for preview
 //    val dummyPrediction = MutableStateFlow(Prediction(suggestion = "git commit", confidence = 0.9f, type = "next_command"))
 //    val dummyProgress = MutableStateFlow(0.5f)
@@ -109,4 +110,4 @@ fun KarlContainerUI(
 //        predictionState = dummyPrediction,
 //        learningProgressState = dummyProgress
 //    )
-//}
+// }

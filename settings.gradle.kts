@@ -42,7 +42,7 @@ rootProject.name = "karl-project"
 include(
     ":karl-core",
     ":karl-kldl",
-    ":karl-room", // Assuming you created this
+    ":karl-room",
     ":karl-compose-ui",
     ":karl-example-desktop",
 )
