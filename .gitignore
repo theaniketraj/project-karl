@@ -17,6 +17,7 @@ caches/ # Android Studio specific caches (sometimes outside .idea)
 # Gradle
 .gradle/
 build/ # Standard Gradle build output directory for all modules
+/build/
 
 # Kotlin
 .kotlin/ # If you see this generated at the root or module level
