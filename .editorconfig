@@ -1,0 +1,25 @@
+root = true
+
+# Settings to respect all files
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# Settings specifically to respect Kotlin files (*.kt and *.kts)
+[*.{kt,kts}]
+
+# Allow Composable function names to start with an uppercase letter
+ktlint_standard_function-naming = disabled
+ktlint_compose_compositionlocal-naming = enabled
+ktlint_compose_content-trailing-lambda = enabled
+ktlint_compose_modifier-order = enabled
+ktlint_compose_naming-check = enabled
+ktlint_compose_preview-annotation = enabled
+ktlint_compose_preview-naming = enabled
+ktlint_compose_remember-state-missing-import = enabled
+ktlint_compose_viewModel-forwarding = enabled
+ktlint_compose_viewModel-injection = enabled
