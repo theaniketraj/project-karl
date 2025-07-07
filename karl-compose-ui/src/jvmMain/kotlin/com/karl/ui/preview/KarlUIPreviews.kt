@@ -32,8 +32,8 @@ fun PreviewKarlContainerUI_NoSuggestion() {
     val dummyProgress = MutableStateFlow(0.1f) // Low progress
 
     KarlContainerUI(
-            predictionState = dummyPrediction,
-            learningProgressState = dummyProgress,
+        predictionState = dummyPrediction,
+        learningProgressState = dummyProgress,
     )
 }
 
@@ -43,14 +43,14 @@ fun PreviewKarlContainerUI_WithSuggestion() {
     // Create dummy StateFlows for this preview
     // Prediction should now be resolved via the corrected import
     val dummyPrediction =
-            MutableStateFlow(
-                    Prediction(suggestion = "git commit", confidence = 0.9f, type = "next_command"),
-            )
+        MutableStateFlow(
+            Prediction(suggestion = "git commit", confidence = 0.9f, type = "next_command"),
+        )
     val dummyProgress = MutableStateFlow(0.75f) // Higher progress
 
     KarlContainerUI(
-            predictionState = dummyPrediction,
-            learningProgressState = dummyProgress,
+        predictionState = dummyPrediction,
+        learningProgressState = dummyProgress,
     )
 }
 
