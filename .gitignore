@@ -66,4 +66,8 @@ secrets.json
 # You might want to ignore the packaged executables/installers if you
 # only want to commit the source for them.
 # Example:
-# /karl-example-desktop/build/compose/binaries/
+/karl-example-desktop/build/
+/karl-core/build/
+/karl-compose-ui/build/
+/karl-kldl/build/
+/karl-room/build/
