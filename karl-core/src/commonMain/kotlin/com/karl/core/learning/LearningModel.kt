@@ -53,7 +53,7 @@ interface LearningModel {
     fun saveState(): KarlContainerState
 }
 
- * A generic interface representing a machine learning model within a LearningEngine.
+ /* A generic interface representing a machine learning model within a LearningEngine.
  *
  * This abstraction allows a LearningEngine implementation (like `:karl-kldl`) to be
  * designed to work with different model architectures (e.g., MLP, RNN, Transformer)
