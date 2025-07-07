@@ -1,9 +1,8 @@
 // karl-project/karl-compose-ui/build.gradle.kts
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     kotlin("multiplatform") // Version inherited from settings
-    id("org.jetbrains.compose")    // Version inherited from settings
+    id("org.jetbrains.compose") // Version inherited from settings
 }
 
 kotlin {
@@ -14,7 +13,7 @@ kotlin {
             }
         }
     }
-        // testRuns.named("test") { useJUnitPlatform() } // Optional: for JVM tests
+    // testRuns.named("test") { useJUnitPlatform() } // Optional: for JVM tests
     // Add other targets like androidTarget(), iosX64() if this UI module becomes truly multiplatform
 
     sourceSets {
