@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     kotlin("multiplatform") version "1.9.10"
     id("com.google.devtools.ksp") version "1.9.10-1.0.13"
@@ -43,7 +41,7 @@ kotlin {
                 implementation("com.google.devtools.ksp:symbol-processing-api:1.9.10-1.0.13")
                 implementation("com.google.devtools.ksp:symbol-processing:1.9.10-1.0.13")
                 // ksp("androidx.room:room-compiler:2.7.1")
-                //add("ksp", "androidx.room:room-compiler:2.6.1")
+                // add("ksp", "androidx.room:room-compiler:2.6.1")
                 implementation(libs.androidx.room.compiler)
             }
         }
@@ -52,7 +50,7 @@ kotlin {
             dependsOn(commonTest)
             dependencies {
                 implementation("androidx.room:room-testing:2.6.1")
-                //ksp("androidx.room:room-compiler:2.6.1")
+                // ksp("androidx.room:room-compiler:2.6.1")
                 implementation(libs.androidx.room.compiler)
                 // If tests use KSP:
                 // kspJvm("androidx.room:room-compiler:2.6.0")
