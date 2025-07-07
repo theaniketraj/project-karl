@@ -19,5 +19,8 @@ interface DataSource {
      * @param coroutineScope A CoroutineScope for launching observation tasks.
      * @return A Job representing the running observation task. Cancelling this job stops the data stream.
      */
-    fun observeInteractionData(onNewData: suspend (InteractionData) -> Unit, coroutineScope: CoroutineScope): Job
+    fun observeInteractionData(
+        onNewData: suspend (InteractionData) -> Unit,
+        coroutineScope: CoroutineScope,
+    ): Job
 }

@@ -13,11 +13,9 @@ import androidx.room.PrimaryKey
 data class KarlContainerStateEntity(
     @PrimaryKey // The userId uniquely identifies the state for a container
     val userId: String,
-
     @ColumnInfo(typeAffinity = ColumnInfo.BLOB) // Explicitly tell Room this is a Blob/ByteArray
     val stateData: ByteArray, // The serialized AI model state
-
-    val version: Int // Version of the state data structure
+    val version: Int, // Version of the state data structure
 ) {
     // It's good practice to provide equals() and hashCode() when dealing with ByteArrays
     // if you intend to compare instances of this entity directly (e.g., in tests or collections).

@@ -11,7 +11,6 @@ import com.karl.core.models.KarlContainerState
  * management.
  */
 interface LearningModel {
-
     /**
      * Initializes the model's internal structure and parameters. This is where the actual model
      * graph (e.g., a KotlinDL Sequential model) would be built.
@@ -35,7 +34,10 @@ interface LearningModel {
      * @param input A numerical representation of the training input features.
      * @param target A numerical representation of the expected output (the label).
      */
-    fun train(input: FloatArray, target: FloatArray)
+    fun train(
+        input: FloatArray,
+        target: FloatArray,
+    )
 
     /**
      * Loads the model's learned parameters (e.g., weights) from a serialized state.

@@ -7,7 +7,6 @@ import com.karl.core.models.KarlContainerStateEntity
 
 @Dao
 interface KarlDao {
-
     // --- Methods for KarlContainerStateEntity ---
 
     // Use OnConflictStrategy.REPLACE to handle inserts and updates easily via userId PK
@@ -27,11 +26,18 @@ interface KarlDao {
 
     // Query recent interactions for a user, ordered by timestamp
     @Query("SELECT * FROM interaction_data WHERE userId = :userId ORDER BY timestamp DESC LIMIT :limit")
-    suspend fun loadRecentInteractionData(userId: String, limit: Int): List<InteractionData>
+    suspend fun loadRecentInteractionData(
+        userId: String,
+        limit: Int,
+    ): List<InteractionData>
 
     // Optional: Query filtered by type
     @Query("SELECT * FROM interaction_data WHERE userId = :userId AND type = :type ORDER BY timestamp DESC LIMIT :limit")
-    suspend fun loadRecentInteractionDataByType(userId: String, limit: Int, type: String): List<InteractionData>
+    suspend fun loadRecentInteractionDataByType(
+        userId: String,
+        limit: Int,
+        type: String,
+    ): List<InteractionData>
 
     @Query("DELETE FROM interaction_data WHERE userId = :userId")
     suspend fun deleteInteractionData(userId: String)

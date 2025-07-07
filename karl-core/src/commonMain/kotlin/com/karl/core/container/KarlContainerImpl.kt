@@ -1,9 +1,9 @@
 package container
 
-import com.karl.core.models.DataSource // Import the interfaces
-import com.karl.core.models.DataStorage
 import api.KarlContainer
 import api.LearningEngine
+import com.karl.core.models.DataSource // Import the interfaces
+import com.karl.core.models.DataStorage
 import com.karl.core.models.InteractionData
 import com.karl.core.models.KarlInstruction
 import com.karl.core.models.Prediction
@@ -27,9 +27,8 @@ internal class KarlContainerImpl( // Use internal as it's not part of the public
     private val dataStorage: DataStorage,
     private val dataSource: DataSource,
     initialInstructions: List<KarlInstruction>,
-    private val containerScope: CoroutineScope // The scope provided by the application
+    private val containerScope: CoroutineScope, // The scope provided by the application
 ) : KarlContainer {
-
     // State for the container
     private var currentInstructions: List<KarlInstruction> = initialInstructions
     private var dataObservationJob: Job? = null // Job to observe data from DataSource
@@ -44,10 +43,10 @@ internal class KarlContainerImpl( // Use internal as it's not part of the public
      */
     override suspend fun initialize(
         learningEngine: LearningEngine, // We ignore these parameters here as they are injected via constructor
-        dataStorage: DataStorage,       // This override structure is slightly awkward due to the interface design,
-        dataSource: DataSource,         // but works. Alternatively, initialize could take no args if dependencies are constructor injected.
+        dataStorage: DataStorage, // This override structure is slightly awkward due to the interface design,
+        dataSource: DataSource, // but works. Alternatively, initialize could take no args if dependencies are constructor injected.
         instructions: List<KarlInstruction>, // Let's update instructions here during init too
-        coroutineScope: CoroutineScope // And ignore this as the constructor scope is primary
+        coroutineScope: CoroutineScope, // And ignore this as the constructor scope is primary
     ) {
         stateMutex.withLock { // Ensure only one init/reset/save operation happens at a time
             println("KARL Container for user $userId: Initializing...")
@@ -68,17 +67,18 @@ internal class KarlContainerImpl( // Use internal as it's not part of the public
             // 4. Start Data Observation
             // We pass a callback that the DataSource will call for new data.
             // The callback launches trainStep within the container's scope.
-            dataObservationJob = dataSource.observeInteractionData(
-                onNewData = { data ->
-                    // Launch trainStep as a coroutine within the container's scope
-                    // This ensures training doesn't block the data source observation
-                    // and is managed by the container's lifecycle.
-                    containerScope.launch {
-                        processNewData(data) // Internal function to handle data processing
-                    }
-                },
-                coroutineScope = containerScope // Pass the app-provided scope to the data source observer
-            )
+            dataObservationJob =
+                dataSource.observeInteractionData(
+                    onNewData = { data ->
+                        // Launch trainStep as a coroutine within the container's scope
+                        // This ensures training doesn't block the data source observation
+                        // and is managed by the container's lifecycle.
+                        containerScope.launch {
+                            processNewData(data) // Internal function to handle data processing
+                        }
+                    },
+                    coroutineScope = containerScope, // Pass the app-provided scope to the data source observer
+                )
             println("KARL Container for user $userId: Data observation started.")
         }
         println("KARL Container for user $userId: Initialization complete.")
@@ -111,7 +111,6 @@ internal class KarlContainerImpl( // Use internal as it's not part of the public
         // containerScope.launch { saveState().join() } // Launch save asynchronously
     }
 
-
     // --- Public API Methods (Implementing KarlContainer interface) ---
 
     /**
@@ -135,50 +134,53 @@ internal class KarlContainerImpl( // Use internal as it's not part of the public
      * Resets the container's learned state and deletes associated user data.
      * Returns a Job representing the asynchronous reset operation.
      */
-    override suspend fun reset(): Job = containerScope.launch {
-        stateMutex.withLock { // Ensure no other state ops interfere
-            println("KARL Container for user $userId: Resetting...")
-            // Stop current data observation temporarily
-            dataObservationJob?.cancelAndJoin() // Wait for observer to stop cleanly
-            dataObservationJob = null // Clear the old job
+    override suspend fun reset(): Job =
+        containerScope.launch {
+            stateMutex.withLock { // Ensure no other state ops interfere
+                println("KARL Container for user $userId: Resetting...")
+                // Stop current data observation temporarily
+                dataObservationJob?.cancelAndJoin() // Wait for observer to stop cleanly
+                dataObservationJob = null // Clear the old job
 
-            // 1. Reset Learning Engine
-            learningEngine.reset()
-            println("KARL Container for user $userId: LearningEngine reset.")
+                // 1. Reset Learning Engine
+                learningEngine.reset()
+                println("KARL Container for user $userId: LearningEngine reset.")
 
-            // 2. Delete User Data from Storage
-            dataStorage.deleteUserData(userId)
-            println("KARL Container for user $userId: User data deleted.")
+                // 2. Delete User Data from Storage
+                dataStorage.deleteUserData(userId)
+                println("KARL Container for user $userId: User data deleted.")
 
-            // 3. Restart Data Observation (Engine is now blank, ready to learn anew)
-            dataObservationJob = dataSource.observeInteractionData(
-                onNewData = { data ->
-                    containerScope.launch {
-                        processNewData(data)
-                    }
-                },
-                coroutineScope = containerScope
-            )
-            println("KARL Container for user $userId: Data observation restarted.")
+                // 3. Restart Data Observation (Engine is now blank, ready to learn anew)
+                dataObservationJob =
+                    dataSource.observeInteractionData(
+                        onNewData = { data ->
+                            containerScope.launch {
+                                processNewData(data)
+                            }
+                        },
+                        coroutineScope = containerScope,
+                    )
+                println("KARL Container for user $userId: Data observation restarted.")
+            }
+            println("KARL Container for user $userId: Reset complete.")
         }
-        println("KARL Container for user $userId: Reset complete.")
-    }
 
     /**
      * Saves the current state of the container's learning engine.
      * Returns a Job representing the asynchronous save operation.
      */
-    override suspend fun saveState(): Job = containerScope.launch {
-        stateMutex.withLock { // Ensure no other state ops interfere
-            println("KARL Container for user $userId: Saving state...")
-            // Get the current state from the learning engine
-            val currentState = learningEngine.getCurrentState()
+    override suspend fun saveState(): Job =
+        containerScope.launch {
+            stateMutex.withLock { // Ensure no other state ops interfere
+                println("KARL Container for user $userId: Saving state...")
+                // Get the current state from the learning engine
+                val currentState = learningEngine.getCurrentState()
 
-            // Save the state using the data storage
-            dataStorage.saveContainerState(userId, currentState)
-            println("KARL Container for user $userId: State saved.")
+                // Save the state using the data storage
+                dataStorage.saveContainerState(userId, currentState)
+                println("KARL Container for user $userId: State saved.")
+            }
         }
-    }
 
     /**
      * Updates the user-defined instructions for the container.

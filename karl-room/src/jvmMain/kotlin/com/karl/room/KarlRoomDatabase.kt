@@ -19,7 +19,9 @@ object MapConverter {
                 val (k, v) = it.split('=', limit = 2)
                 k to v // Store all values as String for this simple example
             }
-        } catch (e: Exception) { null } // Handle parsing errors
+        } catch (e: Exception) {
+            null
+        } // Handle parsing errors
     }
 
     @TypeConverter
@@ -35,14 +37,13 @@ object MapConverter {
 @Database(
     entities = [
         InteractionData::class,
-        KarlContainerStateEntity::class
+        KarlContainerStateEntity::class,
     ],
     version = 1, // Start with version 1. Increment when schema changes.
-    exportSchema = true // Recommended: Exports schema to specified location for migrations
+    exportSchema = true, // Recommended: Exports schema to specified location for migrations
 )
 @TypeConverters(MapConverter::class) // Register type converters for the DB
 abstract class KarlRoomDatabase : RoomDatabase() {
-
     // Abstract method to get the DAO instance
     abstract fun karlDao(): KarlDao
 
@@ -53,7 +54,7 @@ abstract class KarlRoomDatabase : RoomDatabase() {
         fun getDatabase(
             // Context/Driver setup will differ for KMP Desktop vs Android
             // For Desktop, you typically provide the DB file path or driver
-            dbPath: String // e.g., "path/to/karl_data.db"
+            dbPath: String, // e.g., "path/to/karl_data.db"
             // Potentially pass driver factory if needed by Room KMP Desktop setup
         ): KarlRoomDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -80,6 +81,7 @@ abstract class KarlRoomDatabase : RoomDatabase() {
         // TODO: Define your Migration objects (MIGRATION_1_2, etc.)
     }
 }
+
 // Hack for KSP/Room KMP limitation if constructor isn't public (Check Room KMP docs)
 private fun KClass<KarlRoomDatabase>.instantiateImpl(): KarlRoomDatabase {
     val method = Class.forName("${qualifiedName}_Impl").getDeclaredConstructor()

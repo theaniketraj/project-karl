@@ -16,7 +16,10 @@ interface DataStorage {
      * @param userId The ID of the user whose state is being saved.
      * @param state The KarlContainerState to save.
      */
-    suspend fun saveContainerState(userId: String, state: KarlContainerState)
+    suspend fun saveContainerState(
+        userId: String,
+        state: KarlContainerState,
+    )
 
     /**
      * Loads the state of a KarlContainer for a user.
@@ -39,7 +42,11 @@ interface DataStorage {
      * @param type Optional type to filter by.
      * @return A list of recent InteractionData.
      */
-    suspend fun loadRecentInteractionData(userId: String, limit: Int, type: String? = null): List<InteractionData>
+    suspend fun loadRecentInteractionData(
+        userId: String,
+        limit: Int,
+        type: String? = null,
+    ): List<InteractionData>
 
     /**
      * Deletes all stored data for a specific user.

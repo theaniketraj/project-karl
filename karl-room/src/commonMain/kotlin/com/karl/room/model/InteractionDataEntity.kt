@@ -18,9 +18,8 @@ import com.karl.room.MapConverter // Assuming MapConverter is in com.karl.room p
 data class InteractionDataEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0, // Auto-generated primary key for the database table
-
     val type: String,
     val details: Map<String, Any>, // Will be converted by MapConverter
     val timestamp: Long,
-    val userId: String // Important for querying user-specific data
+    val userId: String, // Important for querying user-specific data
 )

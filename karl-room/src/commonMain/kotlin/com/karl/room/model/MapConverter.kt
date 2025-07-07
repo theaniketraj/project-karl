@@ -7,14 +7,17 @@ import androidx.room.TypeConverter
 // implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3") // Or latest
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 
 object MapConverter {
-    private val json = Json { ignoreUnknownKeys = true;isLenient = true }
+    private val json =
+        Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+        }
 
     @TypeConverter
     fun fromString(value: String?): Map<String, Any>? {

@@ -1,14 +1,14 @@
 package api
 
 // Import models and coroutines types needed by the remaining interfaces
+import com.karl.core.models.DataSource // Now import from the data package
+import com.karl.core.models.DataStorage // Now import from the data package
+import com.karl.core.models.InteractionData
 import com.karl.core.models.KarlContainerState
 import com.karl.core.models.KarlInstruction
 import com.karl.core.models.Prediction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import com.karl.core.models.DataSource // Now import from the data package
-import com.karl.core.models.DataStorage // Now import from the data package
-import com.karl.core.models.InteractionData
 
 /**
  * Represents the engine responsible for training and inference.
@@ -22,7 +22,10 @@ interface LearningEngine {
      * @param state The initial state to load, or null for a new, blank model.
      * @param coroutineScope A CoroutineScope for managing asynchronous tasks within the engine.
      */
-    suspend fun initialize(state: KarlContainerState?, coroutineScope: CoroutineScope)
+    suspend fun initialize(
+        state: KarlContainerState?,
+        coroutineScope: CoroutineScope,
+    )
 
     /**
      * Performs a single incremental training step based on new interaction data.
@@ -39,7 +42,10 @@ interface LearningEngine {
      * @param instructions User-defined instructions to consider during prediction.
      * @return A Prediction object, or null if no suggestion can be made.
      */
-    suspend fun predict(contextData: List<InteractionData> = emptyList(), instructions: List<KarlInstruction> = emptyList()): Prediction?
+    suspend fun predict(
+        contextData: List<InteractionData> = emptyList(),
+        instructions: List<KarlInstruction> = emptyList(),
+    ): Prediction?
 
     /**
      * Gets the current state of the learning model for persistence.
@@ -78,7 +84,7 @@ interface KarlContainer {
         dataStorage: DataStorage,
         dataSource: DataSource,
         instructions: List<KarlInstruction> = emptyList(),
-        coroutineScope: CoroutineScope
+        coroutineScope: CoroutineScope,
     )
 
     /**

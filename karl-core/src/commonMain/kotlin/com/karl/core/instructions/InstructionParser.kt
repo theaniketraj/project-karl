@@ -12,7 +12,6 @@ import com.karl.core.models.KarlInstruction
  * rules that modify its behavior.
  */
 interface InstructionParser {
-
     /**
      * Parses the raw input into a list of KarlInstruction objects.
      *
@@ -39,7 +38,7 @@ interface InstructionParser {
  */
 class KarlInstructionParseException(
     message: String,
-    cause: Throwable? = null
+    cause: Throwable? = null,
 ) : Exception(message, cause)
 
 // Note: You would need to create concrete implementations of this interface later,

@@ -17,7 +17,6 @@ import kotlinx.coroutines.Job
  * ML model's lifecycle, training, prediction, and state serialization.
  */
 interface LearningEngine {
-
     /**
      * Initializes the learning engine. This method should prepare the engine for operation,
      * which includes creating a new model or loading an existing one from a saved state.
@@ -26,7 +25,10 @@ interface LearningEngine {
      * @param coroutineScope A [CoroutineScope] provided by the container for launching
      *                       long-running or asynchronous tasks (like background training).
      */
-    suspend fun initialize(state: KarlContainerState?, coroutineScope: CoroutineScope)
+    suspend fun initialize(
+        state: KarlContainerState?,
+        coroutineScope: CoroutineScope,
+    )
 
     /**
      * Performs a single, incremental training step based on new interaction data.
@@ -51,7 +53,10 @@ interface LearningEngine {
      *                     behavior (e.g., setting a confidence threshold).
      * @return A [Prediction] object if a confident suggestion can be made, or null otherwise.
      */
-    suspend fun predict(contextData: List<InteractionData> = emptyList(), instructions: List<KarlInstruction> = emptyList()): Prediction?
+    suspend fun predict(
+        contextData: List<InteractionData> = emptyList(),
+        instructions: List<KarlInstruction> = emptyList(),
+    ): Prediction?
 
     /**
      * Retrieves the current, serializable state of the learning model for persistence.
@@ -98,5 +103,5 @@ interface LearningEngine {
 data class LearningInsights(
     val interactionCount: Long,
     val progressEstimate: Float,
-    val customMetrics: Map<String, Any> = emptyMap()
+    val customMetrics: Map<String, Any> = emptyMap(),
 )

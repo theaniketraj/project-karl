@@ -2,8 +2,8 @@ package com.karl.core.api
 
 import api.KarlContainer
 import api.LearningEngine
-import container.KarlContainerImpl // We'll implement this class next
 import com.karl.core.models.KarlInstruction
+import container.KarlContainerImpl // We'll implement this class next
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -12,7 +12,6 @@ import kotlinx.coroutines.CoroutineScope
  * for a specific user.
  */
 object Karl {
-
     /**
      * Starts the configuration process for a new or existing KarlContainer for a specific user.
      *
@@ -82,7 +81,6 @@ class KarlContainerBuilder internal constructor(private val userId: String) { //
      */
     fun withCoroutineScope(scope: CoroutineScope): KarlContainerBuilder = apply { this.coroutineScope = scope }
 
-
     /**
      * Builds and returns a new instance of [api.KarlContainer].
      *
@@ -107,18 +105,17 @@ class KarlContainerBuilder internal constructor(private val userId: String) { //
             dataStorage = storage,
             dataSource = source,
             initialInstructions = instructions,
-            containerScope = scope // Pass the provided scope to the implementation
+            containerScope = scope, // Pass the provided scope to the implementation
         )
     }
 }
-
 
 // Re-export interfaces here for easy access from the API entry point
 // This isn't strictly necessary if developers import KarlCoreInterfaces.kt directly,
 // but can make the public API cleaner.
 // import com.karl.core.api.KarlCoreInterfaces.* // Alternative: import all
 
-//typealias LearningEngine = LearningEngine
+// typealias LearningEngine = LearningEngine
 typealias DataStorage = com.karl.core.models.DataStorage
 typealias DataSource = com.karl.core.models.DataSource
-//typealias KarlContainer = KarlContainer
+// typealias KarlContainer = KarlContainer

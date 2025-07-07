@@ -12,9 +12,8 @@ import kotlinx.coroutines.withContext
 class RoomDataStorage(
     private val karlDao: KarlDao,
     // Inject IO dispatcher for database operations
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : DataStorage {
-
     // Note: Initialization of the database itself happens outside this class,
     // typically via the KarlRoomDatabase.getDatabase() singleton pattern.
     override suspend fun initialize() {
@@ -23,13 +22,17 @@ class RoomDataStorage(
         println("RoomDataStorage: Initialized (DB access via DAO).")
     }
 
-    override suspend fun saveContainerState(userId: String, state: KarlContainerState) {
+    override suspend fun saveContainerState(
+        userId: String,
+        state: KarlContainerState,
+    ) {
         withContext(ioDispatcher) {
-            val entity = KarlContainerStateEntity(
-                userId = userId,
-                stateData = state.data,
-                version = state.version
-            )
+            val entity =
+                KarlContainerStateEntity(
+                    userId = userId,
+                    stateData = state.data,
+                    version = state.version,
+                )
             karlDao.saveContainerState(entity)
         }
     }
@@ -50,7 +53,11 @@ class RoomDataStorage(
         }
     }
 
-    override suspend fun loadRecentInteractionData(userId: String, limit: Int, type: String?): List<InteractionData> {
+    override suspend fun loadRecentInteractionData(
+        userId: String,
+        limit: Int,
+        type: String?,
+    ): List<InteractionData> {
         return withContext(ioDispatcher) {
             if (type == null) {
                 karlDao.loadRecentInteractionData(userId, limit)
