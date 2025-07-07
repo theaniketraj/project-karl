@@ -14,7 +14,7 @@ pluginManagement {
 
     plugins {
         kotlin("multiplatform") version "1.9.10" apply false // Or referenced from libs.versions.toml if possible
-        kotlin("jvm") version "1.9.10" apply false           // If used
+        kotlin("jvm") version "1.9.10" apply false // If used
         kotlin("plugin.serialization") version "1.5.1" apply false // If used
 
         // Ensure your Jetpack Compose plugin version is here
@@ -28,16 +28,15 @@ pluginManagement {
         // id("app.cash.sqldelight") version "2.0.1" apply false
         id("org.gradle.toolchains.foojay-resolver-convention").version("0.10.0")
     }
-
 }
 
-//dependencyResolutionManagement {
+// dependencyResolutionManagement {
 //    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 //    repositories {
 //        google()
 //        mavenCentral()
 //    }
-//}
+// }
 
 rootProject.name = "karl-project"
 include(
@@ -45,5 +44,5 @@ include(
     ":karl-kldl",
     ":karl-room", // Assuming you created this
     ":karl-compose-ui",
-    ":karl-example-desktop"
+    ":karl-example-desktop",
 )
