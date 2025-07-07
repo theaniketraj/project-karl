@@ -12,7 +12,7 @@ kotlin {
     jvm {
         compilations.all {
             kotlinOptions {
-                jvmTarget = "21"
+                jvmTarget = "20"
             }
         }
     }

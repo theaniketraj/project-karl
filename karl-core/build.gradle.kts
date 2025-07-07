@@ -16,7 +16,7 @@ kotlin {
         // withJava() // Optional, only if you mix Java and Kotlin source files in this module
         compilations.all {
             kotlinOptions {
-                jvmTarget = "21"
+                jvmTarget = "20"
             }
         }
     }

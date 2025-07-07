@@ -10,7 +10,7 @@ kotlin {
     jvm { // Define the JVM target for desktop components
         tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
             kotlinOptions {
-                jvmTarget = "21" // Set JVM target compatibility
+                jvmTarget = "20" // Set JVM target compatibility
             }
         }
     }
