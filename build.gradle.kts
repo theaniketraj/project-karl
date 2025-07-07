@@ -15,7 +15,7 @@ subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
     ktlint {
-        version.set("12.3.0")
+        version.set("1.2.1")
         verbose.set(true)
     }
 }
