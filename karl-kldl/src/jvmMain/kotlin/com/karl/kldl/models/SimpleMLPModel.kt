@@ -85,14 +85,14 @@ fun createSimpleMLPModel(
 
 fun main() {
     // Example parameters from KLDLLearningEngine constants
-    val INPUT_SIZE_CONST = 3
-    val NUM_ACTIONS_CONST = 4
+    val inputSizeConst = 3
+    val numActionsConst = 4
 
     // Create a model with default hidden layers
     val model1 =
         createSimpleMLPModel(
-            inputSize = INPUT_SIZE_CONST,
-            numClasses = NUM_ACTIONS_CONST,
+            inputSize = inputSizeConst,
+            numClasses = numActionsConst,
         )
     model1.summary() // Print model summary
 
@@ -101,8 +101,8 @@ fun main() {
     // Create a model with custom hidden layers and softmax output
     val model2 =
         createSimpleMLPModel(
-            inputSize = INPUT_SIZE_CONST,
-            numClasses = NUM_ACTIONS_CONST,
+            inputSize = inputSizeConst,
+            numClasses = numActionsConst,
             hiddenLayerSizes = listOf(32, 16, 8),
             outputLayerActivation = Activations.Softmax, // Explicit softmax
         )
