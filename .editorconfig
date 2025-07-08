@@ -23,3 +23,4 @@ ktlint_compose_preview-naming = enabled
 ktlint_compose_remember-state-missing-import = enabled
 ktlint_compose_viewModel-forwarding = enabled
 ktlint_compose_viewModel-injection = enabled
+ktlint_standard_no-wildcard-imports_packages-to-import-on-demand = java.util.*,kotlinx.coroutines.*,androidx.room.*, foundation.layout.*
