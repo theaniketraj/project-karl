@@ -24,12 +24,19 @@ object MapConverter {
             // then convert JsonElement values to basic Kotlin types.
             val jsonMap = json.decodeFromString<Map<String, JsonElement>>(value)
             jsonMap.mapValues { (_, jsonElement) ->
+                val content = jsonElement.jsonPrimitive.content
                 when {
-                    jsonElement.jsonPrimitive.isString -> jsonElement.jsonPrimitive.content
-                    jsonElement.jsonPrimitive.content == "true" || jsonElement.jsonPrimitive.content == "false" -> jsonElement.jsonPrimitive.content.toBoolean()
-                    jsonElement.jsonPrimitive.content.toIntOrNull() != null -> jsonElement.jsonPrimitive.content.toInt()
-                    jsonElement.jsonPrimitive.content.toDoubleOrNull() != null -> jsonElement.jsonPrimitive.content.toDouble()
-                    else -> jsonElement.jsonPrimitive.content // Fallback to string
+                    jsonElement.jsonPrimitive.isString -> content
+                    content == "true" || content == "false" -> {
+                        content.toBoolean()
+                    }
+                    content.toIntOrNull() != null -> {
+                        content.toInt()
+                    }
+                    content.toDoubleOrNull() != null -> {
+                        content.toDouble()
+                    }
+                    else -> content
                 }
             }
         } catch (e: Exception) {
@@ -47,7 +54,10 @@ object MapConverter {
             // This example serializes all values as strings for simplicity with JsonPrimitives.
             // For more complex 'Any' types, you'd need a more sophisticated (polymorphic) serialization strategy.
             val stringifiedMap = map.mapValues { (_, value) -> value.toString() }
-            json.encodeToString(MapSerializer(String.serializer(), String.serializer()), stringifiedMap)
+            json.encodeToString(
+                MapSerializer(String.serializer(), String.serializer()),
+                stringifiedMap,
+            )
         } catch (e: Exception) {
             println("MapConverter Error serializing: ${e.message}")
             null
