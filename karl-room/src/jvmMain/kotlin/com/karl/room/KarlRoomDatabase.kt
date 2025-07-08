@@ -49,7 +49,7 @@ abstract class KarlRoomDatabase : RoomDatabase() {
 
     // Companion object for singleton instance creation (optional but common)
     companion object {
-        @Volatile private var INSTANCE: KarlRoomDatabase? = null
+        @Volatile private var instance: KarlRoomDatabase? = null
 
         fun getDatabase(
             // Context/Driver setup will differ for KMP Desktop vs Android
@@ -57,10 +57,10 @@ abstract class KarlRoomDatabase : RoomDatabase() {
             dbPath: String, // e.g., "path/to/karl_data.db"
             // Potentially pass driver factory if needed by Room KMP Desktop setup
         ): KarlRoomDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = buildDatabaseInstance(dbPath) // Create instance via builder
-                INSTANCE = instance
-                instance
+            return instance ?: synchronized(this) {
+                val newInstance = buildDatabaseInstance(dbPath) // Create instance via builder
+                instance = newInstance
+                newInstance
             }
         }
 
