@@ -29,6 +29,11 @@ kotlin {
                 // implementation(libs.compose.ui)
                 // implementation(libs.compose.foundation)
                 // implementation(libs.compose.material3) // Or libs.compose.material
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3) // Or compose.material if you prefer Material 2
+                implementation(compose.ui)
+                implementation(compose.uiTooling)
 
                 // Coroutines
                 implementation(libs.kotlinx.coroutines.core) // Assumes 'kotlinx-coroutines-core' is in libs.versions.toml
