@@ -1,5 +1,5 @@
 # Name of the workflow, which will be displayed on the "Actions" tab in GitHub
-name: Build and Test Project KARL
+name: Build & Test Status
 
 # Controls when the workflow will run
 on:
