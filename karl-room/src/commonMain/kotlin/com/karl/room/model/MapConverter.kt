@@ -1,16 +1,13 @@
 // karl-project/karl-room/src/commonMain/kotlin/com/karl/room/MapConverter.kt
-package com.karl.room // Or com.karl.room.model
+package com.karl.room
 
 import androidx.room.TypeConverter
-// For robust Map<String, Any> serialization, kotlinx.serialization is highly recommended.
-// Add to karl-room/build.gradle.kts commonMain dependencies:
-// implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3") // Or latest
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonPrimitive
 
 object MapConverter {
     private val json =
@@ -32,7 +29,6 @@ object MapConverter {
                     jsonElement.jsonPrimitive.content == "true" || jsonElement.jsonPrimitive.content == "false" -> jsonElement.jsonPrimitive.content.toBoolean()
                     jsonElement.jsonPrimitive.content.toIntOrNull() != null -> jsonElement.jsonPrimitive.content.toInt()
                     jsonElement.jsonPrimitive.content.toDoubleOrNull() != null -> jsonElement.jsonPrimitive.content.toDouble()
-                    // Add more specific type handling if needed, e.g., for Long
                     else -> jsonElement.jsonPrimitive.content // Fallback to string
                 }
             }

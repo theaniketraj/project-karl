@@ -11,9 +11,11 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "container_state")
 data class KarlContainerStateEntity(
-    @PrimaryKey // The userId uniquely identifies the state for a container
+    // The userId uniquely identifies the state for a container
+    @PrimaryKey
     val userId: String,
-    @ColumnInfo(typeAffinity = ColumnInfo.BLOB) // Explicitly tell Room this is a Blob/ByteArray
+    // Explicitly tell Room this is a Blob/ByteArray
+    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
     val stateData: ByteArray, // The serialized AI model state
     val version: Int, // Version of the state data structure
 ) {
