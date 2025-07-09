@@ -19,7 +19,7 @@ room = "2.6.1"
 sqliteFramework = "2.4.0" # Or "2.5.0" if confirmed needed by Room
 
 # Other Libraries
-kotlinDL = "0.5.1" # Or version compatible with your Kotlin (e.g., "0.6.0-alpha-x" for Kotlin 2.0)
+kotlinDL = "0.5.2" # Or version compatible with your Kotlin (e.g., "0.6.0-alpha-x" for Kotlin 2.0)
 sqliteJdbc = "3.43.0.0" # Or latest stable
 
 # Testing (Example)
