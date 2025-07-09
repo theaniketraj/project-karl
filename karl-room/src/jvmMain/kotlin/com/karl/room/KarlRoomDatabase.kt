@@ -4,39 +4,11 @@ package com.karl.room
 import androidx.room.*
 import com.karl.core.models.InteractionData
 import com.karl.core.models.KarlContainerStateEntity
-
-// --- Type Converters (Needed for complex types like Map) ---
-// Define these in a separate file or here if simple
-object MapConverter {
-    @TypeConverter
-    fun fromString(value: String?): Map<String, Any>? {
-        // Implement conversion FROM String (e.g., JSON) TO Map
-        // Example using a simple format (NOT robust): key1=value1;key2=value2
-        // You SHOULD use a proper serialization library like kotlinx.serialization or Gson
-        if (value == null) return null
-        return try {
-            value.split(';').associate {
-                val (k, v) = it.split('=', limit = 2)
-                k to v // Store all values as String for this simple example
-            }
-        } catch (e: Exception) {
-            null
-        } // Handle parsing errors
-    }
-
-    @TypeConverter
-    fun toString(map: Map<String, Any>?): String? {
-        // Implement conversion FROM Map TO String (e.g., JSON)
-        // Example using a simple format (NOT robust): key1=value1;key2=value2
-        // You SHOULD use a proper serialization library like kotlinx.serialization or Gson
-        return map?.map { "${it.key}=${it.value}" }?.joinToString(";")
-    }
-}
-// --- End Type Converters ---
+import com.karl.room.MapConverter
 
 @Database(
     entities = [
-        InteractionData::class,
+        InteractionDataEntity::class,
         KarlContainerStateEntity::class,
     ],
     version = 1, // Start with version 1. Increment when schema changes.
