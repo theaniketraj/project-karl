@@ -17,7 +17,6 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(project(":karl-core"))
-                implementation(libs.kotlinx.coroutines.core) // Or 'api' if interfaces here use coroutine types
             }
         }
         val commonTest by getting {
@@ -27,6 +26,7 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
+                implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlin.stdlib.jdk8)
                 implementation(libs.kotlindl.api)
                 implementation(libs.kotlindl.dataset)
