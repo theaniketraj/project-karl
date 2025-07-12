@@ -1,10 +1,12 @@
+// karl-project/karl-room/build.gradle.kts
 plugins {
-    kotlin("multiplatform") version "1.9.10"
-    id("com.google.devtools.ksp") version "1.9.10-1.0.13"
-    kotlin("plugin.serialization") version "1.9.10"
+    kotlin("multiplatform")
+    id("com.google.devtools.ksp") version "1.9.10-1.0.13" // Or your compatible KSP version
+    kotlin("plugin.serialization") version "1.9.10" // Or your compatible Kotlin version
 }
 
-// sourceSets["main"].java.srcDir("build/generated/ksp/main/kotlin")
+// Access versions from your version catalog (libs.versions.toml)
+// val roomVersion: String by rootProject.ext // Old way, use catalog instead
 
 kotlin {
     jvm {
@@ -18,44 +20,40 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                // CRITICAL: This makes the interfaces and models from :karl-core
+                // available to this module's common code, and by extension, to jvmMain.
+                // Use 'api' to ensure these types are transitively visible.
                 api(project(":karl-core"))
-                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-                api("androidx.room:room-common:2.6.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-            }
-        }
 
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
+                // Coroutines are needed for suspend functions in the DataStorage interface
+                api(libs.kotlinx.coroutines.core)
+
+                // Common Room annotations for KMP
+                api(libs.androidx.room.common)
+
+                // Serialization for TypeConverters
+                implementation(libs.kotlinx.serialization.json)
             }
         }
 
         val jvmMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10")
-                api("androidx.room:room-runtime:2.6.1")
-                api("androidx.room:room-ktx:2.6.1")
-                api("androidx.sqlite:sqlite-framework:2.4.0")
-                implementation("org.xerial:sqlite-jdbc:3.43.0.0")
+                implementation(libs.kotlin.stdlib.jdk8)
+
+                // Room Runtime & KTX for JVM target
+                api(libs.androidx.room.runtime)
+                api(libs.androidx.room.ktx)
+
+                // SQLite framework and JDBC driver
+                api(libs.androidx.sqlite.framework)
+                implementation(libs.sqlite.jdbc)
+
+                // KSP processor for the JVM target
                 implementation("com.google.devtools.ksp:symbol-processing-api:1.9.10-1.0.13")
                 implementation("com.google.devtools.ksp:symbol-processing:1.9.10-1.0.13")
-                // ksp("androidx.room:room-compiler:2.7.1")
-                // add("ksp", "androidx.room:room-compiler:2.6.1")
-                implementation(libs.androidx.room.compiler)
             }
         }
-
-        val jvmTest by getting {
-            dependsOn(commonTest)
-            dependencies {
-                implementation("androidx.room:room-testing:2.6.1")
-                // ksp("androidx.room:room-compiler:2.6.1")
-                implementation(libs.androidx.room.compiler)
-                // If tests use KSP:
-                // kspJvm("androidx.room:room-compiler:2.6.0")
-            }
-        }
+        // ... jvmTest dependencies ...
     }
 }
 
