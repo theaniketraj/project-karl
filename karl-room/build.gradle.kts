@@ -37,8 +37,8 @@ kotlin {
                 implementation(libs.sqlite.jdbc)
 
                 // KSP processor for the JVM target
-                implementation("com.google.devtools.ksp:symbol-processing-api:1.9.10-1.0.13")
-                implementation("com.google.devtools.ksp:symbol-processing:1.9.10-1.0.13")
+                implementation("com.google.devtools.ksp:symbol-processing-api:1.9.23-1.0.19")
+                implementation("com.google.devtools.ksp:symbol-processing:1.9.23-1.0.19")
             }
         }
     }
