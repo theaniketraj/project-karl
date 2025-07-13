@@ -1,21 +1,19 @@
-// karl-project/karl-core/build.gradle.kts
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
-    }
-}
-
 kotlin {
     jvm {
-        // withJava() // Optional, only if you mix Java and Kotlin source files in this module
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "20"
+        compilations.named("main") {
+            compilerOptions.configure {
+                jvmTarget.set(JvmTarget.JVM_17)
+            }
+        }
+        compilations.named("test") {
+            compilerOptions.configure {
+                jvmTarget.set(JvmTarget.JVM_17)
             }
         }
     }
@@ -29,16 +27,13 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(kotlin("test"))
+                implementation(libs.kotlin.test)
             }
         }
         val jvmMain by getting {
             dependencies {
                 implementation(libs.kotlin.stdlib.jdk8)
             }
-        }
-        val jvmTest by getting {
-            dependsOn(commonTest)
         }
     }
 }
