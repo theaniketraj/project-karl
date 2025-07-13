@@ -1,93 +1,54 @@
-# This is a TOML file. Comments start with #.
-
 [versions]
-# Kotlin Ecosystem
-kotlin = "1.9.10" # Or your target Kotlin version (e.g., "2.0.0")
-# kotlinComposeCompiler = "1.9.10"
-ksp = "1.9.10-1.0.13" # KSP version aligned with your Kotlin version
-coroutines = "1.7.3" # Or version compatible with your Kotlin (e.g., "1.8.0" for Kotlin 2.0)
-serialization = "1.6.0" # Kotlin Serialization plugin version, matches Kotlin version
+kotlin = "1.9.23"
+ksp = "1.9.23-1.0.19" # KSP version aligned with Kotlin 1.9.23
+coroutines = "1.7.3"
+serialization = "1.9.23" # Serialization plugin version matches Kotlin
 
-# Jetpack Compose (JetBrains Multiplatform)
-composePlugin = "1.5.2" # Compose Multiplatform plugin version (for Kotlin 1.9.23)
-# If using Kotlin 2.0.0, this might be a different version.
-# Ensure composeCompiler below is also compatible or implicitly handled by composePlugin.
-# composeCompiler = "1.5.4" # Usually, composePlugin manages this. For Kotlin 2.0, it's explicit.
-
-# AndroidX Room (Jetpack Persistence)
+# Libraries
+composePlugin = "1.6.10" # Compose Multiplatform plugin for Kotlin 1.9.23
 room = "2.6.1"
-sqliteFramework = "2.4.0" # Or "2.5.0" if confirmed needed by Room
-
-# Other Libraries
-kotlinDL = "0.5.2" # Or version compatible with your Kotlin (e.g., "0.6.0-alpha-x" for Kotlin 2.0)
-sqliteJdbc = "3.43.0.0" # Or latest stable
-
-# Testing (Example)
-# junit5 = "5.10.0"
+sqliteFramework = "2.4.0"
+kotlinDL = "0.5.2" # Compatible with Kotlin 1.9.2x
+sqliteJdbc = "3.43.0.0"
+serializationJson = "1.6.3"
+ktlintGradle = "12.1.0"
+ktlint = "1.2.1"
 
 [libraries]
-# Kotlin Standard Libraries
+# Kotlin
 kotlin-stdlib-common = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-common", version.ref = "kotlin" }
 kotlin-stdlib-jdk8 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version.ref = "kotlin" }
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 
-# Coroutines
+# Coroutines & Serialization
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serializationJson" }
 
-# Kotlinx Serialization
-kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" } # Example specific version
-
-# Jetpack Compose (JetBrains Multiplatform) - Core libraries are accessed via plugin usually,
-# but if you needed to declare them explicitly:
-# compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "composePlugin" }
-# compose-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "composePlugin" }
-# compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "composePlugin" }
-# compose-material3 = { group = "org.jetbrains.compose.material3", name = "material3", version.ref = "composePlugin" }
-# compose-desktop-currentOs = { group = "org.jetbrains.compose.desktop", name = "desktop-jvm", version.ref = "composePlugin" } # Example
-# compose-uiTooling = { group = "org.jetbrains.compose.ui", name = "ui-tooling", version.ref = "composePlugin" }
-
-
-# AndroidX Room
+# Room
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
-androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" } # For KSP
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "room" }
 androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 
-# AndroidX SQLite
+# SQLite
 androidx-sqlite-framework = { group = "androidx.sqlite", name = "sqlite-framework", version.ref = "sqliteFramework" }
-# androidx-sqlite-driver = { group = "androidx.sqlite", name = "sqlite-driver", version.ref = "sqliteFramework" } # If needed
-
-# Other Libraries
-kotlindl-api = { group = "org.jetbrains.kotlinx", name = "kotlin-deeplearning-api", version.ref = "kotlinDL" }
-kotlindl-dataset = { group = "org.jetbrains.kotlinx", name = "kotlin-deeplearning-dataset", version.ref = "kotlinDL" }
-# kotlindl-tensorflow = { group = "org.jetbrains.kotlinx", name = "kotlin-deeplearning-tensorflow", version.ref = "kotlinDL" }
 sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version.ref = "sqliteJdbc" }
 
-# Testing (Example)
-# junit-jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit5" }
-# junit-jupiter-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit5" }
-
+# KotlinDL
+kotlindl-api = { group = "org.jetbrains.kotlinx", name = "kotlin-deeplearning-api", version.ref = "kotlinDL" }
+kotlindl-dataset = { group = "org.jetbrains.kotlinx", name = "kotlin-deeplearning-dataset", version.ref = "kotlinDL" }
 
 [plugins]
 # Kotlin & KSP
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-# kotlinComposeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlinComposeCompiler" }
-kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serialization" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
-# Jetpack Compose (JetBrains Multiplatform)
+# Jetpack Compose
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "composePlugin" }
-# For Kotlin 2.0.0+ with newer Compose, you'll need this one too for compiler plugin
 kotlinComposeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
-
-# AndroidX Room (Not needed as a plugin in this KMP/JVM setup)
-# androidxRoom = { id = "androidx.room", version.ref = "room" }
-
-# SQLDelight (If still used)
-# sqldelight = { id = "app.cash.sqldelight", version = "2.0.1" } # Example specific version
-
-[bundles]
-# Example: Group common Room dependencies
-room = ["androidx-room-runtime", "androidx-room-ktx"]
+# Ktlint
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
