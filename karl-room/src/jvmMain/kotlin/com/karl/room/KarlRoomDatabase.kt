@@ -2,9 +2,9 @@
 package com.karl.room
 
 import androidx.room.*
-import com.karl.core.models.InteractionData
-import com.karl.core.models.KarlContainerStateEntity
-import com.karl.room.MapConverter
+import com.karl.room.model.InteractionDataEntity
+import com.karl.room.model.KarlContainerStateEntity
+import com.karl.room.model.MapConverter
 
 @Database(
     entities = [
