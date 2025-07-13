@@ -1,4 +1,4 @@
-// karl-project/karl-kldl/build.gradle.kts
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -6,9 +6,14 @@ plugins {
 
 kotlin {
     jvm {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "20"
+        compilations.named("main") {
+            compilerOptions.configure {
+                jvmTarget.set(JvmTarget.JVM_17)
+            }
+        }
+        compilations.named("test") {
+            compilerOptions.configure {
+                jvmTarget.set(JvmTarget.JVM_17)
             }
         }
     }
@@ -19,22 +24,13 @@ kotlin {
                 api(project(":karl-core"))
             }
         }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
-        }
         val jvmMain by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlin.stdlib.jdk8)
+                implementation(libs.kotlinx.coroutines.core) // Implementation needs its own coroutines
                 implementation(libs.kotlindl.api)
                 implementation(libs.kotlindl.dataset)
-                // implementation(libs.kotlindl.tensorflow) // If needed
             }
-        }
-        val jvmTest by getting {
-            dependsOn(commonTest)
         }
     }
 }
