@@ -19,7 +19,7 @@ KARL empowers developers to add intelligent, personalized features without compr
 - [Project KARL: The Kotlin Adaptive Reasoning Learner](#project-karl-the-kotlin-adaptive-reasoning-learner)
   - [Introduction](#introduction)
   - [Table of Contents](#table-of-contents)
-  - [Core Philosophy \& Features ✨](#core-philosophy--features-)
+  - [Core Philosophy ✨](#core-philosophy-)
   - [Motivation](#motivation)
     - [Why KARL? 🤔](#why-karl-)
     - [Project Status 🚧](#project-status-)
@@ -34,7 +34,7 @@ KARL empowers developers to add intelligent, personalized features without compr
   - [Security Policy 🛡️](#security-policy-️)
   - [License 📄](#license-)
 
-## Core Philosophy & Features ✨
+## Core Philosophy ✨
 
 - 🧠 **Local & Adaptive Learning:** KARL starts as a blank slate and learns incrementally from *individual user actions* within your application, creating truly personalized experiences. No massive pre-trained models, no assumptions – just learning directly from usage.
 - 🔒 **Privacy-First by Design:** Zero data egress. All learning and inference happens *exclusively on the user's device*. User interaction metadata (not sensitive content) is stored locally and encrypted.
