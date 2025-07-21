@@ -1,11 +1,11 @@
 [versions]
-kotlin = "1.9.23"
-ksp = "1.9.23-1.0.19" # KSP version aligned with Kotlin 1.9.23
+kotlin = "2.0.0"
+ksp = "2.0.21-1.0.25" # KSP version aligned with Kotlin 1.9.23
 coroutines = "1.7.3"
 serialization = "1.9.23" # Serialization plugin version matches Kotlin
+composePlugin = "1.8.2"
 
 # Libraries
-composePlugin = "1.6.10" # Compose Multiplatform plugin for Kotlin 1.9.23
 room = "2.6.1"
 sqliteFramework = "2.4.0"
 kotlinDL = "0.5.2" # Compatible with Kotlin 1.9.2x
@@ -42,6 +42,8 @@ kotlindl-dataset = { group = "org.jetbrains.kotlinx", name = "kotlin-deeplearnin
 [plugins]
 # Kotlin & KSP
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+# compose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

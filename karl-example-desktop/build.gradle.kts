@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile // For setting jvmTarget 
 plugins {
     alias(libs.plugins.kotlinJvm) // This module is a pure JVM application
     alias(libs.plugins.jetbrainsCompose)
-    // alias(libs.plugins.kotlinComposeCompiler) // Needed if using Kotlin 2.0+ with Compose
+    alias(libs.plugins.compose.compiler) // For Compose Desktop support
 }
 
 group = "com.karl.example"
@@ -36,6 +36,22 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
     }
 }
 
+kotlin {
+    jvm {
+        compilations.named("main") {
+            compilerOptions.configure {
+                jvmTarget.set(JvmTarget.JVM_17)
+            }
+        }
+        compilations.named("test") {
+            compilerOptions.configure {
+                jvmTarget.set(JvmTarget.JVM_17)
+            }
+        }
+    }
+}
+
+    
 compose.desktop {
     application {
         mainClass = "com.karl.example.DesktopExampleAppKt"

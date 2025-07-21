@@ -1,16 +1,19 @@
 // karl-project/karl-compose-ui/build.gradle.kts
 
 plugins {
-    kotlin("multiplatform") // Version inherited from settings
+    kotlin("multiplatform") // Version inherited from settings\
     id("org.jetbrains.compose") // Version inherited from settings
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 kotlin {
     jvm { // Define the JVM target for desktop components
-        tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-            kotlinOptions {
-                jvmTarget = "17" // Set JVM target compatibility
-            }
+        //tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+            //kotlinOptions {
+                //jvmTarget = "17" // Set JVM target compatibility
+            //}
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         }
     }
     // testRuns.named("test") { useJUnitPlatform() } // Optional: for JVM tests
