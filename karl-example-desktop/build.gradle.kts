@@ -1,6 +1,6 @@
 // karl-project/karl-example-desktop/build.gradle.kts
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile // For setting jvmTarget in a 'kotlin("jvm")' module
+//import org.jetbrains.kotlin.gradle.tasks.KotlinCompile // For setting jvmTarget in a 'kotlin("jvm")' module
 
 plugins {
     alias(libs.plugins.kotlinJvm) // This module is a pure JVM application
@@ -37,21 +37,9 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 }
 
 kotlin {
-    jvm {
-        compilations.named("main") {
-            compilerOptions.configure {
-                jvmTarget.set(JvmTarget.JVM_17)
-            }
-        }
-        compilations.named("test") {
-            compilerOptions.configure {
-                jvmTarget.set(JvmTarget.JVM_17)
-            }
-        }
-    }
+    jvmToolchain(21)
 }
 
-    
 compose.desktop {
     application {
         mainClass = "com.karl.example.DesktopExampleAppKt"

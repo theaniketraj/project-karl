@@ -10,12 +10,12 @@ kotlin {
     jvm {
         compilations.named("main") {
             compilerOptions.configure {
-                jvmTarget.set(JvmTarget.JVM_17)
+                jvmTarget.set(JvmTarget.JVM_21)
             }
         }
         compilations.named("test") {
             compilerOptions.configure {
-                jvmTarget.set(JvmTarget.JVM_17)
+                jvmTarget.set(JvmTarget.JVM_21)
             }
         }
     }
