@@ -13,7 +13,7 @@ kotlin {
                 //jvmTarget = "17" // Set JVM target compatibility
             //}
         compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
         }
     }
     // testRuns.named("test") { useJUnitPlatform() } // Optional: for JVM tests
