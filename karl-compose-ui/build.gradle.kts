@@ -7,7 +7,7 @@ plugins {
 }
 
 kotlin {
-    jvm { 
+    jvm {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
         }
