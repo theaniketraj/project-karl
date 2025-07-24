@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.0.0"
+kotlin = "2.0.21"
 ksp = "2.0.21-1.0.25" # KSP version aligned with Kotlin 1.9.23
 coroutines = "1.8.1"
 serialization = "2.0.0" # Serialization plugin version matches Kotlin
