@@ -7,17 +7,11 @@ plugins {
 }
 
 kotlin {
-    jvm { // Define the JVM target for desktop components
-        //tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-            //kotlinOptions {
-                //jvmTarget = "17" // Set JVM target compatibility
-            //}
+    jvm { 
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
         }
     }
-    // testRuns.named("test") { useJUnitPlatform() } // Optional: for JVM tests
-    // Add other targets like androidTarget(), iosX64() if this UI module becomes truly multiplatform
 
     sourceSets {
         val commonMain by getting {
@@ -72,10 +66,3 @@ kotlin {
         // ... commonTest, jvmTest ...
     }
 }
-
-// If this module itself needs specific desktop configurations (unlikely for a pure UI library)
-// compose.desktop {
-//     // Example:
-//     // Jvm specific configuration for this module if it were an application.
-//     // For a library, this block might not be needed here.
-// }

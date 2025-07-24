@@ -1,6 +1,5 @@
 // karl-project/karl-example-desktop/build.gradle.kts
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-//import org.jetbrains.kotlin.gradle.tasks.KotlinCompile // For setting jvmTarget in a 'kotlin("jvm")' module
 
 plugins {
     alias(libs.plugins.kotlinJvm) // This module is a pure JVM application
