@@ -2,7 +2,7 @@
 kotlin = "2.0.0"
 ksp = "2.0.21-1.0.25" # KSP version aligned with Kotlin 1.9.23
 coroutines = "1.7.3"
-serialization = "1.9.23" # Serialization plugin version matches Kotlin
+serialization = "2.0.0" # Serialization plugin version matches Kotlin
 composePlugin = "1.8.2"
 
 # Libraries
