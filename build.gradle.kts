@@ -19,14 +19,6 @@ subprojects {
     }
 }
 
-// allprojects {
-//     repositories {
-//         mavenCentral()
-//         google()
-//         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-//     }
-// }
-
 tasks.register("clean", Delete::class) {
     delete(rootProject.layout.buildDirectory)
 }
