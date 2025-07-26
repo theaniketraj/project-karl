@@ -35,8 +35,6 @@ kotlin {
                 api(libs.androidx.room.ktx)
                 api(libs.androidx.sqlite.framework)
                 implementation(libs.sqlite.jdbc)
-
-                // KSP processor for the JVM target
                 implementation(libs.androidx.room.compiler)
             }
         }

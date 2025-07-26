@@ -2,9 +2,9 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
-    alias(libs.plugins.kotlinJvm) // This module is a pure JVM application
+    alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.compose.compiler) // For Compose Desktop support
+    alias(libs.plugins.compose.compiler)
 }
 
 group = "com.karl.example"
@@ -13,25 +13,17 @@ version = "1.0.0"
 dependencies {
     implementation(libs.kotlin.stdlib.jdk8)
     implementation(libs.kotlinx.coroutines.core)
-
-    // Compose Desktop. The 'jetbrainsCompose' plugin usually provides the 'compose.' accessors.
-    // If not, or for clarity, define them in libs.versions.toml [libraries]
-    // For an application, compose.desktop.application or compose.desktop.currentOs are key
-    implementation(compose.desktop.currentOs) // Or compose.desktop.application if preferred for app setup
-
-    // KARL Module Dependencies
+    implementation(compose.desktop.currentOs)
     implementation(project(":karl-core"))
     implementation(project(":karl-kldl"))
     implementation(project(":karl-room"))
     implementation(project(":karl-compose-ui"))
-
-    // Dependencies needed by KARL Implementations that aren't transitive via 'api'
-    implementation(libs.sqlite.jdbc) // For :karl-room's SQLite backend
+    implementation(libs.sqlite.jdbc)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     kotlinOptions {
-        jvmTarget = "21" // Set the JVM target version
+        jvmTarget = "21"
     }
 }
 
