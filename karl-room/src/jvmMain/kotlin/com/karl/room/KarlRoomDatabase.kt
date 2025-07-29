@@ -43,7 +43,8 @@ abstract class KarlRoomDatabase : RoomDatabase() {
         private fun buildDatabaseInstance(dbPath: String): KarlRoomDatabase {
             // Room KMP Builder syntax might differ slightly. Consult documentation.
             // This is a conceptual JVM example.
-            return Room.databaseBuilder<KarlRoomDatabase>(
+            return Room.databaseBuilder(
+                klass = KarlRoomDatabase::class,
                 name = dbPath, // For JVM, 'name' is often the file path
             )
                 // REQUIRED for schema changes:
