@@ -28,6 +28,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlindl.api)
                 implementation(libs.kotlindl.dataset)
+                implementation("org.tensorflow:tensorflow-lite-gpu:2.9.0")
             }
         }
     }
