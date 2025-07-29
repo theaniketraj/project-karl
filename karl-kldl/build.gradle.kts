@@ -6,14 +6,12 @@ plugins {
 
 kotlin {
     jvm {
-        compilations.named("main") {
-            compilerOptions.configure {
-                jvmTarget.set(JvmTarget.JVM_21)
-            }
-        }
-        compilations.named("test") {
-            compilerOptions.configure {
-                jvmTarget.set(JvmTarget.JVM_21)
+        withJava()
+        compilations.configureEach {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_21)
+                }
             }
         }
     }
@@ -27,7 +25,7 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(libs.kotlin.stdlib.jdk8)
-                implementation(libs.kotlinx.coroutines.core) // Implementation needs its own coroutines
+                implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlindl.api)
                 implementation(libs.kotlindl.dataset)
             }

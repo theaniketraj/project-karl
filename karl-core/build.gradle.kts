@@ -6,14 +6,12 @@ plugins {
 
 kotlin {
     jvm {
-        compilations.named("main") {
-            compilerOptions.configure {
-                jvmTarget.set(JvmTarget.JVM_21)
-            }
-        }
-        compilations.named("test") {
-            compilerOptions.configure {
-                jvmTarget.set(JvmTarget.JVM_21)
+        withJava()
+        compilations.configureEach {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_21)
+                }
             }
         }
     }

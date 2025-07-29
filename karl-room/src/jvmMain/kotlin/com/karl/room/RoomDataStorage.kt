@@ -1,10 +1,11 @@
 // karl-project/karl-room/src/jvmMain/kotlin/com/karl/room/RoomDataStorage.kt
 package com.karl.room
 
-import com.karl.core.data.DataStorage
+import com.karl.core.models.DataStorage
 import com.karl.core.models.InteractionData
 import com.karl.core.models.KarlContainerState
-import com.karl.core.models.KarlContainerStateEntity
+import com.karl.room.model.InteractionDataEntity
+import com.karl.room.model.KarlContainerStateEntity
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -48,8 +49,13 @@ class RoomDataStorage(
 
     override suspend fun saveInteractionData(data: InteractionData) {
         withContext(ioDispatcher) {
-            // Room handles assigning the auto-generated ID if 'id' is 0
-            karlDao.saveInteractionData(data)
+            val entity = InteractionDataEntity(
+                userId = data.userId,
+                timestamp = data.timestamp,
+                type = data.type,
+                data = data.data
+            )
+            karlDao.saveInteractionData(entity)
         }
     }
 
@@ -59,10 +65,19 @@ class RoomDataStorage(
         type: String?,
     ): List<InteractionData> {
         return withContext(ioDispatcher) {
-            if (type == null) {
+            val entities = if (type == null) {
                 karlDao.loadRecentInteractionData(userId, limit)
             } else {
                 karlDao.loadRecentInteractionDataByType(userId, limit, type)
+            }
+            entities.map { entity ->
+                InteractionData(
+                    id = entity.id,
+                    userId = entity.userId,
+                    timestamp = entity.timestamp,
+                    type = entity.type,
+                    data = entity.data
+                )
             }
         }
     }

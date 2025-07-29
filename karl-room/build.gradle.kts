@@ -8,14 +8,12 @@ plugins {
 
 kotlin {
     jvm {
-        compilations.named("main") {
-            compilerOptions.configure {
-                jvmTarget.set(JvmTarget.JVM_21)
-            }
-        }
-        compilations.named("test") {
-            compilerOptions.configure {
-                jvmTarget.set(JvmTarget.JVM_21)
+        withJava()
+        compilations.configureEach {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_21)
+                }
             }
         }
     }
@@ -35,10 +33,13 @@ kotlin {
                 api(libs.androidx.room.ktx)
                 api(libs.androidx.sqlite.framework)
                 implementation(libs.sqlite.jdbc)
-                implementation(libs.androidx.room.compiler)
             }
         }
     }
+}
+
+dependencies {
+    add("kspJvm", libs.androidx.room.compiler)
 }
 
 ksp {

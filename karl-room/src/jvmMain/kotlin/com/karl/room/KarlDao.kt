@@ -2,8 +2,8 @@
 package com.karl.room // Or your chosen package for room implementation
 
 import androidx.room.*
-import com.karl.core.models.InteractionData
-import com.karl.core.models.KarlContainerStateEntity
+import com.karl.room.model.InteractionDataEntity
+import com.karl.room.model.KarlContainerStateEntity
 
 @Dao
 interface KarlDao {
@@ -22,14 +22,14 @@ interface KarlDao {
     // --- Methods for InteractionData ---
 
     @Insert
-    suspend fun saveInteractionData(interactionData: InteractionData)
+    suspend fun saveInteractionData(interactionData: InteractionDataEntity)
 
     // Query recent interactions for a user, ordered by timestamp
     @Query("SELECT * FROM interaction_data WHERE userId = :userId ORDER BY timestamp DESC LIMIT :limit")
     suspend fun loadRecentInteractionData(
         userId: String,
         limit: Int,
-    ): List<InteractionData>
+    ): List<InteractionDataEntity>
 
     // Optional: Query filtered by type
     @Query("SELECT * FROM interaction_data WHERE userId = :userId AND type = :type ORDER BY timestamp DESC LIMIT :limit")
@@ -37,7 +37,7 @@ interface KarlDao {
         userId: String,
         limit: Int,
         type: String,
-    ): List<InteractionData>
+    ): List<InteractionDataEntity>
 
     @Query("DELETE FROM interaction_data WHERE userId = :userId")
     suspend fun deleteInteractionData(userId: String)

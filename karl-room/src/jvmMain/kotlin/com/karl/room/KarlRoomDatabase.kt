@@ -1,10 +1,14 @@
 // karl-project/karl-room/src/jvmMain/kotlin/com/karl/room/KarlRoomDatabase.kt
 package com.karl.room
 
-import androidx.room.*
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.karl.room.model.InteractionDataEntity
 import com.karl.room.model.KarlContainerStateEntity
 import com.karl.room.model.MapConverter
+import kotlin.reflect.KClass
 
 @Database(
     entities = [
@@ -39,10 +43,8 @@ abstract class KarlRoomDatabase : RoomDatabase() {
         private fun buildDatabaseInstance(dbPath: String): KarlRoomDatabase {
             // Room KMP Builder syntax might differ slightly. Consult documentation.
             // This is a conceptual JVM example.
-            return Room.databaseBuilder(
+            return Room.databaseBuilder<KarlRoomDatabase>(
                 name = dbPath, // For JVM, 'name' is often the file path
-                factory = { KarlRoomDatabase::class.instantiateImpl() }, // Factory for Room implementation
-                // Add specific KMP/JVM backend configuration if needed (e.g., driver)
             )
                 // REQUIRED for schema changes:
                 // .addMigrations(MIGRATION_1_2, MIGRATION_2_3...)
@@ -52,11 +54,4 @@ abstract class KarlRoomDatabase : RoomDatabase() {
         }
         // TODO: Define your Migration objects (MIGRATION_1_2, etc.)
     }
-}
-
-// Hack for KSP/Room KMP limitation if constructor isn't public (Check Room KMP docs)
-private fun KClass<KarlRoomDatabase>.instantiateImpl(): KarlRoomDatabase {
-    val method = Class.forName("${qualifiedName}_Impl").getDeclaredConstructor()
-    method.isAccessible = true
-    return method.newInstance() as KarlRoomDatabase
 }
