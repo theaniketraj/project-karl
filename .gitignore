@@ -20,7 +20,8 @@ build/ # Standard Gradle build output directory for all modules
 /build/
 
 # Kotlin
-.kotlin/ # If you see this generated at the root or module level
+.kotlin/
+.kotlin/sessions # If you see this generated at the root or module level
 *.kst # Kotlin Script Tasks cache
 *.kts_cache/ # Kotlin Script cache
 
