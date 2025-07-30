@@ -918,9 +918,7 @@ fun main() =
                                                                     val actionType = "action_type_A"
                                                                     println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
-                                                                    learningProgressState.update {
-                                                                        (it + 0.05f).coerceAtMost(1.0f)
-                                                                    }
+                                                                    updateLearningProgress()
                                                                     val prediction = karlContainer?.getPrediction()
                                                                     predictionState.value = prediction
                                                                     println("Prediction after Action A: $prediction")
@@ -972,9 +970,7 @@ fun main() =
                                                                     val actionType = "action_type_B"
                                                                     println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
-                                                                    learningProgressState.update {
-                                                                        (it + 0.05f).coerceAtMost(1.0f)
-                                                                    }
+                                                                    updateLearningProgress()
                                                                     val prediction = karlContainer?.getPrediction()
                                                                     predictionState.value = prediction
                                                                     println("Prediction after Action B: $prediction")
@@ -1051,9 +1047,7 @@ fun main() =
                                                                     val actionType = "action_type_A"
                                                                     println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
-                                                                    learningProgressState.update {
-                                                                        (it + 0.05f).coerceAtMost(1.0f)
-                                                                    }
+                                                                    updateLearningProgress()
                                                                     val prediction = karlContainer?.getPrediction()
                                                                     predictionState.value = prediction
                                                                     println("Prediction after Action A: $prediction")
@@ -1087,9 +1081,7 @@ fun main() =
                                                                     val actionType = "action_type_B"
                                                                     println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
-                                                                    learningProgressState.update {
-                                                                        (it + 0.05f).coerceAtMost(1.0f)
-                                                                    }
+                                                                    updateLearningProgress()
                                                                     val prediction = karlContainer?.getPrediction()
                                                                     predictionState.value = prediction
                                                                     println("Prediction after Action B: $prediction")
@@ -1159,9 +1151,7 @@ fun main() =
                                                                     val actionType = "action_type_A"
                                                                     println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
-                                                                    learningProgressState.update {
-                                                                        (it + 0.05f).coerceAtMost(1.0f)
-                                                                    }
+                                                                    updateLearningProgress()
                                                                     val prediction = karlContainer?.getPrediction()
                                                                     predictionState.value = prediction
                                                                     println("Prediction after Action A: $prediction")
@@ -1195,9 +1185,7 @@ fun main() =
                                                                     val actionType = "action_type_B"
                                                                     println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
-                                                                    learningProgressState.update {
-                                                                        (it + 0.05f).coerceAtMost(1.0f)
-                                                                    }
+                                                                    updateLearningProgress()
                                                                     val prediction = karlContainer?.getPrediction()
                                                                     predictionState.value = prediction
                                                                     println("Prediction after Action B: $prediction")
