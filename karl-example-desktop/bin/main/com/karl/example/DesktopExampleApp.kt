@@ -26,6 +26,8 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -315,7 +317,7 @@ fun main() =
                             // Theme Toggle Button
                             IconButton(
                                 onClick = { isDarkTheme = !isDarkTheme },
-                                modifier = Modifier.padding(end = 8.dp),
+                                modifier = Modifier.padding(end = 8.dp).pointerHoverIcon(PointerIcon.Hand),
                             ) {
                                 Icon(
                                     imageVector =
@@ -349,6 +351,7 @@ fun main() =
                                         println("Could not open GitHub link: ${e.message}")
                                     }
                                 },
+                                modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
                             ) {
                                 Icon(
                                     imageVector = GitHubIcon,
@@ -988,7 +991,7 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier.height(64.dp).width(160.dp), // Larger buttons
+                                                            modifier = Modifier.height(64.dp).width(160.dp).pointerHoverIcon(PointerIcon.Hand), // Larger buttons
                                                             shape = RoundedCornerShape(32.dp),
                                                             colors =
                                                                 ButtonDefaults.buttonColors(
@@ -1019,7 +1022,7 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier.height(64.dp).width(160.dp),
+                                                            modifier = Modifier.height(64.dp).width(160.dp).pointerHoverIcon(PointerIcon.Hand),
                                                             shape = RoundedCornerShape(32.dp),
                                                             colors =
                                                                 ButtonDefaults.buttonColors(
@@ -1047,7 +1050,7 @@ fun main() =
                                                             }
                                                         },
                                                         enabled = karlContainer != null,
-                                                        modifier = Modifier.height(64.dp).width(280.dp), // Extra large prediction button
+                                                        modifier = Modifier.height(64.dp).width(280.dp).pointerHoverIcon(PointerIcon.Hand), // Extra large prediction button
                                                         shape = RoundedCornerShape(32.dp),
                                                         colors =
                                                             ButtonDefaults.buttonColors(
@@ -1082,7 +1085,7 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier.height(48.dp).width(130.dp), // Larger normal buttons
+                                                            modifier = Modifier.height(48.dp).width(130.dp).pointerHoverIcon(PointerIcon.Hand), // Larger normal buttons
                                                             shape = RoundedCornerShape(24.dp),
                                                             colors =
                                                                 ButtonDefaults.buttonColors(
@@ -1113,7 +1116,7 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier.height(48.dp).width(130.dp),
+                                                            modifier = Modifier.height(48.dp).width(130.dp).pointerHoverIcon(PointerIcon.Hand),
                                                             shape = RoundedCornerShape(24.dp),
                                                             colors =
                                                                 ButtonDefaults.buttonColors(
@@ -1141,7 +1144,7 @@ fun main() =
                                                             }
                                                         },
                                                         enabled = karlContainer != null,
-                                                        modifier = Modifier.height(48.dp).width(180.dp), // Larger prediction button
+                                                        modifier = Modifier.height(48.dp).width(180.dp).pointerHoverIcon(PointerIcon.Hand), // Larger prediction button
                                                         shape = RoundedCornerShape(24.dp),
                                                         colors =
                                                             ButtonDefaults.buttonColors(
