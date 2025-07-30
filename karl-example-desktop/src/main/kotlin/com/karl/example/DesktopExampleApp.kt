@@ -523,20 +523,63 @@ fun main() =
                                             .fillMaxHeight() // Use available height instead of fixed height
                                             .graphicsLayer(alpha = insightsAlpha),
                                 ) {
-                                    // Transparent background with subtle border
+                                    // Enhanced hover interaction with animated background
+                                    val insightsInteractionSource = remember { MutableInteractionSource() }
+                                    val isInsightsHovered by insightsInteractionSource.collectIsHoveredAsState()
+                                    
+                                    // Animated hover effects
+                                    val hoverScale by animateFloatAsState(
+                                        targetValue = if (isInsightsHovered) 1.02f else 1.0f,
+                                        animationSpec = tween(durationMillis = 200),
+                                    )
+                                    val hoverElevation by animateFloatAsState(
+                                        targetValue = if (isInsightsHovered) 8.dp.value else 0.dp.value,
+                                        animationSpec = tween(durationMillis = 200),
+                                    )
+                                    val backgroundAlpha by animateFloatAsState(
+                                        targetValue = if (isInsightsHovered) 0.12f else 0.05f,
+                                        animationSpec = tween(durationMillis = 300),
+                                    )
+                                    val borderAlpha by animateFloatAsState(
+                                        targetValue = if (isInsightsHovered) 0.2f else 0.08f,
+                                        animationSpec = tween(durationMillis = 300),
+                                    )
+                                    
+                                    // Colorful accent animation for hover
+                                    val accentColor = if (isDarkTheme) {
+                                        androidx.compose.ui.graphics.Color(0xFF64B5F6) // Light blue for dark theme
+                                    } else {
+                                        androidx.compose.ui.graphics.Color(0xFF1976D2) // Darker blue for light theme
+                                    }
+                                    
+                                    // Transparent background with subtle border and hover effects
                                     Box(
                                         modifier =
                                             Modifier
                                                 .fillMaxSize()
+                                                .graphicsLayer(
+                                                    scaleX = hoverScale,
+                                                    scaleY = hoverScale,
+                                                    shadowElevation = hoverElevation,
+                                                )
                                                 .background(
-                                                    color = MaterialTheme.colors.surface.copy(alpha = 0.05f),
+                                                    color = if (isInsightsHovered) {
+                                                        accentColor.copy(alpha = backgroundAlpha * 0.3f)
+                                                    } else {
+                                                        MaterialTheme.colors.surface.copy(alpha = backgroundAlpha)
+                                                    },
                                                     shape = RoundedCornerShape(12.dp),
                                                 )
                                                 .border(
-                                                    width = 1.dp,
-                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.08f),
+                                                    width = if (isInsightsHovered) 2.dp else 1.dp,
+                                                    color = if (isInsightsHovered) {
+                                                        accentColor.copy(alpha = borderAlpha)
+                                                    } else {
+                                                        MaterialTheme.colors.onSurface.copy(alpha = borderAlpha)
+                                                    },
                                                     shape = RoundedCornerShape(12.dp),
                                                 )
+                                                .hoverable(insightsInteractionSource)
                                                 .padding(32.dp), // Enlarged padding for bigger content
                                     ) {
                                         Column(
@@ -627,20 +670,63 @@ fun main() =
                                             .fillMaxHeight() // Use available height instead of fixed height
                                             .graphicsLayer(alpha = controlsAlpha),
                                 ) {
-                                    // Transparent background with subtle border
+                                    // Enhanced hover interaction with animated background
+                                    val controlsInteractionSource = remember { MutableInteractionSource() }
+                                    val isControlsHovered by controlsInteractionSource.collectIsHoveredAsState()
+                                    
+                                    // Animated hover effects
+                                    val hoverScale by animateFloatAsState(
+                                        targetValue = if (isControlsHovered) 1.02f else 1.0f,
+                                        animationSpec = tween(durationMillis = 200),
+                                    )
+                                    val hoverElevation by animateFloatAsState(
+                                        targetValue = if (isControlsHovered) 8.dp.value else 0.dp.value,
+                                        animationSpec = tween(durationMillis = 200),
+                                    )
+                                    val backgroundAlpha by animateFloatAsState(
+                                        targetValue = if (isControlsHovered) 0.12f else 0.05f,
+                                        animationSpec = tween(durationMillis = 300),
+                                    )
+                                    val borderAlpha by animateFloatAsState(
+                                        targetValue = if (isControlsHovered) 0.2f else 0.08f,
+                                        animationSpec = tween(durationMillis = 300),
+                                    )
+                                    
+                                    // Colorful accent animation for hover - different color for Controls
+                                    val accentColor = if (isDarkTheme) {
+                                        androidx.compose.ui.graphics.Color(0xFF81C784) // Light green for dark theme
+                                    } else {
+                                        androidx.compose.ui.graphics.Color(0xFF388E3C) // Darker green for light theme
+                                    }
+                                    
+                                    // Transparent background with subtle border and hover effects
                                     Box(
                                         modifier =
                                             Modifier
                                                 .fillMaxSize()
+                                                .graphicsLayer(
+                                                    scaleX = hoverScale,
+                                                    scaleY = hoverScale,
+                                                    shadowElevation = hoverElevation,
+                                                )
                                                 .background(
-                                                    color = MaterialTheme.colors.surface.copy(alpha = 0.05f),
+                                                    color = if (isControlsHovered) {
+                                                        accentColor.copy(alpha = backgroundAlpha * 0.3f)
+                                                    } else {
+                                                        MaterialTheme.colors.surface.copy(alpha = backgroundAlpha)
+                                                    },
                                                     shape = RoundedCornerShape(12.dp),
                                                 )
                                                 .border(
-                                                    width = 1.dp,
-                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.08f),
+                                                    width = if (isControlsHovered) 2.dp else 1.dp,
+                                                    color = if (isControlsHovered) {
+                                                        accentColor.copy(alpha = borderAlpha)
+                                                    } else {
+                                                        MaterialTheme.colors.onSurface.copy(alpha = borderAlpha)
+                                                    },
                                                     shape = RoundedCornerShape(12.dp),
                                                 )
+                                                .hoverable(controlsInteractionSource)
                                                 .padding(32.dp), // Enlarged padding for bigger content
                                     ) {
                                         Column(

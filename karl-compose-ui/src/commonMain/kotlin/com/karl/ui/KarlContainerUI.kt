@@ -1,6 +1,5 @@
 package com.karl.ui
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Text
