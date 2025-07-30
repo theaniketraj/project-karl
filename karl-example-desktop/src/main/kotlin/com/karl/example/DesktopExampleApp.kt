@@ -8,10 +8,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Brightness4
-import androidx.compose.material.icons.filled.Brightness7
-import androidx.compose.material.icons.filled.Fullscreen
-import androidx.compose.material.icons.filled.FullscreenExit
+import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material.icons.filled.Brightness2
+import androidx.compose.material.icons.filled.OpenInFull
+import androidx.compose.material.icons.filled.CloseFullscreen
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -299,7 +299,7 @@ fun main() = application {
                             modifier = Modifier.padding(end = 8.dp)
                         ) {
                             Icon(
-                                imageVector = if (isDarkTheme) Icons.Default.Brightness7 else Icons.Default.Brightness4,
+                                imageVector = if (isDarkTheme) Icons.Default.WbSunny else Icons.Default.Brightness2,
                                 contentDescription = if (isDarkTheme) "Switch to Light Theme" else "Switch to Dark Theme",
                                 tint = MaterialTheme.colors.onSurface,
                                 modifier = Modifier.size(24.dp)
@@ -395,104 +395,145 @@ fun main() = application {
                         }
                     }
 
-                    // Main Content Section - Side by Side Layout
+                    // Main Content Section - Side by Side Layout with Smart Resize
                     if (karlContainer != null) {
-                        if (enlargedSection != null) {
-                            // Enlarged view - single section takes full width with 16:9 aspect ratio
-                            val targetHeight = 900.dp * 9f / 16f // 16:9 aspect ratio
-                            val animatedHeight by animateFloatAsState(
-                                targetValue = targetHeight.value,
-                                animationSpec = tween(durationMillis = 500)
-                            )
-                            
+                        // Calculate weights based on enlarged section
+                        val insightsWeight by animateFloatAsState(
+                            targetValue = when (enlargedSection) {
+                                "insights" -> 0.75f // 75% when insights is enlarged
+                                "controls" -> 0.25f // 25% when controls is enlarged
+                                else -> 0.5f // 50% when both are equal
+                            },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                        val controlsWeight = 1f - insightsWeight
+                        
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            // AI Insights Section
                             Card(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(animatedHeight.dp),
-                                elevation = 8.dp,
+                                    .weight(insightsWeight)
+                                    .height(400.dp),
+                                elevation = if (enlargedSection == "insights") 8.dp else 4.dp,
                                 backgroundColor = MaterialTheme.colors.surface,
-                                shape = RoundedCornerShape(16.dp)
+                                shape = RoundedCornerShape(12.dp)
                             ) {
-                                if (enlargedSection == "insights") {
-                                    // Enlarged AI Insights Section
-                                    Column(
-                                        modifier = Modifier.padding(24.dp)
+                                Column(
+                                    modifier = Modifier.padding(20.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                text = "📊 AI Insights (Enlarged)",
-                                                style = MaterialTheme.typography.h5.copy(
+                                        Text(
+                                            text = if (enlargedSection == "insights") "📊 AI Insights (Enlarged)" else "📊 AI Insights",
+                                            style = if (enlargedSection == "insights") 
+                                                MaterialTheme.typography.h5.copy(
+                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                                ) else MaterialTheme.typography.h6.copy(
                                                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                                                 ),
-                                                color = MaterialTheme.colors.primary
-                                            )
-                                            IconButton(
-                                                onClick = { enlargedSection = null }
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.FullscreenExit,
-                                                    contentDescription = "Exit Fullscreen",
-                                                    tint = MaterialTheme.colors.onSurface
-                                                )
+                                            color = MaterialTheme.colors.primary
+                                        )
+                                        IconButton(
+                                            onClick = { 
+                                                enlargedSection = if (enlargedSection == "insights") null else "insights"
                                             }
-                                        }
-                                        Spacer(modifier = Modifier.height(24.dp))
-                                        Box(modifier = Modifier.fillMaxSize()) {
-                                            KarlContainerUI(
-                                                predictionState = predictionState,
-                                                learningProgressState = learningProgressState
+                                        ) {
+                                            Icon(
+                                                imageVector = if (enlargedSection == "insights") 
+                                                    Icons.Default.CloseFullscreen 
+                                                else 
+                                                    Icons.Default.OpenInFull,
+                                                contentDescription = if (enlargedSection == "insights") "Shrink Section" else "Enlarge Section",
+                                                tint = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                modifier = Modifier.size(20.dp)
                                             )
                                         }
                                     }
-                                } else {
-                                    // Enlarged Interaction Controls Section
-                                    Column(
-                                        modifier = Modifier.padding(24.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Box(modifier = Modifier.fillMaxSize()) {
+                                        KarlContainerUI(
+                                            predictionState = predictionState,
+                                            learningProgressState = learningProgressState
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Interaction Controls Section
+                            Card(
+                                modifier = Modifier
+                                    .weight(controlsWeight)
+                                    .height(400.dp),
+                                elevation = if (enlargedSection == "controls") 8.dp else 4.dp,
+                                backgroundColor = MaterialTheme.colors.surface,
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(20.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                text = "🎮 Interaction Controls (Enlarged)",
-                                                style = MaterialTheme.typography.h5.copy(
+                                        Text(
+                                            text = if (enlargedSection == "controls") "🎮 Controls (Enlarged)" else "🎮 Interaction Controls",
+                                            style = if (enlargedSection == "controls") 
+                                                MaterialTheme.typography.h5.copy(
+                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                                ) else MaterialTheme.typography.h6.copy(
                                                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                                                 ),
-                                                color = MaterialTheme.colors.primary
-                                            )
-                                            IconButton(
-                                                onClick = { enlargedSection = null }
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.FullscreenExit,
-                                                    contentDescription = "Exit Fullscreen",
-                                                    tint = MaterialTheme.colors.onSurface
-                                                )
+                                            color = MaterialTheme.colors.primary
+                                        )
+                                        IconButton(
+                                            onClick = { 
+                                                enlargedSection = if (enlargedSection == "controls") null else "controls"
                                             }
+                                        ) {
+                                            Icon(
+                                                imageVector = if (enlargedSection == "controls") 
+                                                    Icons.Default.CloseFullscreen 
+                                                else 
+                                                    Icons.Default.OpenInFull,
+                                                contentDescription = if (enlargedSection == "controls") "Shrink Section" else "Enlarge Section",
+                                                tint = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                modifier = Modifier.size(20.dp)
+                                            )
                                         }
-                                        
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        
+                                    }
+                                    
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    
+                                    // Responsive text based on section size
+                                    if (enlargedSection != "insights") { // Only show description if not in minimal mode
                                         Text(
                                             text = "Simulate user actions to train the AI model",
-                                            style = MaterialTheme.typography.body1,
+                                            style = MaterialTheme.typography.body2,
                                             color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                            modifier = Modifier.padding(bottom = 32.dp)
+                                            modifier = Modifier.padding(bottom = 20.dp)
                                         )
+                                    }
 
-                                        // Enhanced Buttons - Larger in enlarged view
-                                        Column(
-                                            verticalArrangement = Arrangement.spacedBy(20.dp),
-                                            horizontalAlignment = Alignment.CenterHorizontally
-                                        ) {
-                                            Row(
-                                                horizontalArrangement = Arrangement.spacedBy(24.dp)
+                                    // Enhanced Buttons - Responsive sizing
+                                    Column(
+                                        verticalArrangement = Arrangement.spacedBy(
+                                            if (enlargedSection == "controls") 16.dp else 12.dp
+                                        ),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        if (enlargedSection == "insights") {
+                                            // Minimal buttons when insights is enlarged
+                                            Column(
+                                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                                horizontalAlignment = Alignment.CenterHorizontally
                                             ) {
                                                 Button(
                                                     onClick = {
@@ -507,9 +548,97 @@ fun main() = application {
                                                     },
                                                     enabled = karlContainer != null,
                                                     modifier = Modifier
-                                                        .height(64.dp)
-                                                        .width(180.dp),
-                                                    shape = RoundedCornerShape(32.dp),
+                                                        .height(36.dp)
+                                                        .width(100.dp),
+                                                    shape = RoundedCornerShape(18.dp),
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        backgroundColor = androidx.compose.ui.graphics.Color(0xFF4CAF50),
+                                                        contentColor = androidx.compose.ui.graphics.Color.White
+                                                    )
+                                                ) {
+                                                    Text(
+                                                        text = "🔄 A",
+                                                        style = MaterialTheme.typography.caption.copy(
+                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                                        )
+                                                    )
+                                                }
+                                                Button(
+                                                    onClick = {
+                                                        applicationScope.launch {
+                                                            println("Button Clicked: Action B")
+                                                            actionFlow.emit("action_type_B")
+                                                            learningProgressState.update { (it + 0.05f).coerceAtMost(1.0f) }
+                                                            val prediction = karlContainer?.getPrediction()
+                                                            predictionState.value = prediction
+                                                            println("Prediction after Action B: $prediction")
+                                                        }
+                                                    },
+                                                    enabled = karlContainer != null,
+                                                    modifier = Modifier
+                                                        .height(36.dp)
+                                                        .width(100.dp),
+                                                    shape = RoundedCornerShape(18.dp),
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        backgroundColor = androidx.compose.ui.graphics.Color(0xFFFF9800),
+                                                        contentColor = androidx.compose.ui.graphics.Color.White
+                                                    )
+                                                ) {
+                                                    Text(
+                                                        text = "⚡ B",
+                                                        style = MaterialTheme.typography.caption.copy(
+                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                                        )
+                                                    )
+                                                }
+                                                Button(
+                                                    onClick = {
+                                                        applicationScope.launch {
+                                                            println("Button Clicked: Get Prediction")
+                                                            val prediction = karlContainer?.getPrediction()
+                                                            predictionState.value = prediction
+                                                            println("Explicit Prediction Request: $prediction")
+                                                        }
+                                                    },
+                                                    enabled = karlContainer != null,
+                                                    modifier = Modifier
+                                                        .height(36.dp)
+                                                        .width(100.dp),
+                                                    shape = RoundedCornerShape(18.dp),
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        backgroundColor = MaterialTheme.colors.primary,
+                                                        contentColor = androidx.compose.ui.graphics.Color.White
+                                                    )
+                                                ) {
+                                                    Text(
+                                                        text = "🔮",
+                                                        style = MaterialTheme.typography.caption.copy(
+                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                        } else if (enlargedSection == "controls") {
+                                            // Large buttons when controls is enlarged
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(20.dp)
+                                            ) {
+                                                Button(
+                                                    onClick = {
+                                                        applicationScope.launch {
+                                                            println("Button Clicked: Action A")
+                                                            actionFlow.emit("action_type_A")
+                                                            learningProgressState.update { (it + 0.05f).coerceAtMost(1.0f) }
+                                                            val prediction = karlContainer?.getPrediction()
+                                                            predictionState.value = prediction
+                                                            println("Prediction after Action A: $prediction")
+                                                        }
+                                                    },
+                                                    enabled = karlContainer != null,
+                                                    modifier = Modifier
+                                                        .height(60.dp)
+                                                        .width(150.dp),
+                                                    shape = RoundedCornerShape(30.dp),
                                                     colors = ButtonDefaults.buttonColors(
                                                         backgroundColor = androidx.compose.ui.graphics.Color(0xFF4CAF50),
                                                         contentColor = androidx.compose.ui.graphics.Color.White
@@ -536,9 +665,9 @@ fun main() = application {
                                                     },
                                                     enabled = karlContainer != null,
                                                     modifier = Modifier
-                                                        .height(64.dp)
-                                                        .width(180.dp),
-                                                    shape = RoundedCornerShape(32.dp),
+                                                        .height(60.dp)
+                                                        .width(150.dp),
+                                                    shape = RoundedCornerShape(30.dp),
                                                     colors = ButtonDefaults.buttonColors(
                                                         backgroundColor = androidx.compose.ui.graphics.Color(0xFFFF9800),
                                                         contentColor = androidx.compose.ui.graphics.Color.White
@@ -564,9 +693,9 @@ fun main() = application {
                                                 },
                                                 enabled = karlContainer != null,
                                                 modifier = Modifier
-                                                    .height(64.dp)
-                                                    .width(280.dp),
-                                                shape = RoundedCornerShape(32.dp),
+                                                    .height(60.dp)
+                                                    .width(250.dp),
+                                                shape = RoundedCornerShape(30.dp),
                                                 colors = ButtonDefaults.buttonColors(
                                                     backgroundColor = MaterialTheme.colors.primary,
                                                     contentColor = androidx.compose.ui.graphics.Color.White
@@ -579,110 +708,8 @@ fun main() = application {
                                                     )
                                                 )
                                             }
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            // Side-by-side view
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                // AI Insights Section
-                                Card(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(400.dp),
-                                    elevation = 4.dp,
-                                    backgroundColor = MaterialTheme.colors.surface,
-                                    shape = RoundedCornerShape(12.dp)
-                                ) {
-                                    Column(
-                                        modifier = Modifier.padding(20.dp)
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                text = "📊 AI Insights",
-                                                style = MaterialTheme.typography.h6.copy(
-                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                                                ),
-                                                color = MaterialTheme.colors.primary
-                                            )
-                                            IconButton(
-                                                onClick = { enlargedSection = "insights" }
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Fullscreen,
-                                                    contentDescription = "Enlarge Section",
-                                                    tint = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                                    modifier = Modifier.size(20.dp)
-                                                )
-                                            }
-                                        }
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        KarlContainerUI(
-                                            predictionState = predictionState,
-                                            learningProgressState = learningProgressState
-                                        )
-                                    }
-                                }
-
-                                // Interaction Controls Section
-                                Card(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(400.dp),
-                                    elevation = 4.dp,
-                                    backgroundColor = MaterialTheme.colors.surface,
-                                    shape = RoundedCornerShape(12.dp)
-                                ) {
-                                    Column(
-                                        modifier = Modifier.padding(20.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                text = "🎮 Interaction Controls",
-                                                style = MaterialTheme.typography.h6.copy(
-                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                                                ),
-                                                color = MaterialTheme.colors.primary
-                                            )
-                                            IconButton(
-                                                onClick = { enlargedSection = "controls" }
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Fullscreen,
-                                                    contentDescription = "Enlarge Section",
-                                                    tint = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                                    modifier = Modifier.size(20.dp)
-                                                )
-                                            }
-                                        }
-                                        
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        
-                                        Text(
-                                            text = "Simulate user actions to train the AI model",
-                                            style = MaterialTheme.typography.body2,
-                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                            modifier = Modifier.padding(bottom = 20.dp)
-                                        )
-
-                                        // Enhanced Buttons
-                                        Column(
-                                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                                            horizontalAlignment = Alignment.CenterHorizontally
-                                        ) {
+                                        } else {
+                                            // Normal buttons when both sections are equal
                                             Row(
                                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                                             ) {
