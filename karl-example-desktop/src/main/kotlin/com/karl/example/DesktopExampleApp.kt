@@ -116,11 +116,10 @@ class ExampleDataSource(
     // Use a SharedFlow to allow emitting events from button clicks
     private val externalActionFlow: SharedFlow<String>,
 ) : DataSource {
-    
     init {
         println("DEBUG: ExampleDataSource constructor - userId=$userId, externalActionFlow=$externalActionFlow")
     }
-    
+
     override fun observeInteractionData(
         onNewData: suspend (InteractionData) -> Unit,
         coroutineScope: CoroutineScope,
@@ -128,29 +127,30 @@ class ExampleDataSource(
         println("ExampleDataSource: Starting observation for $userId")
         println("DEBUG: externalActionFlow = $externalActionFlow")
         println("DEBUG: coroutineScope = $coroutineScope")
-        val job = externalActionFlow
-            .onEach { actionType ->
-                try {
-                    val interaction =
-                        InteractionData(
-                            type = actionType,
-                            details = mapOf("source" to "example_button", "timestamp_ms" to System.currentTimeMillis()),
-                            timestamp = System.currentTimeMillis(),
-                            userId = userId,
-                        )
-                    // --- Add these logs for Phase 1 verification ---
-                    println("DataSource: Received action '$actionType'.")
-                    println("DataSource: Created InteractionData -> $interaction")
-                    // --- End of Phase 1 logs ---
-                    println("DataSource: About to call onNewData(interaction)...")
-                    onNewData(interaction) // Pass data to KarlContainer
-                    println("DataSource: Successfully passed data to KarlContainer!")
-                } catch (e: Exception) {
-                    println("DataSource ERROR: Exception occurred while processing action '$actionType': ${e.message}")
-                    e.printStackTrace()
+        val job =
+            externalActionFlow
+                .onEach { actionType ->
+                    try {
+                        val interaction =
+                            InteractionData(
+                                type = actionType,
+                                details = mapOf("source" to "example_button", "timestamp_ms" to System.currentTimeMillis()),
+                                timestamp = System.currentTimeMillis(),
+                                userId = userId,
+                            )
+                        // --- Add these logs for Phase 1 verification ---
+                        println("DataSource: Received action '$actionType'.")
+                        println("DataSource: Created InteractionData -> $interaction")
+                        // --- End of Phase 1 logs ---
+                        println("DataSource: About to call onNewData(interaction)...")
+                        onNewData(interaction) // Pass data to KarlContainer
+                        println("DataSource: Successfully passed data to KarlContainer!")
+                    } catch (e: Exception) {
+                        println("DataSource ERROR: Exception occurred while processing action '$actionType': ${e.message}")
+                        e.printStackTrace()
+                    }
                 }
-            }
-            .launchIn(coroutineScope) // Use the provided scope
+                .launchIn(coroutineScope) // Use the provided scope
         println("DEBUG: Started flow observation job = $job")
         return job
     }
@@ -213,9 +213,10 @@ fun main() =
     application {
         val windowState = rememberWindowState() // Remove fixed size, let it be resizable
         // Create a scope tied to the application lifecycle for cleanup
-        val applicationScope = remember { 
-            CoroutineScope(SupervisorJob() + Dispatchers.Default)
-        }
+        val applicationScope =
+            remember {
+                CoroutineScope(SupervisorJob() + Dispatchers.Default)
+            }
         var karlContainer: KarlContainer? by remember {
             mutableStateOf(null)
         } // Hold the container instance
@@ -245,7 +246,7 @@ fun main() =
                 val learningEngine: LearningEngine = KLDLLearningEngine() // Simple instantiation
                 val dataStorage: DataStorage =
                     InMemoryDataStorage() // Use in-memory storage for simplicity
-                
+
                 println("DEBUG: Creating ExampleDataSource with actionFlow = $actionFlow")
                 val dataSource: DataSource = ExampleDataSource(userId, actionFlow) // Use the actionFlow
                 println("DEBUG: ExampleDataSource created successfully")
@@ -270,7 +271,7 @@ fun main() =
 
                 karlContainer = container // Store the initialized container
                 println("App LaunchedEffect: KARL setup complete.")
-                
+
                 // === TEST: Auto-emit a test action to verify the flow works ===
                 delay(2000) // Wait 2 seconds
                 println("========== AUTO-TEST: Emitting test action ==========")
@@ -279,7 +280,7 @@ fun main() =
                 val result = actionFlow.tryEmit("test_action")
                 println("AUTO-TEST: tryEmit result = $result")
                 println("========== AUTO-TEST: Test action emitted ==========")
-                
+
                 // Try regular emit as well
                 delay(1000)
                 println("========== AUTO-TEST: Using regular emit ==========")
@@ -895,7 +896,7 @@ fun main() =
                                                             onClick = {
                                                                 applicationScope.launch {
                                                                     val actionType = "action_type_A"
-                                                                    println("UI: Emitting action '$actionType' to SharedFlow.") // <-- Enhanced log for Phase 1
+                                                                    println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
                                                                     learningProgressState.update {
                                                                         (it + 0.05f).coerceAtMost(1.0f)
@@ -949,7 +950,7 @@ fun main() =
                                                             onClick = {
                                                                 applicationScope.launch {
                                                                     val actionType = "action_type_B"
-                                                                    println("UI: Emitting action '$actionType' to SharedFlow.") // <-- Enhanced log for Phase 1
+                                                                    println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
                                                                     learningProgressState.update {
                                                                         (it + 0.05f).coerceAtMost(1.0f)
@@ -1028,7 +1029,7 @@ fun main() =
                                                             onClick = {
                                                                 applicationScope.launch {
                                                                     val actionType = "action_type_A"
-                                                                    println("UI: Emitting action '$actionType' to SharedFlow.") // <-- Enhanced log for Phase 1
+                                                                    println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
                                                                     learningProgressState.update {
                                                                         (it + 0.05f).coerceAtMost(1.0f)
@@ -1064,7 +1065,7 @@ fun main() =
                                                             onClick = {
                                                                 applicationScope.launch {
                                                                     val actionType = "action_type_B"
-                                                                    println("UI: Emitting action '$actionType' to SharedFlow.") // <-- Enhanced log for Phase 1
+                                                                    println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
                                                                     learningProgressState.update {
                                                                         (it + 0.05f).coerceAtMost(1.0f)
@@ -1136,7 +1137,7 @@ fun main() =
                                                             onClick = {
                                                                 applicationScope.launch {
                                                                     val actionType = "action_type_A"
-                                                                    println("UI: Emitting action '$actionType' to SharedFlow.") // <-- Enhanced log for Phase 1
+                                                                    println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
                                                                     learningProgressState.update {
                                                                         (it + 0.05f).coerceAtMost(1.0f)
@@ -1172,7 +1173,7 @@ fun main() =
                                                             onClick = {
                                                                 applicationScope.launch {
                                                                     val actionType = "action_type_B"
-                                                                    println("UI: Emitting action '$actionType' to SharedFlow.") // <-- Enhanced log for Phase 1
+                                                                    println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
                                                                     learningProgressState.update {
                                                                         (it + 0.05f).coerceAtMost(1.0f)

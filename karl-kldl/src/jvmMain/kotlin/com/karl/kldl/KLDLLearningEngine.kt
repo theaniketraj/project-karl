@@ -43,7 +43,7 @@ class KLDLLearningEngine(
         }
 
         println("KLDLLearningEngine: trainStep() received data -> $data")
-        
+
         return engineScope.launch {
             println("KLDLLearningEngine: Training step with data: ${data.type}")
         }
