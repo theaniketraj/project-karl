@@ -19,6 +19,7 @@ kotlin {
                 implementation(project(":karl-core"))
                 implementation(compose.runtime)
                 implementation(compose.foundation)
+                implementation(compose.material) // Add Material 2 dependency
                 implementation(compose.material3)
                 implementation(compose.ui)
                 implementation(compose.uiTooling)

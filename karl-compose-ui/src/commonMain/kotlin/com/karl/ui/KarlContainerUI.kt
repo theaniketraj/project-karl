@@ -2,7 +2,7 @@ package com.karl.ui
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -59,12 +59,7 @@ fun KarlContainerUI(
             Modifier
                 .fillMaxSize() // Fill all available space
                 .heightIn(min = 200.dp) // Ensure minimum height for content visibility
-                .padding(8.dp) // Reduce padding for better space usage
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f), // Theme-aware border
-                )
-                .padding(8.dp), // Reduce inner padding too
+                .padding(16.dp), // Single padding, no border
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(8.dp), // Adjust spacing for better fit
     ) {
@@ -72,13 +67,13 @@ fun KarlContainerUI(
             text = "KARL AI Container",
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp, // Enlarged from 18sp
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f), // Theme-aware color
+            color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f), // Theme-aware color
         )
 
         Text(
             text = "Status: Active",
             fontSize = 14.sp, // Enlarged from 12sp
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), // Theme-aware color
+            color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f), // Theme-aware color
         )
 
         // Display Learning Progress
@@ -90,20 +85,20 @@ fun KarlContainerUI(
             text = "Current Suggestion:",
             fontSize = 16.sp, // Larger label
             fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f), // Theme-aware color
+            color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f), // Theme-aware color
         )
         Text(
             text = currentPrediction?.suggestion ?: "No suggestion yet...",
             fontWeight = FontWeight.SemiBold,
             fontSize = 18.sp, // Larger suggestion text
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f), // Theme-aware color
+            color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f), // Theme-aware color
         )
         // Optional: Display prediction confidence or type with enhanced styling
         currentPrediction?.let { prediction ->
             Text(
                 text = "Confidence: ${"%.2f".format(prediction.confidence)}",
                 fontSize = 14.sp, // Larger confidence text
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), // Theme-aware color
+                color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), // Theme-aware color
             )
         }
 
