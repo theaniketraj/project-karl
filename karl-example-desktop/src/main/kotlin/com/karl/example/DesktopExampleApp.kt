@@ -2,7 +2,12 @@ package com.karl.example
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,10 +24,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
@@ -352,110 +360,116 @@ fun main() =
                             }
                         }
 
-                        // Header Section - Fluent Design with Acrylic Effect
-                        Card(
-                            modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
-                            elevation = 0.dp, // Fluent: Minimal shadows
-                            backgroundColor = if (isDarkTheme) {
-                                androidx.compose.ui.graphics.Color(0x40FFFFFF) // Semi-transparent acrylic
-                            } else {
-                                androidx.compose.ui.graphics.Color(0x40000000) // Semi-transparent acrylic
-                            },
-                            shape = RoundedCornerShape(8.dp), // Fluent: Subtle rounded corners
+                        // Header Section - Transparent with centered content
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 32.dp),
+                            contentAlignment = Alignment.Center,
                         ) {
                             Column(
-                                modifier = Modifier
-                                    .padding(32.dp)
-                                    .fillMaxWidth(),
-                                horizontalAlignment = Alignment.Start, // Fluent: Left-aligned content
+                                horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    // Fluent: Icon emphasis
-                                    Text(
-                                        text = "🧠",
-                                        style = MaterialTheme.typography.h2,
-                                        modifier = Modifier.padding(end = 16.dp)
-                                    )
-                                    Column {
-                                        Text(
-                                            text = "Project KARL",
-                                            style = MaterialTheme.typography.h3.copy(
-                                                fontWeight = androidx.compose.ui.text.font.FontWeight.Light, // Fluent: Light typography
-                                                color = MaterialTheme.colors.onSurface,
-                                            ),
-                                        )
-                                        Text(
-                                            text = "Kotlin Adaptive Reasoning Learner",
-                                            style = MaterialTheme.typography.body1.copy(
-                                                fontWeight = androidx.compose.ui.text.font.FontWeight.Normal
-                                            ),
-                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
-                                            modifier = Modifier.padding(top = 4.dp),
-                                        )
-                                    }
-                                }
+                                // Animated icon with subtle scale effect
+                                val iconScale by animateFloatAsState(
+                                    targetValue = if (karlContainer != null) 1.1f else 1.0f,
+                                    animationSpec = tween(durationMillis = 1000),
+                                )
+                                Text(
+                                    text = "🧠",
+                                    style = MaterialTheme.typography.h1,
+                                    modifier =
+                                        Modifier
+                                            .graphicsLayer(scaleX = iconScale, scaleY = iconScale)
+                                            .padding(bottom = 8.dp),
+                                )
+                                Text(
+                                    text = "Project KARL",
+                                    style =
+                                        MaterialTheme.typography.h2.copy(
+                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Light,
+                                        ),
+                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
+                                )
+                                Text(
+                                    text = "Kotlin Adaptive Reasoning Learner",
+                                    style =
+                                        MaterialTheme.typography.h6.copy(
+                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
+                                        ),
+                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                    modifier = Modifier.padding(top = 8.dp),
+                                )
                             }
                         }
 
-                        // Status Section - Fluent Design
-                        Card(
-                            modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
-                            elevation = 0.dp, // Fluent: No shadows
-                            backgroundColor = if (karlContainer != null) {
-                                if (isDarkTheme) {
-                                    androidx.compose.ui.graphics.Color(0xFF0E4B1A) // Dark green with transparency
-                                } else {
-                                    androidx.compose.ui.graphics.Color(0xFFE8F5E8) // Light green surface
-                                }
-                            } else {
-                                if (isDarkTheme) {
-                                    androidx.compose.ui.graphics.Color(0xFF4B0E0E) // Dark red with transparency
-                                } else {
-                                    androidx.compose.ui.graphics.Color(0xFFFFF3F3) // Light red surface
-                                }
-                            },
-                            shape = RoundedCornerShape(8.dp), // Fluent: Consistent radius
+                        // Status Section - Transparent with subtle glow effect
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 32.dp),
+                            contentAlignment = Alignment.Center,
                         ) {
+                            // Animated status indicator with glow effect
+                            val statusAlpha by animateFloatAsState(
+                                targetValue = if (karlContainer != null) 1.0f else 0.6f,
+                                animationSpec = tween(durationMillis = 800),
+                            )
+
                             Row(
-                                modifier = Modifier.padding(20.dp),
                                 verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier.graphicsLayer(alpha = statusAlpha),
                             ) {
-                                // Fluent: Status indicator
-                                Box(
-                                    modifier = Modifier
-                                        .size(12.dp)
-                                        .background(
-                                            color = if (karlContainer != null) {
-                                                androidx.compose.ui.graphics.Color(0xFF10AC84)
-                                            } else {
-                                                androidx.compose.ui.graphics.Color(0xFFFF3838)
-                                            },
-                                            shape = androidx.compose.foundation.shape.CircleShape
-                                        )
-                                        .padding(end = 16.dp)
+                                // Animated status dot with pulsing effect
+                                val pulseScale by animateFloatAsState(
+                                    targetValue = if (karlContainer != null) 1.0f else 1.2f,
+                                    animationSpec = tween(durationMillis = 1500),
                                 )
+
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .size(16.dp)
+                                            .graphicsLayer(scaleX = pulseScale, scaleY = pulseScale)
+                                            .background(
+                                                color =
+                                                    if (karlContainer != null) {
+                                                        androidx.compose.ui.graphics.Color(0xFF10AC84)
+                                                    } else {
+                                                        androidx.compose.ui.graphics.Color(0xFFFF9500)
+                                                    },
+                                                shape = androidx.compose.foundation.shape.CircleShape,
+                                            ),
+                                )
+
                                 Spacer(modifier = Modifier.width(16.dp))
-                                Column {
+
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                ) {
                                     Text(
-                                        text = if (karlContainer != null) {
-                                            "KARL System Ready"
-                                        } else {
-                                            "System Initializing..."
-                                        },
-                                        style = MaterialTheme.typography.h6.copy(
-                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, // Fluent: Medium weight
-                                        ),
-                                        color = MaterialTheme.colors.onSurface,
+                                        text =
+                                            if (karlContainer != null) {
+                                                "KARL System Ready"
+                                            } else {
+                                                "System Initializing..."
+                                            },
+                                        style =
+                                            MaterialTheme.typography.h6.copy(
+                                                fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                            ),
+                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
                                     )
                                     Text(
-                                        text = if (karlContainer != null) {
-                                            "AI engine active and learning"
-                                        } else {
-                                            "Please wait while components initialize"
-                                        },
+                                        text =
+                                            if (karlContainer != null) {
+                                                "AI engine active and learning"
+                                            } else {
+                                                "Please wait while components initialize"
+                                            },
                                         style = MaterialTheme.typography.body2,
                                         color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
                                     )
@@ -478,617 +492,630 @@ fun main() =
                                 )
                             val controlsWeight = 1f - insightsWeight
 
+                            // Content fade animations for smooth transitions
+                            val insightsAlpha by
+                                animateFloatAsState(
+                                    targetValue =
+                                        when (enlargedSection) {
+                                            "controls" -> 0.6f
+                                            else -> 1.0f
+                                        },
+                                    animationSpec = tween(durationMillis = 400),
+                                )
+                            val controlsAlpha by
+                                animateFloatAsState(
+                                    targetValue =
+                                        when (enlargedSection) {
+                                            "insights" -> 0.6f
+                                            else -> 1.0f
+                                        },
+                                    animationSpec = tween(durationMillis = 400),
+                                )
+
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(12.dp), // Fluent: Tighter spacing
                             ) {
-                                // AI Insights Section - Fluent Design
-                                Card(
-                                    modifier = Modifier.weight(insightsWeight).height(420.dp),
-                                    elevation = 0.dp, // Fluent: No elevation
-                                    backgroundColor = if (isDarkTheme) {
-                                        androidx.compose.ui.graphics.Color(0x20FFFFFF) // Dark mode acrylic
-                                    } else {
-                                        androidx.compose.ui.graphics.Color(0xFFFAFAFA) // Light mode subtle surface
-                                    },
-                                    shape = RoundedCornerShape(8.dp), // Fluent: Consistent radius
+                                // AI Insights Section - Transparent with subtle animations
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .weight(insightsWeight)
+                                            .height(420.dp)
+                                            .graphicsLayer(alpha = insightsAlpha),
                                 ) {
-                                    Column(
-                                        modifier = Modifier.padding(24.dp),
+                                    // Transparent background with subtle border
+                                    Box(
+                                        modifier =
+                                            Modifier
+                                                .fillMaxSize()
+                                                .background(
+                                                    color = MaterialTheme.colors.surface.copy(alpha = 0.05f),
+                                                    shape = RoundedCornerShape(12.dp),
+                                                )
+                                                .border(
+                                                    width = 1.dp,
+                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.08f),
+                                                    shape = RoundedCornerShape(12.dp),
+                                                )
+                                                .padding(32.dp), // Enlarged padding for bigger content
                                     ) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically,
+                                        Column(
+                                            modifier = Modifier.fillMaxSize(),
                                         ) {
-                                            Text(
-                                                text = if (enlargedSection == "insights") {
-                                                    "📊 AI Insights"
-                                                } else {
-                                                    "📊 AI Insights"
-                                                },
-                                                style = MaterialTheme.typography.h6.copy(
-                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, // Fluent: Medium weight
-                                                ),
-                                                color = MaterialTheme.colors.onSurface,
-                                            )
-                                            // Fluent: Ghost button style
-                                            IconButton(
-                                                onClick = {
-                                                    enlargedSection = if (enlargedSection == "insights") null else "insights"
-                                                },
-                                                modifier = Modifier
-                                                    .size(32.dp)
-                                                    .background(
-                                                        color = if (enlargedSection == "insights") {
-                                                            MaterialTheme.colors.primary.copy(alpha = 0.1f)
-                                                        } else {
-                                                            androidx.compose.ui.graphics.Color.Transparent
-                                                        },
-                                                        shape = RoundedCornerShape(4.dp)
-                                                    )
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically,
                                             ) {
-                                                Icon(
-                                                    imageVector = if (enlargedSection == "insights") {
-                                                        Icons.Default.CloseFullscreen
-                                                    } else {
-                                                        Icons.Default.OpenInFull
+                                                // Enhanced header with animation
+                                                val headerScale by animateFloatAsState(
+                                                    targetValue = if (karlContainer != null) 1.0f else 0.95f,
+                                                    animationSpec = tween(durationMillis = 600),
+                                                )
+
+                                                Text(
+                                                    text =
+                                                        if (enlargedSection == "insights") {
+                                                            "📊 AI Insights"
+                                                        } else {
+                                                            "📊 AI Insights"
+                                                        },
+                                                    style =
+                                                        MaterialTheme.typography.h5.copy( // Larger text size
+                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                                        ),
+                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
+                                                    modifier =
+                                                        Modifier.graphicsLayer(
+                                                            scaleX = headerScale,
+                                                            scaleY = headerScale,
+                                                        ),
+                                                )
+
+                                                // Transparent ghost button
+                                                IconButton(
+                                                    onClick = {
+                                                        enlargedSection = if (enlargedSection == "insights") null else "insights"
                                                     },
-                                                    contentDescription = if (enlargedSection == "insights") {
-                                                        "Restore Size"
-                                                    } else {
-                                                        "Focus Mode"
-                                                    },
-                                                    tint = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
-                                                    modifier = Modifier.size(16.dp),
+                                                    modifier =
+                                                        Modifier
+                                                            .size(40.dp) // Larger button
+                                                            .background(
+                                                                color =
+                                                                    if (enlargedSection == "insights") {
+                                                                        MaterialTheme.colors.primary.copy(alpha = 0.1f)
+                                                                    } else {
+                                                                        androidx.compose.ui.graphics.Color.Transparent
+                                                                    },
+                                                                shape = RoundedCornerShape(8.dp),
+                                                            ),
+                                                ) {
+                                                    Icon(
+                                                        imageVector =
+                                                            if (enlargedSection == "insights") {
+                                                                Icons.Default.CloseFullscreen
+                                                            } else {
+                                                                Icons.Default.OpenInFull
+                                                            },
+                                                        contentDescription =
+                                                            if (enlargedSection == "insights") {
+                                                                "Restore Size"
+                                                            } else {
+                                                                "Focus Mode"
+                                                            },
+                                                        tint = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                                        modifier = Modifier.size(20.dp), // Larger icon
+                                                    )
+                                                }
+                                            }
+                                            Spacer(modifier = Modifier.height(24.dp)) // More spacing
+                                            Box(modifier = Modifier.fillMaxSize()) {
+                                                KarlContainerUI(
+                                                    predictionState = predictionState,
+                                                    learningProgressState = learningProgressState,
                                                 )
                                             }
-                                        }
-                                        Spacer(modifier = Modifier.height(20.dp))
-                                        Box(modifier = Modifier.fillMaxSize()) {
-                                            KarlContainerUI(
-                                                predictionState = predictionState,
-                                                learningProgressState = learningProgressState,
-                                            )
                                         }
                                     }
                                 }
 
-                                // Interaction Controls Section - Fluent Design
-                                Card(
-                                    modifier = Modifier.weight(controlsWeight).height(420.dp),
-                                    elevation = 0.dp, // Fluent: No elevation
-                                    backgroundColor = if (isDarkTheme) {
-                                        androidx.compose.ui.graphics.Color(0x20FFFFFF) // Dark mode acrylic
-                                    } else {
-                                        androidx.compose.ui.graphics.Color(0xFFFAFAFA) // Light mode subtle surface
-                                    },
-                                    shape = RoundedCornerShape(8.dp), // Fluent: Consistent radius
+                                // Interaction Controls Section - Transparent with animations
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .weight(controlsWeight)
+                                            .height(420.dp)
+                                            .graphicsLayer(alpha = controlsAlpha),
                                 ) {
-                                    Column(
-                                        modifier = Modifier.padding(24.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically,
-                                        ) {
-                                            Text(
-                                                text = if (enlargedSection == "controls") {
-                                                    "🎮 Controls"
-                                                } else {
-                                                    "🎮 Controls"
-                                                },
-                                                style = MaterialTheme.typography.h6.copy(
-                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, // Fluent: Medium weight
-                                                ),
-                                                color = MaterialTheme.colors.onSurface,
-                                            )
-                                            // Fluent: Ghost button style
-                                            IconButton(
-                                                onClick = {
-                                                    enlargedSection = if (enlargedSection == "controls") null else "controls"
-                                                },
-                                                modifier = Modifier
-                                                    .size(32.dp)
-                                                    .background(
-                                                        color = if (enlargedSection == "controls") {
-                                                            MaterialTheme.colors.primary.copy(alpha = 0.1f)
-                                                        } else {
-                                                            androidx.compose.ui.graphics.Color.Transparent
-                                                        },
-                                                        shape = RoundedCornerShape(4.dp)
-                                                    )
-                                            ) {
-                                                Icon(
-                                                    imageVector = if (enlargedSection == "controls") {
-                                                        Icons.Default.CloseFullscreen
-                                                    } else {
-                                                        Icons.Default.OpenInFull
-                                                    },
-                                                    contentDescription = if (enlargedSection == "controls") {
-                                                        "Restore Size"
-                                                    } else {
-                                                        "Focus Mode"
-                                                    },
-                                                    tint = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
-                                                    modifier = Modifier.size(16.dp),
+                                    // Transparent background with subtle border
+                                    Box(
+                                        modifier =
+                                            Modifier
+                                                .fillMaxSize()
+                                                .background(
+                                                    color = MaterialTheme.colors.surface.copy(alpha = 0.05f),
+                                                    shape = RoundedCornerShape(12.dp),
                                                 )
-                                            }
-                                        }
-
-                                        Spacer(modifier = Modifier.height(12.dp))
-
-                                        // Responsive text based on section size
-                                        if (enlargedSection != "insights") {
-                                            Text(
-                                                text = "Simulate user actions to train the AI model",
-                                                style = MaterialTheme.typography.body2,
-                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                                modifier = Modifier.padding(bottom = 24.dp),
-                                            )
-                                        }
-
-                                        // Fluent Design Buttons - Adaptive sizing
+                                                .border(
+                                                    width = 1.dp,
+                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.08f),
+                                                    shape = RoundedCornerShape(12.dp),
+                                                )
+                                                .padding(32.dp), // Enlarged padding for bigger content
+                                    ) {
                                         Column(
-                                            verticalArrangement = Arrangement.spacedBy(
-                                                if (enlargedSection == "controls") 20.dp else 16.dp,
-                                            ),
+                                            modifier = Modifier.fillMaxSize(),
                                             horizontalAlignment = Alignment.CenterHorizontally,
                                         ) {
-                                            if (enlargedSection == "insights") {
-                                                // Compact mode - Fluent pill buttons
-                                                Column(
-                                                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically,
+                                            ) {
+                                                // Enhanced header with animation
+                                                val headerScale by animateFloatAsState(
+                                                    targetValue = if (karlContainer != null) 1.0f else 0.95f,
+                                                    animationSpec = tween(durationMillis = 600),
+                                                )
+
+                                                Text(
+                                                    text =
+                                                        if (enlargedSection == "controls") {
+                                                            "🎮 Controls"
+                                                        } else {
+                                                            "🎮 Controls"
+                                                        },
+                                                    style =
+                                                        MaterialTheme.typography.h5.copy( // Larger text size
+                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                                        ),
+                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
+                                                    modifier =
+                                                        Modifier.graphicsLayer(
+                                                            scaleX = headerScale,
+                                                            scaleY = headerScale,
+                                                        ),
+                                                )
+
+                                                // Transparent ghost button
+                                                IconButton(
+                                                    onClick = {
+                                                        enlargedSection = if (enlargedSection == "controls") null else "controls"
+                                                    },
+                                                    modifier =
+                                                        Modifier
+                                                            .size(40.dp) // Larger button
+                                                            .background(
+                                                                color =
+                                                                    if (enlargedSection == "controls") {
+                                                                        MaterialTheme.colors.primary.copy(alpha = 0.1f)
+                                                                    } else {
+                                                                        androidx.compose.ui.graphics.Color.Transparent
+                                                                    },
+                                                                shape = RoundedCornerShape(8.dp),
+                                                            ),
                                                 ) {
-                                                    // Fluent: Compact pill button
+                                                    Icon(
+                                                        imageVector =
+                                                            if (enlargedSection == "controls") {
+                                                                Icons.Default.CloseFullscreen
+                                                            } else {
+                                                                Icons.Default.OpenInFull
+                                                            },
+                                                        contentDescription =
+                                                            if (enlargedSection == "controls") {
+                                                                "Restore Size"
+                                                            } else {
+                                                                "Focus Mode"
+                                                            },
+                                                        tint = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                                        modifier = Modifier.size(20.dp), // Larger icon
+                                                    )
+                                                }
+                                            }
+
+                                            Spacer(modifier = Modifier.height(24.dp)) // More spacing
+
+                                            // Responsive description with animation
+                                            if (enlargedSection != "insights") {
+                                                val descriptionAlpha by animateFloatAsState(
+                                                    targetValue = 1.0f,
+                                                    animationSpec = tween(durationMillis = 800),
+                                                )
+
+                                                Text(
+                                                    text = "Simulate user actions to train the AI model",
+                                                    style = MaterialTheme.typography.body1.copy(fontSize = 16.sp), // Larger subtitle
+                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                    modifier =
+                                                        Modifier
+                                                            .padding(bottom = 32.dp) // More spacing
+                                                            .graphicsLayer(alpha = descriptionAlpha),
+                                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                                )
+                                            }
+
+                                            // Enhanced Fluent Design Buttons with animations
+                                            Column(
+                                                verticalArrangement =
+                                                    Arrangement.spacedBy(
+                                                        if (enlargedSection == "controls") 24.dp else 20.dp, // More spacing
+                                                    ),
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                            ) {
+                                                if (enlargedSection == "insights") {
+                                                    // Compact mode - Fluent pill buttons
+                                                    Column(
+                                                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                                    ) {
+                                                        // Fluent: Compact pill button with hover animation
+                                                        val buttonAInteractionSource = remember { MutableInteractionSource() }
+                                                        val isButtonAHovered by buttonAInteractionSource.collectIsHoveredAsState()
+                                                        val buttonAScale by animateFloatAsState(
+                                                            targetValue = if (isButtonAHovered) 1.05f else 1.0f,
+                                                            animationSpec = tween(durationMillis = 150),
+                                                        )
+
+                                                        Button(
+                                                            onClick = {
+                                                                applicationScope.launch {
+                                                                    println("Button Clicked: Action A")
+                                                                    actionFlow.emit("action_type_A")
+                                                                    learningProgressState.update {
+                                                                        (it + 0.05f).coerceAtMost(1.0f)
+                                                                    }
+                                                                    val prediction = karlContainer?.getPrediction()
+                                                                    predictionState.value = prediction
+                                                                    println("Prediction after Action A: $prediction")
+                                                                }
+                                                            },
+                                                            enabled = karlContainer != null,
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(36.dp)
+                                                                    .width(80.dp)
+                                                                    .graphicsLayer(
+                                                                        scaleX = buttonAScale,
+                                                                        scaleY = buttonAScale,
+                                                                    )
+                                                                    .hoverable(buttonAInteractionSource),
+                                                            shape = RoundedCornerShape(18.dp), // Fluent: Pill shape
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor =
+                                                                        if (isButtonAHovered) {
+                                                                            androidx.compose.ui.graphics.Color(0xFF66BB6A)
+                                                                        } else {
+                                                                            androidx.compose.ui.graphics.Color(0xFF4CAF50)
+                                                                        },
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
+                                                            elevation = ButtonDefaults.elevation(0.dp), // Fluent: No elevation
+                                                            interactionSource = buttonAInteractionSource,
+                                                        ) {
+                                                            Text(
+                                                                text = "A",
+                                                                style =
+                                                                    MaterialTheme.typography.caption.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                                                    ),
+                                                            )
+                                                        }
+
+                                                        val buttonBInteractionSource = remember { MutableInteractionSource() }
+                                                        val isButtonBHovered by buttonBInteractionSource.collectIsHoveredAsState()
+                                                        val buttonBScale by animateFloatAsState(
+                                                            targetValue = if (isButtonBHovered) 1.05f else 1.0f,
+                                                            animationSpec = tween(durationMillis = 150),
+                                                        )
+
+                                                        Button(
+                                                            onClick = {
+                                                                applicationScope.launch {
+                                                                    println("Button Clicked: Action B")
+                                                                    actionFlow.emit("action_type_B")
+                                                                    learningProgressState.update {
+                                                                        (it + 0.05f).coerceAtMost(1.0f)
+                                                                    }
+                                                                    val prediction = karlContainer?.getPrediction()
+                                                                    predictionState.value = prediction
+                                                                    println("Prediction after Action B: $prediction")
+                                                                }
+                                                            },
+                                                            enabled = karlContainer != null,
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(36.dp)
+                                                                    .width(80.dp)
+                                                                    .graphicsLayer(
+                                                                        scaleX = buttonBScale,
+                                                                        scaleY = buttonBScale,
+                                                                    )
+                                                                    .hoverable(buttonBInteractionSource),
+                                                            shape = RoundedCornerShape(18.dp),
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor =
+                                                                        if (isButtonBHovered) {
+                                                                            androidx.compose.ui.graphics.Color(0xFFFFB74D)
+                                                                        } else {
+                                                                            androidx.compose.ui.graphics.Color(0xFFFF9800)
+                                                                        },
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
+                                                            elevation = ButtonDefaults.elevation(0.dp),
+                                                            interactionSource = buttonBInteractionSource,
+                                                        ) {
+                                                            Text(
+                                                                text = "B",
+                                                                style =
+                                                                    MaterialTheme.typography.caption.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                                                    ),
+                                                            )
+                                                        }
+
+                                                        Button(
+                                                            onClick = {
+                                                                applicationScope.launch {
+                                                                    println("Button Clicked: Get Prediction")
+                                                                    val prediction = karlContainer?.getPrediction()
+                                                                    predictionState.value = prediction
+                                                                    println("Explicit Prediction Request: $prediction")
+                                                                }
+                                                            },
+                                                            enabled = karlContainer != null,
+                                                            modifier = Modifier.height(36.dp).width(100.dp),
+                                                            shape = RoundedCornerShape(18.dp),
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor = MaterialTheme.colors.primary,
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
+                                                        ) {
+                                                            Text(
+                                                                text = "🔮",
+                                                                style =
+                                                                    MaterialTheme.typography.caption.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
+                                                            )
+                                                        }
+                                                    }
+                                                } else if (enlargedSection == "controls") {
+                                                    // Large buttons when controls is enlarged
+                                                    Row(
+                                                        horizontalArrangement = Arrangement.spacedBy(20.dp),
+                                                    ) {
+                                                        Button(
+                                                            onClick = {
+                                                                applicationScope.launch {
+                                                                    println("Button Clicked: Action A")
+                                                                    actionFlow.emit("action_type_A")
+                                                                    learningProgressState.update {
+                                                                        (it + 0.05f).coerceAtMost(1.0f)
+                                                                    }
+                                                                    val prediction = karlContainer?.getPrediction()
+                                                                    predictionState.value = prediction
+                                                                    println("Prediction after Action A: $prediction")
+                                                                }
+                                                            },
+                                                            enabled = karlContainer != null,
+                                                            modifier = Modifier.height(64.dp).width(160.dp), // Larger buttons
+                                                            shape = RoundedCornerShape(32.dp),
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFF4CAF50),
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
+                                                        ) {
+                                                            Text(
+                                                                text = "🔄 Action A",
+                                                                style =
+                                                                    MaterialTheme.typography.h6.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
+                                                            )
+                                                        }
+
+                                                        Button(
+                                                            onClick = {
+                                                                applicationScope.launch {
+                                                                    println("Button Clicked: Action B")
+                                                                    actionFlow.emit("action_type_B")
+                                                                    learningProgressState.update {
+                                                                        (it + 0.05f).coerceAtMost(1.0f)
+                                                                    }
+                                                                    val prediction = karlContainer?.getPrediction()
+                                                                    predictionState.value = prediction
+                                                                    println("Prediction after Action B: $prediction")
+                                                                }
+                                                            },
+                                                            enabled = karlContainer != null,
+                                                            modifier = Modifier.height(64.dp).width(160.dp),
+                                                            shape = RoundedCornerShape(32.dp),
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFFFF9800),
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
+                                                        ) {
+                                                            Text(
+                                                                text = "⚡ Action B",
+                                                                style =
+                                                                    MaterialTheme.typography.h6.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
+                                                            )
+                                                        }
+                                                    }
+
                                                     Button(
                                                         onClick = {
                                                             applicationScope.launch {
-                                                                println("Button Clicked: Action A")
-                                                                actionFlow.emit("action_type_A")
-                                                                learningProgressState.update {
-                                                                    (it + 0.05f).coerceAtMost(1.0f)
-                                                                }
+                                                                println("Button Clicked: Get Prediction")
                                                                 val prediction = karlContainer?.getPrediction()
                                                                 predictionState.value = prediction
-                                                                println("Prediction after Action A: $prediction")
+                                                                println("Explicit Prediction Request: $prediction")
                                                             }
                                                         },
                                                         enabled = karlContainer != null,
-                                                        modifier = Modifier.height(32.dp).width(80.dp),
-                                                        shape = RoundedCornerShape(16.dp), // Fluent: Pill shape
-                                                        colors = ButtonDefaults.buttonColors(
-                                                            backgroundColor = if (isDarkTheme) {
-                                                                androidx.compose.ui.graphics.Color(0xFF0E7B0E)
-                                                            } else {
-                                                                androidx.compose.ui.graphics.Color(0xFF0E7B0E)
-                                                            },
-                                                            contentColor = androidx.compose.ui.graphics.Color.White,
-                                                        ),
-                                                        elevation = ButtonDefaults.elevation(0.dp), // Fluent: No elevation
-                                                    ) {
-                                                        Text(
-                                                            text = "A",
-                                                            style = MaterialTheme.typography.caption.copy(
-                                                                fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
-                                                            ),
-                                                        )
-                                                    }
-                                                    Button(
-                                                        onClick = {
-                                                            applicationScope.launch {
-                                                                println("Button Clicked: Action B")
-                                                                actionFlow.emit("action_type_B")
-                                                                learningProgressState.update {
-                                                                    (it + 0.05f).coerceAtMost(1.0f)
-                                                                }
-                                                                val prediction =
-                                                                    karlContainer
-                                                                        ?.getPrediction()
-                                                                predictionState.value = prediction
-                                                                println(
-                                                                    "Prediction after Action B: $prediction",
-                                                                )
-                                                            }
-                                                        },
-                                                        enabled = karlContainer != null,
-                                                        modifier =
-                                                            Modifier.height(36.dp)
-                                                                .width(100.dp),
-                                                        shape = RoundedCornerShape(18.dp),
+                                                        modifier = Modifier.height(64.dp).width(280.dp), // Extra large prediction button
+                                                        shape = RoundedCornerShape(32.dp),
                                                         colors =
                                                             ButtonDefaults.buttonColors(
-                                                                backgroundColor =
-                                                                    androidx.compose.ui
-                                                                        .graphics
-                                                                        .Color(
-                                                                            0xFFFF9800,
-                                                                        ),
-                                                                contentColor =
-                                                                    androidx.compose.ui
-                                                                        .graphics
-                                                                        .Color
-                                                                        .White,
+                                                                backgroundColor = MaterialTheme.colors.primary,
+                                                                contentColor = androidx.compose.ui.graphics.Color.White,
                                                             ),
                                                     ) {
                                                         Text(
-                                                            text = "⚡ B",
+                                                            text = "🔮 Get Prediction",
                                                             style =
-                                                                MaterialTheme.typography.caption
-                                                                    .copy(
-                                                                        fontWeight =
-                                                                            androidx.compose
-                                                                                .ui
-                                                                                .text
-                                                                                .font
-                                                                                .FontWeight
-                                                                                .Bold,
-                                                                    ),
-                                                        )
-                                                    }
-                                                    Button(
-                                                        onClick = {
-                                                            applicationScope.launch {
-                                                                println(
-                                                                    "Button Clicked: Get Prediction",
-                                                                )
-                                                                val prediction =
-                                                                    karlContainer
-                                                                        ?.getPrediction()
-                                                                predictionState.value = prediction
-                                                                println(
-                                                                    "Explicit Prediction Request: $prediction",
-                                                                )
-                                                            }
-                                                        },
-                                                        enabled = karlContainer != null,
-                                                        modifier =
-                                                            Modifier.height(36.dp)
-                                                                .width(100.dp),
-                                                        shape = RoundedCornerShape(18.dp),
-                                                        colors =
-                                                            ButtonDefaults.buttonColors(
-                                                                backgroundColor =
-                                                                    MaterialTheme.colors
-                                                                        .primary,
-                                                                contentColor =
-                                                                    androidx.compose.ui
-                                                                        .graphics
-                                                                        .Color
-                                                                        .White,
-                                                            ),
-                                                    ) {
-                                                        Text(
-                                                            text = "🔮",
-                                                            style =
-                                                                MaterialTheme.typography.caption
-                                                                    .copy(
-                                                                        fontWeight =
-                                                                            androidx.compose
-                                                                                .ui
-                                                                                .text
-                                                                                .font
-                                                                                .FontWeight
-                                                                                .Bold,
-                                                                    ),
-                                                        )
-                                                    }
-                                                }
-                                            } else if (enlargedSection == "controls") {
-                                                // Large buttons when controls is enlarged
-                                                Row(
-                                                    horizontalArrangement =
-                                                        Arrangement.spacedBy(20.dp),
-                                                ) {
-                                                    Button(
-                                                        onClick = {
-                                                            applicationScope.launch {
-                                                                println("Button Clicked: Action A")
-                                                                actionFlow.emit("action_type_A")
-                                                                learningProgressState.update {
-                                                                    (it + 0.05f).coerceAtMost(1.0f)
-                                                                }
-                                                                val prediction =
-                                                                    karlContainer
-                                                                        ?.getPrediction()
-                                                                predictionState.value = prediction
-                                                                println(
-                                                                    "Prediction after Action A: $prediction",
-                                                                )
-                                                            }
-                                                        },
-                                                        enabled = karlContainer != null,
-                                                        modifier =
-                                                            Modifier.height(60.dp)
-                                                                .width(150.dp),
-                                                        shape = RoundedCornerShape(30.dp),
-                                                        colors =
-                                                            ButtonDefaults.buttonColors(
-                                                                backgroundColor =
-                                                                    androidx.compose.ui
-                                                                        .graphics
-                                                                        .Color(
-                                                                            0xFF4CAF50,
-                                                                        ),
-                                                                contentColor =
-                                                                    androidx.compose.ui
-                                                                        .graphics
-                                                                        .Color
-                                                                        .White,
-                                                            ),
-                                                    ) {
-                                                        Text(
-                                                            text = "🔄 Action A",
-                                                            style =
-                                                                MaterialTheme.typography.h6
-                                                                    .copy(
-                                                                        fontWeight =
-                                                                            androidx.compose
-                                                                                .ui
-                                                                                .text
-                                                                                .font
-                                                                                .FontWeight
-                                                                                .Bold,
-                                                                    ),
-                                                        )
-                                                    }
-
-                                                    Button(
-                                                        onClick = {
-                                                            applicationScope.launch {
-                                                                println("Button Clicked: Action B")
-                                                                actionFlow.emit("action_type_B")
-                                                                learningProgressState.update {
-                                                                    (it + 0.05f).coerceAtMost(1.0f)
-                                                                }
-                                                                val prediction =
-                                                                    karlContainer
-                                                                        ?.getPrediction()
-                                                                predictionState.value = prediction
-                                                                println(
-                                                                    "Prediction after Action B: $prediction",
-                                                                )
-                                                            }
-                                                        },
-                                                        enabled = karlContainer != null,
-                                                        modifier =
-                                                            Modifier.height(60.dp)
-                                                                .width(150.dp),
-                                                        shape = RoundedCornerShape(30.dp),
-                                                        colors =
-                                                            ButtonDefaults.buttonColors(
-                                                                backgroundColor =
-                                                                    androidx.compose.ui
-                                                                        .graphics
-                                                                        .Color(
-                                                                            0xFFFF9800,
-                                                                        ),
-                                                                contentColor =
-                                                                    androidx.compose.ui
-                                                                        .graphics
-                                                                        .Color
-                                                                        .White,
-                                                            ),
-                                                    ) {
-                                                        Text(
-                                                            text = "⚡ Action B",
-                                                            style =
-                                                                MaterialTheme.typography.h6
-                                                                    .copy(
-                                                                        fontWeight =
-                                                                            androidx.compose
-                                                                                .ui
-                                                                                .text
-                                                                                .font
-                                                                                .FontWeight
-                                                                                .Bold,
-                                                                    ),
-                                                        )
-                                                    }
-                                                }
-
-                                                Button(
-                                                    onClick = {
-                                                        applicationScope.launch {
-                                                            println(
-                                                                "Button Clicked: Get Prediction",
-                                                            )
-                                                            val prediction =
-                                                                karlContainer?.getPrediction()
-                                                            predictionState.value = prediction
-                                                            println(
-                                                                "Explicit Prediction Request: $prediction",
-                                                            )
-                                                        }
-                                                    },
-                                                    enabled = karlContainer != null,
-                                                    modifier = Modifier.height(60.dp).width(250.dp),
-                                                    shape = RoundedCornerShape(30.dp),
-                                                    colors =
-                                                        ButtonDefaults.buttonColors(
-                                                            backgroundColor =
-                                                                MaterialTheme.colors
-                                                                    .primary,
-                                                            contentColor =
-                                                                androidx.compose.ui
-                                                                    .graphics.Color
-                                                                    .White,
-                                                        ),
-                                                ) {
-                                                    Text(
-                                                        text = "🔮 Get Prediction",
-                                                        style =
-                                                            MaterialTheme.typography.h6.copy(
-                                                                fontWeight =
-                                                                    androidx.compose.ui
-                                                                        .text.font
-                                                                        .FontWeight
-                                                                        .Bold,
-                                                            ),
-                                                    )
-                                                }
-                                            } else {
-                                                // Normal buttons when both sections are equal
-                                                Row(
-                                                    horizontalArrangement =
-                                                        Arrangement.spacedBy(12.dp),
-                                                ) {
-                                                    Button(
-                                                        onClick = {
-                                                            applicationScope.launch {
-                                                                println("Button Clicked: Action A")
-                                                                actionFlow.emit("action_type_A")
-                                                                learningProgressState.update {
-                                                                    (it + 0.05f).coerceAtMost(1.0f)
-                                                                }
-                                                                val prediction =
-                                                                    karlContainer
-                                                                        ?.getPrediction()
-                                                                predictionState.value = prediction
-                                                                println(
-                                                                    "Prediction after Action A: $prediction",
-                                                                )
-                                                            }
-                                                        },
-                                                        enabled = karlContainer != null,
-                                                        modifier =
-                                                            Modifier.height(44.dp)
-                                                                .width(120.dp),
-                                                        shape = RoundedCornerShape(22.dp),
-                                                        colors =
-                                                            ButtonDefaults.buttonColors(
-                                                                backgroundColor =
-                                                                    androidx.compose.ui
-                                                                        .graphics
-                                                                        .Color(
-                                                                            0xFF4CAF50,
-                                                                        ),
-                                                                contentColor =
-                                                                    androidx.compose.ui
-                                                                        .graphics
-                                                                        .Color
-                                                                        .White,
-                                                            ),
-                                                    ) {
-                                                        Text(
-                                                            text = "🔄 Action A",
-                                                            style =
-                                                                MaterialTheme.typography.caption
-                                                                    .copy(
-                                                                        fontWeight =
-                                                                            androidx.compose
-                                                                                .ui
-                                                                                .text
-                                                                                .font
-                                                                                .FontWeight
-                                                                                .Bold,
-                                                                    ),
-                                                        )
-                                                    }
-
-                                                    Button(
-                                                        onClick = {
-                                                            applicationScope.launch {
-                                                                println("Button Clicked: Action B")
-                                                                actionFlow.emit("action_type_B")
-                                                                learningProgressState.update {
-                                                                    (it + 0.05f).coerceAtMost(1.0f)
-                                                                }
-                                                                val prediction =
-                                                                    karlContainer
-                                                                        ?.getPrediction()
-                                                                predictionState.value = prediction
-                                                                println(
-                                                                    "Prediction after Action B: $prediction",
-                                                                )
-                                                            }
-                                                        },
-                                                        enabled = karlContainer != null,
-                                                        modifier =
-                                                            Modifier.height(44.dp)
-                                                                .width(120.dp),
-                                                        shape = RoundedCornerShape(22.dp),
-                                                        colors =
-                                                            ButtonDefaults.buttonColors(
-                                                                backgroundColor =
-                                                                    androidx.compose.ui
-                                                                        .graphics
-                                                                        .Color(
-                                                                            0xFFFF9800,
-                                                                        ),
-                                                                contentColor =
-                                                                    androidx.compose.ui
-                                                                        .graphics
-                                                                        .Color
-                                                                        .White,
-                                                            ),
-                                                    ) {
-                                                        Text(
-                                                            text = "⚡ Action B",
-                                                            style =
-                                                                MaterialTheme.typography.caption
-                                                                    .copy(
-                                                                        fontWeight =
-                                                                            androidx.compose
-                                                                                .ui
-                                                                                .text
-                                                                                .font
-                                                                                .FontWeight
-                                                                                .Bold,
-                                                                    ),
-                                                        )
-                                                    }
-                                                }
-
-                                                Button(
-                                                    onClick = {
-                                                        applicationScope.launch {
-                                                            println(
-                                                                "Button Clicked: Get Prediction",
-                                                            )
-                                                            val prediction =
-                                                                karlContainer?.getPrediction()
-                                                            predictionState.value = prediction
-                                                            println(
-                                                                "Explicit Prediction Request: $prediction",
-                                                            )
-                                                        }
-                                                    },
-                                                    enabled = karlContainer != null,
-                                                    modifier = Modifier.height(44.dp).width(160.dp),
-                                                    shape = RoundedCornerShape(22.dp),
-                                                    colors =
-                                                        ButtonDefaults.buttonColors(
-                                                            backgroundColor =
-                                                                MaterialTheme.colors
-                                                                    .primary,
-                                                            contentColor =
-                                                                androidx.compose.ui
-                                                                    .graphics.Color
-                                                                    .White,
-                                                        ),
-                                                ) {
-                                                    Text(
-                                                        text = "🔮 Get Prediction",
-                                                        style =
-                                                            MaterialTheme.typography.caption
-                                                                .copy(
-                                                                    fontWeight =
-                                                                        androidx.compose
-                                                                            .ui
-                                                                            .text
-                                                                            .font
-                                                                            .FontWeight
-                                                                            .Bold,
+                                                                MaterialTheme.typography.h6.copy(
+                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                                                                 ),
-                                                    )
+                                                        )
+                                                    }
+                                                } else {
+                                                    // Normal buttons when both sections are equal
+                                                    Row(
+                                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                                    ) {
+                                                        Button(
+                                                            onClick = {
+                                                                applicationScope.launch {
+                                                                    println("Button Clicked: Action A")
+                                                                    actionFlow.emit("action_type_A")
+                                                                    learningProgressState.update {
+                                                                        (it + 0.05f).coerceAtMost(1.0f)
+                                                                    }
+                                                                    val prediction = karlContainer?.getPrediction()
+                                                                    predictionState.value = prediction
+                                                                    println("Prediction after Action A: $prediction")
+                                                                }
+                                                            },
+                                                            enabled = karlContainer != null,
+                                                            modifier = Modifier.height(48.dp).width(130.dp), // Larger normal buttons
+                                                            shape = RoundedCornerShape(24.dp),
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFF4CAF50),
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
+                                                        ) {
+                                                            Text(
+                                                                text = "🔄 Action A",
+                                                                style =
+                                                                    MaterialTheme.typography.body1.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
+                                                            )
+                                                        }
+
+                                                        Button(
+                                                            onClick = {
+                                                                applicationScope.launch {
+                                                                    println("Button Clicked: Action B")
+                                                                    actionFlow.emit("action_type_B")
+                                                                    learningProgressState.update {
+                                                                        (it + 0.05f).coerceAtMost(1.0f)
+                                                                    }
+                                                                    val prediction = karlContainer?.getPrediction()
+                                                                    predictionState.value = prediction
+                                                                    println("Prediction after Action B: $prediction")
+                                                                }
+                                                            },
+                                                            enabled = karlContainer != null,
+                                                            modifier = Modifier.height(48.dp).width(130.dp),
+                                                            shape = RoundedCornerShape(24.dp),
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFFFF9800),
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
+                                                        ) {
+                                                            Text(
+                                                                text = "⚡ Action B",
+                                                                style =
+                                                                    MaterialTheme.typography.body1.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
+                                                            )
+                                                        }
+                                                    }
+
+                                                    Button(
+                                                        onClick = {
+                                                            applicationScope.launch {
+                                                                println("Button Clicked: Get Prediction")
+                                                                val prediction = karlContainer?.getPrediction()
+                                                                predictionState.value = prediction
+                                                                println("Explicit Prediction Request: $prediction")
+                                                            }
+                                                        },
+                                                        enabled = karlContainer != null,
+                                                        modifier = Modifier.height(48.dp).width(180.dp), // Larger prediction button
+                                                        shape = RoundedCornerShape(24.dp),
+                                                        colors =
+                                                            ButtonDefaults.buttonColors(
+                                                                backgroundColor = MaterialTheme.colors.primary,
+                                                                contentColor = androidx.compose.ui.graphics.Color.White,
+                                                            ),
+                                                    ) {
+                                                        Text(
+                                                            text = "🔮 Get Prediction",
+                                                            style =
+                                                                MaterialTheme.typography.body1.copy(
+                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                ),
+                                                        )
+                                                    }
                                                 }
                                             }
                                         }
                                     }
+                                }
+                            }
+                        } else {
+                            // When KARL is not ready yet - show loading state with animations
+                            Box(
+                                modifier = Modifier.fillMaxWidth().height(420.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                                ) {
+                                    val loadingAlpha by animateFloatAsState(
+                                        targetValue = if (karlContainer == null) 1.0f else 0.0f,
+                                        animationSpec = tween(durationMillis = 1000),
+                                    )
+
+                                    Text(
+                                        text = "🚀",
+                                        style = MaterialTheme.typography.h2,
+                                        modifier = Modifier.graphicsLayer(alpha = loadingAlpha),
+                                    )
+
+                                    Text(
+                                        text = "Initializing KARL AI...",
+                                        style =
+                                            MaterialTheme.typography.h5.copy(
+                                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                            ),
+                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                        modifier = Modifier.graphicsLayer(alpha = loadingAlpha),
+                                    )
+
+                                    Text(
+                                        text = "Setting up learning engine and data sources",
+                                        style = MaterialTheme.typography.body1,
+                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                        modifier = Modifier.graphicsLayer(alpha = loadingAlpha),
+                                    )
                                 }
                             }
                         }

@@ -59,36 +59,51 @@ fun KarlContainerUI(
             Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .border(2.dp, Color.Blue) // Visual border for the "container" feel
+                .border(
+                    width = 1.dp,
+                    color = Color.Gray.copy(alpha = 0.1f), // Fluent: Subtle transparent border
+                )
                 .padding(16.dp),
         horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(8.dp), // Add spacing between elements
+        verticalArrangement = Arrangement.spacedBy(12.dp), // Add more spacing between elements
     ) {
         Text(
             text = "KARL AI Container",
             fontWeight = FontWeight.Bold,
-            fontSize = 18.sp,
+            fontSize = 20.sp, // Enlarged from 18sp
+            color = Color.Gray.copy(alpha = 0.9f), // More subtle color
         )
 
         Text(
-            text = "Status: Active (User: [Display User ID if needed])",
-            fontSize = 12.sp,
-            color = Color.Gray,
+            text = "Status: Active",
+            fontSize = 14.sp, // Enlarged from 12sp
+            color = Color.Gray.copy(alpha = 0.7f), // More transparent
         )
 
         // Display Learning Progress
         KarlLearningProgressIndicator(progress = currentProgress)
 
-        // Display Current Suggestion
-        Spacer(modifier = Modifier.height(8.dp)) // Add some space
-        Text("Current Suggestion:")
+        // Display Current Suggestion with enhanced styling
+        Spacer(modifier = Modifier.height(12.dp)) // Add more space
+        Text(
+            text = "Current Suggestion:",
+            fontSize = 16.sp, // Larger label
+            fontWeight = FontWeight.Medium,
+            color = Color.Gray.copy(alpha = 0.8f),
+        )
         Text(
             text = currentPrediction?.suggestion ?: "No suggestion yet...",
             fontWeight = FontWeight.SemiBold,
+            fontSize = 18.sp, // Larger suggestion text
+            color = Color.Gray.copy(alpha = 0.9f),
         )
-        // Optional: Display prediction confidence or type
+        // Optional: Display prediction confidence or type with enhanced styling
         currentPrediction?.let { prediction ->
-            Text("Confidence: ${"%.2f".format(prediction.confidence)}", fontSize = 12.sp, color = Color.Gray)
+            Text(
+                text = "Confidence: ${"%.2f".format(prediction.confidence)}",
+                fontSize = 14.sp, // Larger confidence text
+                color = Color.Gray.copy(alpha = 0.6f),
+            )
         }
 
         // Add UI elements for user controls (Reset, Instructions, etc.)
