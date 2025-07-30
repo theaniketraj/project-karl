@@ -98,7 +98,7 @@ internal class KarlContainerImpl( // Use internal as it's not part of the public
         println("KARL Container for user $userId: Saved interaction data.")
 
         // 2. Trigger learning step in the engine
-        println("KARL Container for user $userId: Triggering training step for data type ${data.type}.")
+        println("KARL Container: Passing InteractionData to LearningEngine.trainStep().")
         // The trainStep returns a Job, but we don't strictly need to manage it here
         // unless we wanted to implement queueing or priority training.
         // The LearningEngine should manage its own background training tasks.

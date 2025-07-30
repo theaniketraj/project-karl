@@ -37,8 +37,15 @@ class KLDLLearningEngine(
     }
 
     override fun trainStep(data: InteractionData): Job {
+        if (!isInitialized.get()) {
+            println("KLDLLearningEngine: trainStep() called but engine not initialized")
+            return engineScope.launch { /* no-op */ }
+        }
+
+        println("KLDLLearningEngine: trainStep() received data -> $data")
+        
         return engineScope.launch {
-            println("KLDLLearningEngine (Stub): Training step with data: ${data.type}")
+            println("KLDLLearningEngine: Training step with data: ${data.type}")
         }
     }
 
