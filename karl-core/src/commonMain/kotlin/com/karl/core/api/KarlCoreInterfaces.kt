@@ -1,6 +1,7 @@
 package api
 
 // Import models and coroutines types needed by the remaining interfaces
+import com.karl.core.learning.LearningInsights
 import com.karl.core.models.DataSource // Now import from the data package
 import com.karl.core.models.DataStorage // Now import from the data package
 import com.karl.core.models.InteractionData
@@ -61,6 +62,17 @@ interface LearningEngine {
      * Releases any resources held by the engine.
      */
     suspend fun release()
+
+    /**
+     * (Optional but Recommended) Provides insights into the current learning progress.
+     * This can be used to power an "AI Maturity Meter" in the UI.
+     *
+     * @return A data class containing various learning metrics.
+     */
+    suspend fun getLearningInsights(): LearningInsights {
+        // Provide a default implementation for engines that don't track detailed insights.
+        return LearningInsights(interactionCount = 0, progressEstimate = 0.0f)
+    }
 }
 
 /**

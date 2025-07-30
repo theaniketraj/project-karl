@@ -1,6 +1,7 @@
 package com.karl.example
 
 import api.LearningEngine
+import com.karl.core.learning.LearningInsights
 import com.karl.core.models.InteractionData
 import com.karl.core.models.KarlContainerState
 import com.karl.core.models.KarlInstruction
@@ -41,6 +42,7 @@ class RealLearningEngine(
     // Training history
     private val trainingHistory = mutableListOf<TrainingExample>()
     private var trainingSteps = 0
+    private var interactionCount = 0L
 
     data class TrainingExample(
         val input: FloatArray,
@@ -112,6 +114,8 @@ class RealLearningEngine(
             return engineScope.launch { /* no-op */ }
         }
 
+        // Increment interaction count at the start of trainStep
+        interactionCount++
         println("RealLearningEngine: trainStep() received data -> $data")
 
         return engineScope.launch {
@@ -330,8 +334,18 @@ class RealLearningEngine(
         modelMutex.withLock {
             trainingHistory.clear()
             trainingSteps = 0
+            interactionCount = 0L
             initializeNewModel()
             println("RealLearningEngine: Reset completed - reinitialized neural network")
+        }
+    }
+
+    override suspend fun getLearningInsights(): LearningInsights {
+        return modelMutex.withLock {
+            LearningInsights(
+                interactionCount = interactionCount,
+                progressEstimate = (interactionCount / 100.0f).coerceAtMost(1.0f),
+            )
         }
     }
 

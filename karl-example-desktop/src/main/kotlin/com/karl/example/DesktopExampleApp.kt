@@ -37,7 +37,7 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import api.KarlContainer
 import api.LearningEngine
-import com.karl.core.api.*
+import com.karl.core.api.Karl
 import com.karl.core.models.DataSource
 import com.karl.core.models.DataStorage
 import com.karl.core.models.InteractionData
@@ -219,6 +219,9 @@ fun main() =
         var karlContainer: KarlContainer? by remember {
             mutableStateOf(null)
         } // Hold the container instance
+        var learningEngine: LearningEngine? by remember {
+            mutableStateOf(null)
+        } // Hold the learning engine instance for getting insights
 
         // --- State for UI ---
         // StateFlow to hold the latest prediction for the UI
@@ -242,7 +245,7 @@ fun main() =
 
             // Instantiate KARL dependencies with REAL implementations
             try {
-                val learningEngine: LearningEngine = RealLearningEngine(learningRate = 0.01f) // Real neural network
+                val engine: LearningEngine = RealLearningEngine(learningRate = 0.01f) // Real neural network
                 val dataStorage: DataStorage =
                     RealDataStorage("karl_database.db") // Real SQLite persistence
 
@@ -253,7 +256,7 @@ fun main() =
                 // Build the container
                 val container =
                     Karl.forUser(userId)
-                        .withLearningEngine(learningEngine)
+                        .withLearningEngine(engine)
                         .withDataStorage(dataStorage)
                         .withDataSource(dataSource)
                         .withCoroutineScope(applicationScope) // Use the app-level scope
@@ -261,7 +264,7 @@ fun main() =
 
                 // Initialize (must be called!)
                 container.initialize(
-                    learningEngine,
+                    engine,
                     dataStorage,
                     dataSource,
                     emptyList(),
@@ -269,6 +272,7 @@ fun main() =
                 )
 
                 karlContainer = container // Store the initialized container
+                learningEngine = engine // Store the learning engine for insights
                 println("App LaunchedEffect: KARL setup complete.")
 
                 // === TEST: Auto-emit a test action to verify the flow works ===
@@ -289,6 +293,23 @@ fun main() =
                 println("App LaunchedEffect: ERROR setting up KARL: ${e.message}")
                 e.printStackTrace()
                 // Handle error (e.g., show error message in UI)
+            }
+        }
+
+        // --- Helper function to update learning progress ---
+        fun updateLearningProgress() {
+            applicationScope.launch {
+                learningEngine?.let { engine ->
+                    try {
+                        val insights = engine.getLearningInsights()
+                        learningProgressState.update { insights.progressEstimate }
+                        println(
+                            "Progress: ${insights.interactionCount} interactions, ${(insights.progressEstimate * 100).toInt()}%",
+                        )
+                    } catch (e: Exception) {
+                        println("Error getting learning insights: ${e.message}")
+                    }
+                }
             }
         }
 
