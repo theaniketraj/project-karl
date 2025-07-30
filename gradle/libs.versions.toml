@@ -13,6 +13,7 @@ sqliteJdbc = "3.46.0.0"
 serializationJson = "1.7.1"
 ktlintGradle = "12.1.0"
 ktlint = "1.3.1"
+sqldelight = "2.0.2"
 
 [libraries]
 # Kotlin
@@ -35,6 +36,10 @@ androidx-room-testing = { group = "androidx.room", name = "room-testing", versio
 androidx-sqlite-framework = { group = "androidx.sqlite", name = "sqlite-framework", version.ref = "sqliteFramework" }
 sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version.ref = "sqliteJdbc" }
 
+# SQLDelight
+sqldelight-driver-sqlite = { group = "app.cash.sqldelight", name = "sqlite-driver", version.ref = "sqldelight" }
+sqldelight-driver-jdbc = { group = "app.cash.sqldelight", name = "jdbc-driver", version.ref = "sqldelight" }
+
 # KotlinDL
 kotlindl-api = { group = "org.jetbrains.kotlinx", name = "kotlin-deeplearning-api", version.ref = "kotlinDL" }
 kotlindl-dataset = { group = "org.jetbrains.kotlinx", name = "kotlin-deeplearning-dataset", version.ref = "kotlinDL" }
@@ -54,3 +59,6 @@ kotlinComposeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.re
 
 # Ktlint
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
+
+# SQLDelight
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }

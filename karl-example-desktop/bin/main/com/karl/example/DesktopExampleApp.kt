@@ -2,7 +2,7 @@ package com.karl.example
 
 import androidx.compose.desktop.ui.tooling.preview.Preview // Required for @Preview (though less common in main app file)
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -10,17 +10,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver // Example Driver
 // Import KARL API and Core Interfaces/Models
 import com.karl.core.api.*
-import com.karl.core.data.DataSource
-import com.karl.core.data.DataStorage
+import com.karl.core.models.DataSource
+import com.karl.core.models.DataStorage
 import com.karl.core.models.InteractionData
 import com.karl.core.models.Prediction
+import api.LearningEngine
+import api.KarlContainer
 // Import KARL Implementations (Replace with your actual implementation packages/classes)
 import com.karl.kldl.KLDLLearningEngine // Assuming this path is correct
-import com.karl.sqldelight.KarlDatabase // Assuming SQLDelight generates this
-import com.karl.sqldelight.SQLDelightDataStorage // Assuming this path is correct
 // Import KARL UI Components
 import com.karl.ui.KarlContainerUI
 import kotlinx.coroutines.*
@@ -53,6 +52,53 @@ class ExampleDataSource(
     }
 }
 
+// --- 2. Simple In-Memory DataStorage Implementation for the Example ---
+class InMemoryDataStorage : DataStorage {
+    private val interactions = mutableListOf<InteractionData>()
+    private val containerStates = mutableMapOf<String, com.karl.core.models.KarlContainerState>()
+    
+    override suspend fun initialize() {
+        println("InMemoryDataStorage: Initialized")
+    }
+    
+    override suspend fun saveContainerState(userId: String, state: com.karl.core.models.KarlContainerState) {
+        containerStates[userId] = state
+        println("InMemoryDataStorage: Saved container state for user: $userId")
+    }
+    
+    override suspend fun loadContainerState(userId: String): com.karl.core.models.KarlContainerState? {
+        return containerStates[userId]
+    }
+    
+    override suspend fun saveInteractionData(data: InteractionData) {
+        interactions.add(data)
+        println("InMemoryDataStorage: Stored interaction: $data")
+    }
+    
+    override suspend fun loadRecentInteractionData(
+        userId: String,
+        limit: Int,
+        type: String?
+    ): List<InteractionData> {
+        return interactions
+            .filter { it.userId == userId }
+            .let { if (type != null) it.filter { interaction -> interaction.type == type } else it }
+            .takeLast(limit)
+    }
+    
+    override suspend fun deleteUserData(userId: String) {
+        interactions.removeAll { it.userId == userId }
+        containerStates.remove(userId)
+        println("InMemoryDataStorage: Deleted data for user: $userId")
+    }
+    
+    override suspend fun release() {
+        interactions.clear()
+        containerStates.clear()
+        println("InMemoryDataStorage: Released all resources")
+    }
+}
+
 // --- 2. Main Application Entry Point ---
 fun main() = application {
     val windowState = rememberWindowState(width = 800.dp, height = 600.dp)
@@ -77,9 +123,7 @@ fun main() = application {
         // Instantiate KARL dependencies (replace with actual setup if needed)
         try {
             val learningEngine: LearningEngine = KLDLLearningEngine() // Simple instantiation
-            val dbDriver = JdbcSqliteDriver("jdbc:sqlite:karl_example_$userId.db")
-            KarlDatabase.Schema.create(dbDriver) // Create DB schema if it doesn't exist
-            val dataStorage: DataStorage = SQLDelightDataStorage(KarlDatabase(dbDriver)) // Use generated DB class
+            val dataStorage: DataStorage = InMemoryDataStorage() // Use in-memory storage for simplicity
             val dataSource: DataSource = ExampleDataSource(userId, actionFlow) // Use the actionFlow
 
             // Build the container
@@ -129,7 +173,7 @@ fun main() = application {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text("Project KARL Example", style = MaterialTheme.typography.headlineMedium)
+                    Text("Project KARL Example", style = MaterialTheme.typography.h4)
 
                     // Display the KARL UI Container
                     // Only show if initialization was successful
@@ -140,11 +184,11 @@ fun main() = application {
                             // Add callbacks here if KarlContainerUI had buttons
                         )
                     } else {
-                        Text("KARL Container failed to initialize. Check logs.", color = MaterialTheme.colorScheme.error)
+                        Text("KARL Container failed to initialize. Check logs.", color = MaterialTheme.colors.error)
                     }
 
                     Spacer(modifier = Modifier.height(20.dp))
-                    Text("Simulate User Actions:", style = MaterialTheme.typography.titleMedium)
+                    Text("Simulate User Actions:", style = MaterialTheme.typography.h6)
 
                     // Buttons to trigger the DataSource via the SharedFlow
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {

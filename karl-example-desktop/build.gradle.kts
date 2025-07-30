@@ -16,9 +16,9 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation(project(":karl-core"))
     implementation(project(":karl-kldl"))
-    implementation(project(":karl-room"))
     implementation(project(":karl-compose-ui"))
     implementation(libs.sqlite.jdbc)
+    implementation(libs.sqldelight.driver.jdbc)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {

@@ -1,6 +1,6 @@
 package com.karl.kldl
 
-import com.karl.core.learning.LearningEngine
+import api.LearningEngine
 import com.karl.core.models.InteractionData
 import com.karl.core.models.KarlContainerState
 import com.karl.core.models.KarlInstruction
