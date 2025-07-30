@@ -22,5 +22,5 @@ include(
     ":karl-kldl",
     ":karl-room",
     ":karl-compose-ui",
-    ":karl-example-desktop"
+    ":karl-example-desktop",
 )

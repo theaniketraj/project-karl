@@ -34,10 +34,11 @@ fun KarlLearningProgressIndicator(
         Spacer(modifier = Modifier.height(16.dp))
         LinearProgressIndicator(
             progress = { progress },
-            modifier = Modifier
-                .width(200.dp) // Wider progress bar
-                .height(8.dp) // Much thicker progress bar
-                .clip(RoundedCornerShape(4.dp)), // Rounded corners for better appearance
+            modifier =
+                Modifier
+                    .width(200.dp) // Wider progress bar
+                    .height(8.dp) // Much thicker progress bar
+                    .clip(RoundedCornerShape(4.dp)), // Rounded corners for better appearance
         )
         // Add spacing after the indicator too
         Spacer(modifier = Modifier.height(8.dp))

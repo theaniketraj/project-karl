@@ -17,7 +17,6 @@ subprojects {
         version.set("1.2.1")
         verbose.set(true)
     }
-
 }
 
 tasks.register("clean", Delete::class) {
