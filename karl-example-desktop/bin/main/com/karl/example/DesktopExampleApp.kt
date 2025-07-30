@@ -2,7 +2,6 @@ package com.karl.example
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.hoverable
@@ -191,7 +190,7 @@ class InMemoryDataStorage : DataStorage {
 // --- 2. Main Application Entry Point ---
 fun main() =
     application {
-        val windowState = rememberWindowState(width = 900.dp, height = 800.dp)
+        val windowState = rememberWindowState() // Remove fixed size, let it be resizable
         // Create a scope tied to the application lifecycle for cleanup
         val applicationScope = rememberCoroutineScope { SupervisorJob() + Dispatchers.Default }
         var karlContainer: KarlContainer? by remember {
@@ -513,7 +512,7 @@ fun main() =
                                 )
 
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().weight(1f), // Use weight to fill available space
                                 horizontalArrangement = Arrangement.spacedBy(12.dp), // Fluent: Tighter spacing
                             ) {
                                 // AI Insights Section - Transparent with subtle animations
@@ -521,7 +520,7 @@ fun main() =
                                     modifier =
                                         Modifier
                                             .weight(insightsWeight)
-                                            .height(420.dp)
+                                            .fillMaxHeight() // Use available height instead of fixed height
                                             .graphicsLayer(alpha = insightsAlpha),
                                 ) {
                                     // Transparent background with subtle border
@@ -625,7 +624,7 @@ fun main() =
                                     modifier =
                                         Modifier
                                             .weight(controlsWeight)
-                                            .height(420.dp)
+                                            .fillMaxHeight() // Use available height instead of fixed height
                                             .graphicsLayer(alpha = controlsAlpha),
                                 ) {
                                     // Transparent background with subtle border
@@ -1081,7 +1080,7 @@ fun main() =
                         } else {
                             // When KARL is not ready yet - show loading state with animations
                             Box(
-                                modifier = Modifier.fillMaxWidth().height(420.dp),
+                                modifier = Modifier.fillMaxWidth().weight(1f), // Use weight instead of fixed height
                                 contentAlignment = Alignment.Center,
                             ) {
                                 Column(

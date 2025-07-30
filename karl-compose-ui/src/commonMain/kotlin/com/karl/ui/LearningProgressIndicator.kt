@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,7 +30,10 @@ fun KarlLearningProgressIndicator(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(8.dp),
     ) {
-        Text(label)
+        Text(
+            text = label,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+        )
         // Add more spacing between text and indicator
         Spacer(modifier = Modifier.height(16.dp))
         LinearProgressIndicator(
@@ -43,7 +47,10 @@ fun KarlLearningProgressIndicator(
         // Add spacing after the indicator too
         Spacer(modifier = Modifier.height(8.dp))
         // Optional: Add a text representation of the percentage
-        Text("${(progress * 100).toInt()}%")
+        Text(
+            text = "${(progress * 100).toInt()}%",
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+        )
     }
 }
 
