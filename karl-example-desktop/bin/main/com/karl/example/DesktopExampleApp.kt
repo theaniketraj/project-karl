@@ -351,7 +351,7 @@ fun main() =
                                         println("Could not open GitHub link: ${e.message}")
                                     }
                                 },
-                                modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                                modifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
                             ) {
                                 Icon(
                                     imageVector = GitHubIcon,
@@ -529,7 +529,7 @@ fun main() =
                                     // Enhanced hover interaction with animated background
                                     val insightsInteractionSource = remember { MutableInteractionSource() }
                                     val isInsightsHovered by insightsInteractionSource.collectIsHoveredAsState()
-                                    
+
                                     // Animated hover effects
                                     val hoverScale by animateFloatAsState(
                                         targetValue = if (isInsightsHovered) 1.02f else 1.0f,
@@ -547,14 +547,15 @@ fun main() =
                                         targetValue = if (isInsightsHovered) 0.2f else 0.08f,
                                         animationSpec = tween(durationMillis = 300),
                                     )
-                                    
+
                                     // Colorful accent animation for hover
-                                    val accentColor = if (isDarkTheme) {
-                                        androidx.compose.ui.graphics.Color(0xFF64B5F6) // Light blue for dark theme
-                                    } else {
-                                        androidx.compose.ui.graphics.Color(0xFF1976D2) // Darker blue for light theme
-                                    }
-                                    
+                                    val accentColor =
+                                        if (isDarkTheme) {
+                                            androidx.compose.ui.graphics.Color(0xFF64B5F6) // Light blue for dark theme
+                                        } else {
+                                            androidx.compose.ui.graphics.Color(0xFF1976D2) // Darker blue for light theme
+                                        }
+
                                     // Transparent background with subtle border and hover effects
                                     Box(
                                         modifier =
@@ -566,20 +567,22 @@ fun main() =
                                                     shadowElevation = hoverElevation,
                                                 )
                                                 .background(
-                                                    color = if (isInsightsHovered) {
-                                                        accentColor.copy(alpha = backgroundAlpha * 0.3f)
-                                                    } else {
-                                                        MaterialTheme.colors.surface.copy(alpha = backgroundAlpha)
-                                                    },
+                                                    color =
+                                                        if (isInsightsHovered) {
+                                                            accentColor.copy(alpha = backgroundAlpha * 0.3f)
+                                                        } else {
+                                                            MaterialTheme.colors.surface.copy(alpha = backgroundAlpha)
+                                                        },
                                                     shape = RoundedCornerShape(12.dp),
                                                 )
                                                 .border(
                                                     width = if (isInsightsHovered) 2.dp else 1.dp,
-                                                    color = if (isInsightsHovered) {
-                                                        accentColor.copy(alpha = borderAlpha)
-                                                    } else {
-                                                        MaterialTheme.colors.onSurface.copy(alpha = borderAlpha)
-                                                    },
+                                                    color =
+                                                        if (isInsightsHovered) {
+                                                            accentColor.copy(alpha = borderAlpha)
+                                                        } else {
+                                                            MaterialTheme.colors.onSurface.copy(alpha = borderAlpha)
+                                                        },
                                                     shape = RoundedCornerShape(12.dp),
                                                 )
                                                 .hoverable(insightsInteractionSource)
@@ -676,7 +679,7 @@ fun main() =
                                     // Enhanced hover interaction with animated background
                                     val controlsInteractionSource = remember { MutableInteractionSource() }
                                     val isControlsHovered by controlsInteractionSource.collectIsHoveredAsState()
-                                    
+
                                     // Animated hover effects
                                     val hoverScale by animateFloatAsState(
                                         targetValue = if (isControlsHovered) 1.02f else 1.0f,
@@ -694,14 +697,15 @@ fun main() =
                                         targetValue = if (isControlsHovered) 0.2f else 0.08f,
                                         animationSpec = tween(durationMillis = 300),
                                     )
-                                    
+
                                     // Colorful accent animation for hover - different color for Controls
-                                    val accentColor = if (isDarkTheme) {
-                                        androidx.compose.ui.graphics.Color(0xFF81C784) // Light green for dark theme
-                                    } else {
-                                        androidx.compose.ui.graphics.Color(0xFF388E3C) // Darker green for light theme
-                                    }
-                                    
+                                    val accentColor =
+                                        if (isDarkTheme) {
+                                            androidx.compose.ui.graphics.Color(0xFF81C784) // Light green for dark theme
+                                        } else {
+                                            androidx.compose.ui.graphics.Color(0xFF388E3C) // Darker green for light theme
+                                        }
+
                                     // Transparent background with subtle border and hover effects
                                     Box(
                                         modifier =
@@ -713,20 +717,22 @@ fun main() =
                                                     shadowElevation = hoverElevation,
                                                 )
                                                 .background(
-                                                    color = if (isControlsHovered) {
-                                                        accentColor.copy(alpha = backgroundAlpha * 0.3f)
-                                                    } else {
-                                                        MaterialTheme.colors.surface.copy(alpha = backgroundAlpha)
-                                                    },
+                                                    color =
+                                                        if (isControlsHovered) {
+                                                            accentColor.copy(alpha = backgroundAlpha * 0.3f)
+                                                        } else {
+                                                            MaterialTheme.colors.surface.copy(alpha = backgroundAlpha)
+                                                        },
                                                     shape = RoundedCornerShape(12.dp),
                                                 )
                                                 .border(
                                                     width = if (isControlsHovered) 2.dp else 1.dp,
-                                                    color = if (isControlsHovered) {
-                                                        accentColor.copy(alpha = borderAlpha)
-                                                    } else {
-                                                        MaterialTheme.colors.onSurface.copy(alpha = borderAlpha)
-                                                    },
+                                                    color =
+                                                        if (isControlsHovered) {
+                                                            accentColor.copy(alpha = borderAlpha)
+                                                        } else {
+                                                            MaterialTheme.colors.onSurface.copy(alpha = borderAlpha)
+                                                        },
                                                     shape = RoundedCornerShape(12.dp),
                                                 )
                                                 .hoverable(controlsInteractionSource)
@@ -991,7 +997,11 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier.height(64.dp).width(160.dp).pointerHoverIcon(PointerIcon.Hand), // Larger buttons
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(64.dp)
+                                                                    .width(160.dp)
+                                                                    .pointerHoverIcon(PointerIcon.Hand), // Larger buttons
                                                             shape = RoundedCornerShape(32.dp),
                                                             colors =
                                                                 ButtonDefaults.buttonColors(
@@ -1022,7 +1032,11 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier.height(64.dp).width(160.dp).pointerHoverIcon(PointerIcon.Hand),
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(64.dp)
+                                                                    .width(160.dp)
+                                                                    .pointerHoverIcon(PointerIcon.Hand),
                                                             shape = RoundedCornerShape(32.dp),
                                                             colors =
                                                                 ButtonDefaults.buttonColors(
@@ -1050,7 +1064,11 @@ fun main() =
                                                             }
                                                         },
                                                         enabled = karlContainer != null,
-                                                        modifier = Modifier.height(64.dp).width(280.dp).pointerHoverIcon(PointerIcon.Hand), // Extra large prediction button
+                                                        modifier =
+                                                            Modifier
+                                                                .height(64.dp)
+                                                                .width(280.dp)
+                                                                .pointerHoverIcon(PointerIcon.Hand), // Extra large prediction button
                                                         shape = RoundedCornerShape(32.dp),
                                                         colors =
                                                             ButtonDefaults.buttonColors(
@@ -1085,7 +1103,11 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier.height(48.dp).width(130.dp).pointerHoverIcon(PointerIcon.Hand), // Larger normal buttons
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(48.dp)
+                                                                    .width(130.dp)
+                                                                    .pointerHoverIcon(PointerIcon.Hand), // Larger normal buttons
                                                             shape = RoundedCornerShape(24.dp),
                                                             colors =
                                                                 ButtonDefaults.buttonColors(
@@ -1116,7 +1138,11 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier.height(48.dp).width(130.dp).pointerHoverIcon(PointerIcon.Hand),
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(48.dp)
+                                                                    .width(130.dp)
+                                                                    .pointerHoverIcon(PointerIcon.Hand),
                                                             shape = RoundedCornerShape(24.dp),
                                                             colors =
                                                                 ButtonDefaults.buttonColors(
@@ -1144,7 +1170,11 @@ fun main() =
                                                             }
                                                         },
                                                         enabled = karlContainer != null,
-                                                        modifier = Modifier.height(48.dp).width(180.dp).pointerHoverIcon(PointerIcon.Hand), // Larger prediction button
+                                                        modifier =
+                                                            Modifier
+                                                                .height(48.dp)
+                                                                .width(180.dp)
+                                                                .pointerHoverIcon(PointerIcon.Hand), // Larger prediction button
                                                         shape = RoundedCornerShape(24.dp),
                                                         colors =
                                                             ButtonDefaults.buttonColors(
