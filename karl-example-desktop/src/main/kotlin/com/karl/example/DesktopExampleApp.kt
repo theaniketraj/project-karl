@@ -42,7 +42,6 @@ import com.karl.core.models.DataSource
 import com.karl.core.models.DataStorage
 import com.karl.core.models.InteractionData
 import com.karl.core.models.Prediction
-import com.karl.kldl.KLDLLearningEngine
 import com.karl.ui.KarlContainerUI
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -241,11 +240,11 @@ fun main() =
             println("App LaunchedEffect: Setting up KARL...")
             val userId = "example-user-01" // Static user for the example
 
-            // Instantiate KARL dependencies (replace with actual setup if needed)
+            // Instantiate KARL dependencies with REAL implementations
             try {
-                val learningEngine: LearningEngine = KLDLLearningEngine() // Simple instantiation
+                val learningEngine: LearningEngine = RealLearningEngine(learningRate = 0.01f) // Real neural network
                 val dataStorage: DataStorage =
-                    InMemoryDataStorage() // Use in-memory storage for simplicity
+                    RealDataStorage("karl_database.db") // Real SQLite persistence
 
                 println("DEBUG: Creating ExampleDataSource with actionFlow = $actionFlow")
                 val dataSource: DataSource = ExampleDataSource(userId, actionFlow) // Use the actionFlow

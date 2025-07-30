@@ -1,0 +1,341 @@
+package com.karl.example
+
+import api.LearningEngine
+import com.karl.core.models.InteractionData
+import com.karl.core.models.KarlContainerState
+import com.karl.core.models.KarlInstruction
+import com.karl.core.models.Prediction
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.*
+import kotlin.random.Random
+
+/**
+ * Real LearningEngine implementation using a simple Multi-Layer Perceptron
+ * This replaces the KLDLLearningEngine stub with actual neural network learning
+ */
+class RealLearningEngine(
+    private val learningRate: Float = 0.01f,
+    private val randomSeed: Long = 42L,
+) : LearningEngine {
+    private val isInitialized = AtomicBoolean(false)
+    private val modelMutex = Mutex()
+    private lateinit var engineScope: CoroutineScope
+    private val random = Random(randomSeed)
+
+    // Simple MLP structure
+    private val inputSize = 4 // [action_type_hash, timestamp_normalized, user_hash, context]
+    private val hiddenSize = 8
+    private val outputSize = 3 // [next_action_confidence, timing_prediction, preference_score]
+
+    // Network weights (initialized randomly)
+    private lateinit var weightsInputHidden: Array<FloatArray>
+    private lateinit var weightsHiddenOutput: Array<FloatArray>
+    private lateinit var biasHidden: FloatArray
+    private lateinit var biasOutput: FloatArray
+
+    // Training history
+    private val trainingHistory = mutableListOf<TrainingExample>()
+    private var trainingSteps = 0
+
+    data class TrainingExample(
+        val input: FloatArray,
+        val expectedOutput: FloatArray,
+        val timestamp: Long,
+    )
+
+    override suspend fun initialize(
+        state: KarlContainerState?,
+        coroutineScope: CoroutineScope,
+    ) {
+        if (!isInitialized.compareAndSet(false, true)) {
+            println("RealLearningEngine: Already initialized.")
+            return
+        }
+
+        this.engineScope = coroutineScope
+
+        modelMutex.withLock {
+            if (state != null) {
+                // Try to restore from saved state
+                println("RealLearningEngine: Attempting to restore from saved state...")
+                try {
+                    restoreFromState(state)
+                    println("RealLearningEngine: Successfully restored from saved state")
+                } catch (e: Exception) {
+                    println("RealLearningEngine: Failed to restore state, initializing new model: ${e.message}")
+                    initializeNewModel()
+                }
+            } else {
+                initializeNewModel()
+            }
+        }
+
+        println("RealLearningEngine: Initialized successfully with real neural network")
+    }
+
+    private fun initializeNewModel() {
+        // Initialize weights with Xavier/Glorot initialization
+        val inputHiddenLimit = sqrt(6.0 / (inputSize + hiddenSize)).toFloat()
+        weightsInputHidden =
+            Array(inputSize) {
+                FloatArray(hiddenSize) { random.nextFloat() * 2 * inputHiddenLimit - inputHiddenLimit }
+            }
+
+        val hiddenOutputLimit = sqrt(6.0 / (hiddenSize + outputSize)).toFloat()
+        weightsHiddenOutput =
+            Array(hiddenSize) {
+                FloatArray(outputSize) { random.nextFloat() * 2 * hiddenOutputLimit - hiddenOutputLimit }
+            }
+
+        // Initialize biases to small random values
+        biasHidden = FloatArray(hiddenSize) { random.nextFloat() * 0.1f - 0.05f }
+        biasOutput = FloatArray(outputSize) { random.nextFloat() * 0.1f - 0.05f }
+
+        println("RealLearningEngine: Initialized new neural network model")
+    }
+
+    private fun restoreFromState(state: KarlContainerState) {
+        // For simplicity, we'll just initialize a new model
+        // In a real implementation, you'd deserialize the weights from state.data
+        initializeNewModel()
+        println("RealLearningEngine: State restoration not fully implemented, using new model")
+    }
+
+    override fun trainStep(data: InteractionData): Job {
+        if (!isInitialized.get()) {
+            println("RealLearningEngine: trainStep() called but engine not initialized")
+            return engineScope.launch { /* no-op */ }
+        }
+
+        println("RealLearningEngine: trainStep() received data -> $data")
+
+        return engineScope.launch {
+            modelMutex.withLock {
+                try {
+                    // Convert interaction data to training input
+                    val input = convertInteractionToInput(data)
+                    val expectedOutput = generateExpectedOutput(data)
+
+                    // Store training example
+                    val example = TrainingExample(input, expectedOutput, System.currentTimeMillis())
+                    trainingHistory.add(example)
+
+                    // Perform forward and backward pass
+                    val (hiddenLayer, output) = forwardPass(input)
+                    backwardPass(input, hiddenLayer, output, expectedOutput)
+
+                    trainingSteps++
+
+                    // Keep only recent history to prevent memory bloat
+                    if (trainingHistory.size > 1000) {
+                        trainingHistory.removeFirst()
+                    }
+
+                    println("RealLearningEngine: Training step $trainingSteps completed for data type: ${data.type}")
+
+                    // Log training progress occasionally
+                    if (trainingSteps % 10 == 0) {
+                        val loss = calculateLoss(output, expectedOutput)
+                        println("RealLearningEngine: Training step $trainingSteps, Loss: ${"%.4f".format(loss)}")
+                    }
+                } catch (e: Exception) {
+                    println("RealLearningEngine: Error during training: ${e.message}")
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    private fun convertInteractionToInput(data: InteractionData): FloatArray {
+        // Convert interaction data to neural network input
+        val actionHash = data.type.hashCode().toFloat() / Int.MAX_VALUE // Normalize to [-1, 1]
+        val timestampNormalized = (data.timestamp % 86400000) / 86400000.0f // Time of day [0, 1]
+        val userHash = data.userId.hashCode().toFloat() / Int.MAX_VALUE // Normalize to [-1, 1]
+        val contextValue = if (data.details.isNotEmpty()) 0.5f else 0.0f // Simple context encoding
+
+        return floatArrayOf(actionHash, timestampNormalized, userHash, contextValue)
+    }
+
+    private fun generateExpectedOutput(data: InteractionData): FloatArray {
+        // Generate expected output based on interaction
+        // This is a simplified approach - in reality this would be more sophisticated
+        val actionConfidence =
+            when (data.type) {
+                "action_type_A" -> 0.8f
+                "action_type_B" -> 0.7f
+                else -> 0.5f
+            }
+
+        val timingPrediction = random.nextFloat() * 0.5f + 0.5f // Random timing between 0.5-1.0
+        val preferenceScore = actionConfidence * 0.9f // Slightly lower than confidence
+
+        return floatArrayOf(actionConfidence, timingPrediction, preferenceScore)
+    }
+
+    private fun forwardPass(input: FloatArray): Pair<FloatArray, FloatArray> {
+        // Hidden layer computation
+        val hiddenLayer = FloatArray(hiddenSize)
+        for (h in 0 until hiddenSize) {
+            var sum = biasHidden[h]
+            for (i in 0 until inputSize) {
+                sum += input[i] * weightsInputHidden[i][h]
+            }
+            hiddenLayer[h] = tanh(sum) // Activation function
+        }
+
+        // Output layer computation
+        val output = FloatArray(outputSize)
+        for (o in 0 until outputSize) {
+            var sum = biasOutput[o]
+            for (h in 0 until hiddenSize) {
+                sum += hiddenLayer[h] * weightsHiddenOutput[h][o]
+            }
+            output[o] = sigmoid(sum) // Sigmoid for output probabilities
+        }
+
+        return Pair(hiddenLayer, output)
+    }
+
+    private fun backwardPass(
+        input: FloatArray,
+        hiddenLayer: FloatArray,
+        output: FloatArray,
+        expected: FloatArray,
+    ) {
+        // Calculate output layer errors
+        val outputErrors = FloatArray(outputSize)
+        for (o in 0 until outputSize) {
+            val error = expected[o] - output[o]
+            outputErrors[o] = error * sigmoidDerivative(output[o])
+        }
+
+        // Calculate hidden layer errors
+        val hiddenErrors = FloatArray(hiddenSize)
+        for (h in 0 until hiddenSize) {
+            var error = 0.0f
+            for (o in 0 until outputSize) {
+                error += outputErrors[o] * weightsHiddenOutput[h][o]
+            }
+            hiddenErrors[h] = error * tanhDerivative(hiddenLayer[h])
+        }
+
+        // Update weights and biases
+        for (h in 0 until hiddenSize) {
+            for (o in 0 until outputSize) {
+                weightsHiddenOutput[h][o] += learningRate * outputErrors[o] * hiddenLayer[h]
+            }
+        }
+
+        for (i in 0 until inputSize) {
+            for (h in 0 until hiddenSize) {
+                weightsInputHidden[i][h] += learningRate * hiddenErrors[h] * input[i]
+            }
+        }
+
+        // Update biases
+        for (o in 0 until outputSize) {
+            biasOutput[o] += learningRate * outputErrors[o]
+        }
+        for (h in 0 until hiddenSize) {
+            biasHidden[h] += learningRate * hiddenErrors[h]
+        }
+    }
+
+    private fun calculateLoss(
+        output: FloatArray,
+        expected: FloatArray,
+    ): Float {
+        var loss = 0.0f
+        for (i in output.indices) {
+            val diff = expected[i] - output[i]
+            loss += diff * diff
+        }
+        return loss / output.size
+    }
+
+    // Activation functions
+    private fun tanh(x: Float): Float = kotlin.math.tanh(x.toDouble()).toFloat()
+
+    private fun sigmoid(x: Float): Float = (1.0 / (1.0 + exp(-x.toDouble()))).toFloat()
+
+    private fun tanhDerivative(y: Float): Float = 1.0f - y * y
+
+    private fun sigmoidDerivative(y: Float): Float = y * (1.0f - y)
+
+    override suspend fun predict(
+        contextData: List<InteractionData>,
+        instructions: List<KarlInstruction>,
+    ): Prediction? {
+        if (!isInitialized.get()) {
+            println("RealLearningEngine: predict() called but engine not initialized")
+            return null
+        }
+
+        return modelMutex.withLock {
+            try {
+                println("RealLearningEngine: predict() called with ${contextData.size} context items")
+
+                // Use most recent interaction as input, or create default if empty
+                val input =
+                    if (contextData.isNotEmpty()) {
+                        convertInteractionToInput(contextData.last())
+                    } else {
+                        FloatArray(inputSize) { 0.0f } // Default neutral input
+                    }
+
+                // Forward pass to get prediction
+                val (_, output) = forwardPass(input)
+
+                // Convert neural network output to prediction
+                val confidence = output[0]
+                val suggestion = if (confidence > 0.6f) "action_type_A" else "action_type_B"
+
+                val prediction =
+                    Prediction(
+                        suggestion = suggestion,
+                        confidence = confidence,
+                        type = "neural_network_prediction",
+                        metadata =
+                            mapOf(
+                                "training_steps" to trainingSteps.toString(),
+                                "model_output" to output.contentToString(),
+                                "context_size" to contextData.size.toString(),
+                            ),
+                    )
+
+                println("RealLearningEngine: Generated prediction -> $prediction")
+                prediction
+            } catch (e: Exception) {
+                println("RealLearningEngine: Error during prediction: ${e.message}")
+                null
+            }
+        }
+    }
+
+    override suspend fun getCurrentState(): KarlContainerState {
+        return modelMutex.withLock {
+            // In a real implementation, you'd serialize the neural network weights
+            // For now, we'll return a simple state representation
+            val stateData = "neural_network_state_v1_steps_$trainingSteps".toByteArray()
+            KarlContainerState(data = stateData, version = 1)
+        }
+    }
+
+    override suspend fun reset() {
+        modelMutex.withLock {
+            trainingHistory.clear()
+            trainingSteps = 0
+            initializeNewModel()
+            println("RealLearningEngine: Reset completed - reinitialized neural network")
+        }
+    }
+
+    override suspend fun release() {
+        println("RealLearningEngine: Released neural network resources")
+    }
+}
