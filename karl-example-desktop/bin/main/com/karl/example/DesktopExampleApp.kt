@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -228,6 +229,8 @@ fun main() =
         val predictionState = remember { MutableStateFlow<Prediction?>(null) }
         // StateFlow for simulated learning progress
         val learningProgressState = remember { MutableStateFlow(0.0f) }
+        // StateFlow for loading state when getting predictions
+        val isLoadingPrediction = remember { MutableStateFlow(false) }
         // SharedFlow for triggering actions from buttons to the DataSource
         val actionFlow = remember { MutableSharedFlow<String>(extraBufferCapacity = 5) }
         // State for theme toggle (true = dark theme, false = light theme)
@@ -904,11 +907,17 @@ fun main() =
                                                         verticalArrangement = Arrangement.spacedBy(12.dp),
                                                         horizontalAlignment = Alignment.CenterHorizontally,
                                                     ) {
-                                                        // Fluent: Compact pill button with hover animation
+                                                        // Fluent: Compact pill button with hover and pressed animation
                                                         val buttonAInteractionSource = remember { MutableInteractionSource() }
                                                         val isButtonAHovered by buttonAInteractionSource.collectIsHoveredAsState()
+                                                        val isButtonAPressed by buttonAInteractionSource.collectIsPressedAsState()
                                                         val buttonAScale by animateFloatAsState(
-                                                            targetValue = if (isButtonAHovered) 1.05f else 1.0f,
+                                                            targetValue =
+                                                                when {
+                                                                    isButtonAPressed -> 0.95f
+                                                                    isButtonAHovered -> 1.05f
+                                                                    else -> 1.0f
+                                                                },
                                                             animationSpec = tween(durationMillis = 150),
                                                         )
 
@@ -938,10 +947,12 @@ fun main() =
                                                             colors =
                                                                 ButtonDefaults.buttonColors(
                                                                     backgroundColor =
-                                                                        if (isButtonAHovered) {
-                                                                            androidx.compose.ui.graphics.Color(0xFF66BB6A)
-                                                                        } else {
-                                                                            androidx.compose.ui.graphics.Color(0xFF4CAF50)
+                                                                        when {
+                                                                            isButtonAPressed ->
+                                                                                androidx.compose.ui.graphics.Color(0xFF388E3C)
+                                                                            isButtonAHovered ->
+                                                                                androidx.compose.ui.graphics.Color(0xFF66BB6A)
+                                                                            else -> androidx.compose.ui.graphics.Color(0xFF4CAF50)
                                                                         },
                                                                     contentColor = androidx.compose.ui.graphics.Color.White,
                                                                 ),
@@ -959,8 +970,14 @@ fun main() =
 
                                                         val buttonBInteractionSource = remember { MutableInteractionSource() }
                                                         val isButtonBHovered by buttonBInteractionSource.collectIsHoveredAsState()
+                                                        val isButtonBPressed by buttonBInteractionSource.collectIsPressedAsState()
                                                         val buttonBScale by animateFloatAsState(
-                                                            targetValue = if (isButtonBHovered) 1.05f else 1.0f,
+                                                            targetValue =
+                                                                when {
+                                                                    isButtonBPressed -> 0.95f
+                                                                    isButtonBHovered -> 1.05f
+                                                                    else -> 1.0f
+                                                                },
                                                             animationSpec = tween(durationMillis = 150),
                                                         )
 
@@ -990,10 +1007,12 @@ fun main() =
                                                             colors =
                                                                 ButtonDefaults.buttonColors(
                                                                     backgroundColor =
-                                                                        if (isButtonBHovered) {
-                                                                            androidx.compose.ui.graphics.Color(0xFFFFB74D)
-                                                                        } else {
-                                                                            androidx.compose.ui.graphics.Color(0xFFFF9800)
+                                                                        when {
+                                                                            isButtonBPressed ->
+                                                                                androidx.compose.ui.graphics.Color(0xFFF57C00)
+                                                                            isButtonBHovered ->
+                                                                                androidx.compose.ui.graphics.Color(0xFFFFB74D)
+                                                                            else -> androidx.compose.ui.graphics.Color(0xFFFF9800)
                                                                         },
                                                                     contentColor = androidx.compose.ui.graphics.Color.White,
                                                                 ),
@@ -1009,31 +1028,79 @@ fun main() =
                                                             )
                                                         }
 
+                                                        // Get Prediction button with loading state and enhanced interactions
+                                                        val predictionInteractionSource = remember { MutableInteractionSource() }
+                                                        val isPredictionHovered by predictionInteractionSource.collectIsHoveredAsState()
+                                                        val isPredictionPressed by predictionInteractionSource.collectIsPressedAsState()
+                                                        val isLoading by isLoadingPrediction.collectAsState()
+
+                                                        val predictionButtonScale by animateFloatAsState(
+                                                            targetValue =
+                                                                when {
+                                                                    isPredictionPressed -> 0.95f
+                                                                    isPredictionHovered -> 1.05f
+                                                                    else -> 1.0f
+                                                                },
+                                                            animationSpec = tween(durationMillis = 150),
+                                                        )
+
                                                         Button(
                                                             onClick = {
-                                                                applicationScope.launch {
-                                                                    println("Button Clicked: Get Prediction")
-                                                                    val prediction = karlContainer?.getPrediction()
-                                                                    predictionState.value = prediction
-                                                                    println("Explicit Prediction Request: $prediction")
+                                                                if (!isLoading) {
+                                                                    applicationScope.launch {
+                                                                        isLoadingPrediction.value = true
+                                                                        try {
+                                                                            println("Button Clicked: Get Prediction")
+                                                                            val prediction = karlContainer?.getPrediction()
+                                                                            predictionState.value = prediction
+                                                                            println("Explicit Prediction Request: $prediction")
+                                                                        } finally {
+                                                                            isLoadingPrediction.value = false
+                                                                        }
+                                                                    }
                                                                 }
                                                             },
-                                                            enabled = karlContainer != null,
-                                                            modifier = Modifier.height(36.dp).width(100.dp),
+                                                            enabled = karlContainer != null && !isLoading,
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(36.dp)
+                                                                    .width(100.dp)
+                                                                    .graphicsLayer(
+                                                                        scaleX = predictionButtonScale,
+                                                                        scaleY = predictionButtonScale,
+                                                                    )
+                                                                    .hoverable(predictionInteractionSource),
                                                             shape = RoundedCornerShape(18.dp),
                                                             colors =
                                                                 ButtonDefaults.buttonColors(
-                                                                    backgroundColor = MaterialTheme.colors.primary,
+                                                                    backgroundColor =
+                                                                        when {
+                                                                            isLoading -> MaterialTheme.colors.primary.copy(alpha = 0.7f)
+                                                                            isPredictionHovered ->
+                                                                                MaterialTheme.colors.primary.copy(
+                                                                                    alpha = 0.9f,
+                                                                                )
+                                                                            else -> MaterialTheme.colors.primary
+                                                                        },
                                                                     contentColor = androidx.compose.ui.graphics.Color.White,
                                                                 ),
+                                                            interactionSource = predictionInteractionSource,
                                                         ) {
-                                                            Text(
-                                                                text = "🔮",
-                                                                style =
-                                                                    MaterialTheme.typography.caption.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                                                    ),
-                                                            )
+                                                            if (isLoading) {
+                                                                CircularProgressIndicator(
+                                                                    modifier = Modifier.size(16.dp),
+                                                                    color = androidx.compose.ui.graphics.Color.White,
+                                                                    strokeWidth = 2.dp,
+                                                                )
+                                                            } else {
+                                                                Text(
+                                                                    text = "🔮",
+                                                                    style =
+                                                                        MaterialTheme.typography.caption.copy(
+                                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                        ),
+                                                                )
+                                                            }
                                                         }
                                                     }
                                                 } else if (enlargedSection == "controls") {
@@ -1110,35 +1177,98 @@ fun main() =
                                                         }
                                                     }
 
+                                                    // Large Get Prediction button with enhanced interactions
+                                                    val largePredictionInteractionSource = remember { MutableInteractionSource() }
+                                                    val isLargePredictionHovered by
+                                                        largePredictionInteractionSource.collectIsHoveredAsState()
+                                                    val isLargePredictionPressed by
+                                                        largePredictionInteractionSource.collectIsPressedAsState()
+                                                    val isLoading by isLoadingPrediction.collectAsState()
+
+                                                    val largePredictionButtonScale by animateFloatAsState(
+                                                        targetValue =
+                                                            when {
+                                                                isLargePredictionPressed -> 0.97f
+                                                                isLargePredictionHovered -> 1.02f
+                                                                else -> 1.0f
+                                                            },
+                                                        animationSpec = tween(durationMillis = 150),
+                                                    )
+
                                                     Button(
                                                         onClick = {
-                                                            applicationScope.launch {
-                                                                println("Button Clicked: Get Prediction")
-                                                                val prediction = karlContainer?.getPrediction()
-                                                                predictionState.value = prediction
-                                                                println("Explicit Prediction Request: $prediction")
+                                                            if (!isLoading) {
+                                                                applicationScope.launch {
+                                                                    isLoadingPrediction.value = true
+                                                                    try {
+                                                                        println("Button Clicked: Get Prediction")
+                                                                        val prediction = karlContainer?.getPrediction()
+                                                                        predictionState.value = prediction
+                                                                        println("Explicit Prediction Request: $prediction")
+                                                                    } finally {
+                                                                        isLoadingPrediction.value = false
+                                                                    }
+                                                                }
                                                             }
                                                         },
-                                                        enabled = karlContainer != null,
+                                                        enabled = karlContainer != null && !isLoading,
                                                         modifier =
                                                             Modifier
                                                                 .height(64.dp)
                                                                 .width(280.dp)
+                                                                .graphicsLayer(
+                                                                    scaleX = largePredictionButtonScale,
+                                                                    scaleY = largePredictionButtonScale,
+                                                                )
+                                                                .hoverable(largePredictionInteractionSource)
                                                                 .pointerHoverIcon(PointerIcon.Hand), // Extra large prediction button
                                                         shape = RoundedCornerShape(32.dp),
                                                         colors =
                                                             ButtonDefaults.buttonColors(
-                                                                backgroundColor = MaterialTheme.colors.primary,
+                                                                backgroundColor =
+                                                                    when {
+                                                                        isLoading -> MaterialTheme.colors.primary.copy(alpha = 0.7f)
+                                                                        isLargePredictionPressed ->
+                                                                            MaterialTheme.colors.primary.copy(
+                                                                                alpha = 0.8f,
+                                                                            )
+                                                                        isLargePredictionHovered ->
+                                                                            MaterialTheme.colors.primary.copy(
+                                                                                alpha = 0.9f,
+                                                                            )
+                                                                        else -> MaterialTheme.colors.primary
+                                                                    },
                                                                 contentColor = androidx.compose.ui.graphics.Color.White,
                                                             ),
+                                                        interactionSource = largePredictionInteractionSource,
                                                     ) {
-                                                        Text(
-                                                            text = "🔮 Get Prediction",
-                                                            style =
-                                                                MaterialTheme.typography.h6.copy(
-                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                                                ),
-                                                        )
+                                                        if (isLoading) {
+                                                            Row(
+                                                                verticalAlignment = Alignment.CenterVertically,
+                                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                            ) {
+                                                                CircularProgressIndicator(
+                                                                    modifier = Modifier.size(20.dp),
+                                                                    color = androidx.compose.ui.graphics.Color.White,
+                                                                    strokeWidth = 2.dp,
+                                                                )
+                                                                Text(
+                                                                    text = "Getting Prediction...",
+                                                                    style =
+                                                                        MaterialTheme.typography.h6.copy(
+                                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                        ),
+                                                                )
+                                                            }
+                                                        } else {
+                                                            Text(
+                                                                text = "🔮 Get Prediction",
+                                                                style =
+                                                                    MaterialTheme.typography.h6.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
+                                                            )
+                                                        }
                                                     }
                                                 } else {
                                                     // Normal buttons when both sections are equal
@@ -1214,35 +1344,98 @@ fun main() =
                                                         }
                                                     }
 
+                                                    // Normal Get Prediction button with enhanced interactions
+                                                    val normalPredictionInteractionSource = remember { MutableInteractionSource() }
+                                                    val isNormalPredictionHovered by
+                                                        normalPredictionInteractionSource.collectIsHoveredAsState()
+                                                    val isNormalPredictionPressed by
+                                                        normalPredictionInteractionSource.collectIsPressedAsState()
+                                                    val isLoading by isLoadingPrediction.collectAsState()
+
+                                                    val normalPredictionButtonScale by animateFloatAsState(
+                                                        targetValue =
+                                                            when {
+                                                                isNormalPredictionPressed -> 0.96f
+                                                                isNormalPredictionHovered -> 1.03f
+                                                                else -> 1.0f
+                                                            },
+                                                        animationSpec = tween(durationMillis = 150),
+                                                    )
+
                                                     Button(
                                                         onClick = {
-                                                            applicationScope.launch {
-                                                                println("Button Clicked: Get Prediction")
-                                                                val prediction = karlContainer?.getPrediction()
-                                                                predictionState.value = prediction
-                                                                println("Explicit Prediction Request: $prediction")
+                                                            if (!isLoading) {
+                                                                applicationScope.launch {
+                                                                    isLoadingPrediction.value = true
+                                                                    try {
+                                                                        println("Button Clicked: Get Prediction")
+                                                                        val prediction = karlContainer?.getPrediction()
+                                                                        predictionState.value = prediction
+                                                                        println("Explicit Prediction Request: $prediction")
+                                                                    } finally {
+                                                                        isLoadingPrediction.value = false
+                                                                    }
+                                                                }
                                                             }
                                                         },
-                                                        enabled = karlContainer != null,
+                                                        enabled = karlContainer != null && !isLoading,
                                                         modifier =
                                                             Modifier
                                                                 .height(48.dp)
                                                                 .width(180.dp)
+                                                                .graphicsLayer(
+                                                                    scaleX = normalPredictionButtonScale,
+                                                                    scaleY = normalPredictionButtonScale,
+                                                                )
+                                                                .hoverable(normalPredictionInteractionSource)
                                                                 .pointerHoverIcon(PointerIcon.Hand), // Larger prediction button
                                                         shape = RoundedCornerShape(24.dp),
                                                         colors =
                                                             ButtonDefaults.buttonColors(
-                                                                backgroundColor = MaterialTheme.colors.primary,
+                                                                backgroundColor =
+                                                                    when {
+                                                                        isLoading -> MaterialTheme.colors.primary.copy(alpha = 0.7f)
+                                                                        isNormalPredictionPressed ->
+                                                                            MaterialTheme.colors.primary.copy(
+                                                                                alpha = 0.8f,
+                                                                            )
+                                                                        isNormalPredictionHovered ->
+                                                                            MaterialTheme.colors.primary.copy(
+                                                                                alpha = 0.9f,
+                                                                            )
+                                                                        else -> MaterialTheme.colors.primary
+                                                                    },
                                                                 contentColor = androidx.compose.ui.graphics.Color.White,
                                                             ),
+                                                        interactionSource = normalPredictionInteractionSource,
                                                     ) {
-                                                        Text(
-                                                            text = "🔮 Get Prediction",
-                                                            style =
-                                                                MaterialTheme.typography.body1.copy(
-                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                                                ),
-                                                        )
+                                                        if (isLoading) {
+                                                            Row(
+                                                                verticalAlignment = Alignment.CenterVertically,
+                                                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                                            ) {
+                                                                CircularProgressIndicator(
+                                                                    modifier = Modifier.size(16.dp),
+                                                                    color = androidx.compose.ui.graphics.Color.White,
+                                                                    strokeWidth = 2.dp,
+                                                                )
+                                                                Text(
+                                                                    text = "Loading...",
+                                                                    style =
+                                                                        MaterialTheme.typography.body1.copy(
+                                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                        ),
+                                                                )
+                                                            }
+                                                        } else {
+                                                            Text(
+                                                                text = "🔮 Get Prediction",
+                                                                style =
+                                                                    MaterialTheme.typography.body1.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
+                                                            )
+                                                        }
                                                     }
                                                 }
                                             }
