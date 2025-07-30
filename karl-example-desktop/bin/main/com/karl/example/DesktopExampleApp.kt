@@ -2,7 +2,9 @@ package com.karl.example
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -350,120 +352,149 @@ fun main() =
                             }
                         }
 
-                        // Header Section
+                        // Header Section - Fluent Design with Acrylic Effect
                         Card(
                             modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
-                            elevation = 8.dp,
-                            backgroundColor = MaterialTheme.colors.surface,
-                            shape = RoundedCornerShape(16.dp),
+                            elevation = 0.dp, // Fluent: Minimal shadows
+                            backgroundColor = if (isDarkTheme) {
+                                androidx.compose.ui.graphics.Color(0x40FFFFFF) // Semi-transparent acrylic
+                            } else {
+                                androidx.compose.ui.graphics.Color(0x40000000) // Semi-transparent acrylic
+                            },
+                            shape = RoundedCornerShape(8.dp), // Fluent: Subtle rounded corners
                         ) {
                             Column(
-                                modifier = Modifier.padding(24.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .padding(32.dp)
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.Start, // Fluent: Left-aligned content
                             ) {
-                                Text(
-                                    text = "🧠 Project KARL",
-                                    style =
-                                        MaterialTheme.typography.h3.copy(
-                                            fontWeight =
-                                                androidx.compose.ui.text.font.FontWeight
-                                                    .Bold,
-                                            color = MaterialTheme.colors.primary,
-                                        ),
-                                )
-                                Text(
-                                    text = "Kotlin Adaptive Reasoning Learner",
-                                    style = MaterialTheme.typography.subtitle1,
-                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                    modifier = Modifier.padding(top = 8.dp),
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    // Fluent: Icon emphasis
+                                    Text(
+                                        text = "🧠",
+                                        style = MaterialTheme.typography.h2,
+                                        modifier = Modifier.padding(end = 16.dp)
+                                    )
+                                    Column {
+                                        Text(
+                                            text = "Project KARL",
+                                            style = MaterialTheme.typography.h3.copy(
+                                                fontWeight = androidx.compose.ui.text.font.FontWeight.Light, // Fluent: Light typography
+                                                color = MaterialTheme.colors.onSurface,
+                                            ),
+                                        )
+                                        Text(
+                                            text = "Kotlin Adaptive Reasoning Learner",
+                                            style = MaterialTheme.typography.body1.copy(
+                                                fontWeight = androidx.compose.ui.text.font.FontWeight.Normal
+                                            ),
+                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                            modifier = Modifier.padding(top = 4.dp),
+                                        )
+                                    }
+                                }
                             }
                         }
 
-                        // Status Section
+                        // Status Section - Fluent Design
                         Card(
                             modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
-                            elevation = 4.dp,
-                            backgroundColor =
-                                if (karlContainer != null) {
-                                    androidx.compose.ui.graphics.Color(0xFF1B5E20)
+                            elevation = 0.dp, // Fluent: No shadows
+                            backgroundColor = if (karlContainer != null) {
+                                if (isDarkTheme) {
+                                    androidx.compose.ui.graphics.Color(0xFF0E4B1A) // Dark green with transparency
                                 } else {
-                                    androidx.compose.ui.graphics.Color(0xFFD32F2F)
-                                },
-                            shape = RoundedCornerShape(12.dp),
+                                    androidx.compose.ui.graphics.Color(0xFFE8F5E8) // Light green surface
+                                }
+                            } else {
+                                if (isDarkTheme) {
+                                    androidx.compose.ui.graphics.Color(0xFF4B0E0E) // Dark red with transparency
+                                } else {
+                                    androidx.compose.ui.graphics.Color(0xFFFFF3F3) // Light red surface
+                                }
+                            },
+                            shape = RoundedCornerShape(8.dp), // Fluent: Consistent radius
                         ) {
                             Row(
-                                modifier = Modifier.padding(16.dp),
+                                modifier = Modifier.padding(20.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Text(
-                                    text = if (karlContainer != null) "✅" else "❌",
-                                    style = MaterialTheme.typography.h5,
-                                    modifier = Modifier.padding(end = 12.dp),
+                                // Fluent: Status indicator
+                                Box(
+                                    modifier = Modifier
+                                        .size(12.dp)
+                                        .background(
+                                            color = if (karlContainer != null) {
+                                                androidx.compose.ui.graphics.Color(0xFF10AC84)
+                                            } else {
+                                                androidx.compose.ui.graphics.Color(0xFFFF3838)
+                                            },
+                                            shape = androidx.compose.foundation.shape.CircleShape
+                                        )
+                                        .padding(end = 16.dp)
                                 )
+                                Spacer(modifier = Modifier.width(16.dp))
                                 Column {
                                     Text(
-                                        text =
-                                            if (karlContainer != null) {
-                                                "KARL System Ready"
-                                            } else {
-                                                "System Initializing..."
-                                            },
-                                        style =
-                                            MaterialTheme.typography.h6.copy(
-                                                fontWeight =
-                                                    androidx.compose.ui.text.font
-                                                        .FontWeight.Bold,
-                                            ),
-                                        color = androidx.compose.ui.graphics.Color.White,
+                                        text = if (karlContainer != null) {
+                                            "KARL System Ready"
+                                        } else {
+                                            "System Initializing..."
+                                        },
+                                        style = MaterialTheme.typography.h6.copy(
+                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, // Fluent: Medium weight
+                                        ),
+                                        color = MaterialTheme.colors.onSurface,
                                     )
                                     Text(
-                                        text =
-                                            if (karlContainer != null) {
-                                                "AI engine active and learning"
-                                            } else {
-                                                "Please wait while components initialize"
-                                            },
+                                        text = if (karlContainer != null) {
+                                            "AI engine active and learning"
+                                        } else {
+                                            "Please wait while components initialize"
+                                        },
                                         style = MaterialTheme.typography.body2,
-                                        color =
-                                            androidx.compose.ui.graphics.Color.White.copy(
-                                                alpha = 0.8f,
-                                            ),
+                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
                                     )
                                 }
                             }
                         }
 
-                        // Main Content Section - Side by Side Layout with Smart Resize
+                        // Main Content Section - Fluent Side by Side Layout
                         if (karlContainer != null) {
                             // Calculate weights based on enlarged section
                             val insightsWeight by
                                 animateFloatAsState(
                                     targetValue =
                                         when (enlargedSection) {
-                                            "insights" ->
-                                                0.75f // 75% when insights is enlarged
-                                            "controls" ->
-                                                0.25f // 25% when controls is enlarged
-                                            else -> 0.5f // 50% when both are equal
+                                            "insights" -> 0.75f
+                                            "controls" -> 0.25f
+                                            else -> 0.5f
                                         },
-                                    animationSpec = tween(durationMillis = 500),
+                                    animationSpec = tween(durationMillis = 300), // Fluent: Faster, more responsive
                                 )
                             val controlsWeight = 1f - insightsWeight
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp), // Fluent: Tighter spacing
                             ) {
-                                // AI Insights Section
+                                // AI Insights Section - Fluent Design
                                 Card(
-                                    modifier = Modifier.weight(insightsWeight).height(400.dp),
-                                    elevation = if (enlargedSection == "insights") 8.dp else 4.dp,
-                                    backgroundColor = MaterialTheme.colors.surface,
-                                    shape = RoundedCornerShape(12.dp),
+                                    modifier = Modifier.weight(insightsWeight).height(420.dp),
+                                    elevation = 0.dp, // Fluent: No elevation
+                                    backgroundColor = if (isDarkTheme) {
+                                        androidx.compose.ui.graphics.Color(0x20FFFFFF) // Dark mode acrylic
+                                    } else {
+                                        androidx.compose.ui.graphics.Color(0xFFFAFAFA) // Light mode subtle surface
+                                    },
+                                    shape = RoundedCornerShape(8.dp), // Fluent: Consistent radius
                                 ) {
                                     Column(
-                                        modifier = Modifier.padding(20.dp),
+                                        modifier = Modifier.padding(24.dp),
                                     ) {
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
@@ -471,62 +502,49 @@ fun main() =
                                             verticalAlignment = Alignment.CenterVertically,
                                         ) {
                                             Text(
-                                                text =
-                                                    if (enlargedSection == "insights") {
-                                                        "📊 AI Insights (Enlarged)"
-                                                    } else {
-                                                        "📊 AI Insights"
-                                                    },
-                                                style =
-                                                    if (enlargedSection == "insights") {
-                                                        MaterialTheme.typography.h5.copy(
-                                                            fontWeight =
-                                                                androidx.compose.ui.text
-                                                                    .font.FontWeight
-                                                                    .Bold,
-                                                        )
-                                                    } else {
-                                                        MaterialTheme.typography.h6.copy(
-                                                            fontWeight =
-                                                                androidx.compose.ui.text
-                                                                    .font.FontWeight
-                                                                    .Bold,
-                                                        )
-                                                    },
-                                                color = MaterialTheme.colors.primary,
+                                                text = if (enlargedSection == "insights") {
+                                                    "📊 AI Insights"
+                                                } else {
+                                                    "📊 AI Insights"
+                                                },
+                                                style = MaterialTheme.typography.h6.copy(
+                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, // Fluent: Medium weight
+                                                ),
+                                                color = MaterialTheme.colors.onSurface,
                                             )
+                                            // Fluent: Ghost button style
                                             IconButton(
                                                 onClick = {
-                                                    enlargedSection =
-                                                        if (enlargedSection == "insights") {
-                                                            null
-                                                        } else {
-                                                            "insights"
-                                                        }
+                                                    enlargedSection = if (enlargedSection == "insights") null else "insights"
                                                 },
+                                                modifier = Modifier
+                                                    .size(32.dp)
+                                                    .background(
+                                                        color = if (enlargedSection == "insights") {
+                                                            MaterialTheme.colors.primary.copy(alpha = 0.1f)
+                                                        } else {
+                                                            androidx.compose.ui.graphics.Color.Transparent
+                                                        },
+                                                        shape = RoundedCornerShape(4.dp)
+                                                    )
                                             ) {
                                                 Icon(
-                                                    imageVector =
-                                                        if (enlargedSection == "insights") {
-                                                            Icons.Default.CloseFullscreen
-                                                        } else {
-                                                            Icons.Default.OpenInFull
-                                                        },
-                                                    contentDescription =
-                                                        if (enlargedSection == "insights") {
-                                                            "Shrink Section"
-                                                        } else {
-                                                            "Enlarge Section"
-                                                        },
-                                                    tint =
-                                                        MaterialTheme.colors.onSurface.copy(
-                                                            alpha = 0.7f,
-                                                        ),
-                                                    modifier = Modifier.size(20.dp),
+                                                    imageVector = if (enlargedSection == "insights") {
+                                                        Icons.Default.CloseFullscreen
+                                                    } else {
+                                                        Icons.Default.OpenInFull
+                                                    },
+                                                    contentDescription = if (enlargedSection == "insights") {
+                                                        "Restore Size"
+                                                    } else {
+                                                        "Focus Mode"
+                                                    },
+                                                    tint = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                                    modifier = Modifier.size(16.dp),
                                                 )
                                             }
                                         }
-                                        Spacer(modifier = Modifier.height(16.dp))
+                                        Spacer(modifier = Modifier.height(20.dp))
                                         Box(modifier = Modifier.fillMaxSize()) {
                                             KarlContainerUI(
                                                 predictionState = predictionState,
@@ -536,15 +554,19 @@ fun main() =
                                     }
                                 }
 
-                                // Interaction Controls Section
+                                // Interaction Controls Section - Fluent Design
                                 Card(
-                                    modifier = Modifier.weight(controlsWeight).height(400.dp),
-                                    elevation = if (enlargedSection == "controls") 8.dp else 4.dp,
-                                    backgroundColor = MaterialTheme.colors.surface,
-                                    shape = RoundedCornerShape(12.dp),
+                                    modifier = Modifier.weight(controlsWeight).height(420.dp),
+                                    elevation = 0.dp, // Fluent: No elevation
+                                    backgroundColor = if (isDarkTheme) {
+                                        androidx.compose.ui.graphics.Color(0x20FFFFFF) // Dark mode acrylic
+                                    } else {
+                                        androidx.compose.ui.graphics.Color(0xFFFAFAFA) // Light mode subtle surface
+                                    },
+                                    shape = RoundedCornerShape(8.dp), // Fluent: Consistent radius
                                 ) {
                                     Column(
-                                        modifier = Modifier.padding(20.dp),
+                                        modifier = Modifier.padding(24.dp),
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
                                         Row(
@@ -553,99 +575,75 @@ fun main() =
                                             verticalAlignment = Alignment.CenterVertically,
                                         ) {
                                             Text(
-                                                text =
-                                                    if (enlargedSection == "controls") {
-                                                        "🎮 Controls (Enlarged)"
-                                                    } else {
-                                                        "🎮 Interaction Controls"
-                                                    },
-                                                style =
-                                                    if (enlargedSection == "controls") {
-                                                        MaterialTheme.typography.h5.copy(
-                                                            fontWeight =
-                                                                androidx.compose.ui.text
-                                                                    .font.FontWeight
-                                                                    .Bold,
-                                                        )
-                                                    } else {
-                                                        MaterialTheme.typography.h6.copy(
-                                                            fontWeight =
-                                                                androidx.compose.ui.text
-                                                                    .font.FontWeight
-                                                                    .Bold,
-                                                        )
-                                                    },
-                                                color = MaterialTheme.colors.primary,
+                                                text = if (enlargedSection == "controls") {
+                                                    "🎮 Controls"
+                                                } else {
+                                                    "🎮 Controls"
+                                                },
+                                                style = MaterialTheme.typography.h6.copy(
+                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, // Fluent: Medium weight
+                                                ),
+                                                color = MaterialTheme.colors.onSurface,
                                             )
+                                            // Fluent: Ghost button style
                                             IconButton(
                                                 onClick = {
-                                                    enlargedSection =
-                                                        if (enlargedSection == "controls") {
-                                                            null
-                                                        } else {
-                                                            "controls"
-                                                        }
+                                                    enlargedSection = if (enlargedSection == "controls") null else "controls"
                                                 },
+                                                modifier = Modifier
+                                                    .size(32.dp)
+                                                    .background(
+                                                        color = if (enlargedSection == "controls") {
+                                                            MaterialTheme.colors.primary.copy(alpha = 0.1f)
+                                                        } else {
+                                                            androidx.compose.ui.graphics.Color.Transparent
+                                                        },
+                                                        shape = RoundedCornerShape(4.dp)
+                                                    )
                                             ) {
                                                 Icon(
-                                                    imageVector =
-                                                        if (enlargedSection == "controls") {
-                                                            Icons.Default.CloseFullscreen
-                                                        } else {
-                                                            Icons.Default.OpenInFull
-                                                        },
-                                                    contentDescription =
-                                                        if (enlargedSection == "controls") {
-                                                            "Shrink Section"
-                                                        } else {
-                                                            "Enlarge Section"
-                                                        },
-                                                    tint =
-                                                        MaterialTheme.colors.onSurface.copy(
-                                                            alpha = 0.7f,
-                                                        ),
-                                                    modifier = Modifier.size(20.dp),
+                                                    imageVector = if (enlargedSection == "controls") {
+                                                        Icons.Default.CloseFullscreen
+                                                    } else {
+                                                        Icons.Default.OpenInFull
+                                                    },
+                                                    contentDescription = if (enlargedSection == "controls") {
+                                                        "Restore Size"
+                                                    } else {
+                                                        "Focus Mode"
+                                                    },
+                                                    tint = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                                    modifier = Modifier.size(16.dp),
                                                 )
                                             }
                                         }
 
-                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Spacer(modifier = Modifier.height(12.dp))
 
                                         // Responsive text based on section size
-                                        if (enlargedSection != "insights"
-                                        ) { // Only show description if not in minimal mode
+                                        if (enlargedSection != "insights") {
                                             Text(
-                                                text =
-                                                    "Simulate user actions to train the AI model",
+                                                text = "Simulate user actions to train the AI model",
                                                 style = MaterialTheme.typography.body2,
-                                                color =
-                                                    MaterialTheme.colors.onSurface.copy(
-                                                        alpha = 0.7f,
-                                                    ),
-                                                modifier = Modifier.padding(bottom = 20.dp),
+                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                modifier = Modifier.padding(bottom = 24.dp),
                                             )
                                         }
 
-                                        // Enhanced Buttons - Responsive sizing
+                                        // Fluent Design Buttons - Adaptive sizing
                                         Column(
-                                            verticalArrangement =
-                                                Arrangement.spacedBy(
-                                                    if (enlargedSection == "controls") {
-                                                        16.dp
-                                                    } else {
-                                                        12.dp
-                                                    },
-                                                ),
+                                            verticalArrangement = Arrangement.spacedBy(
+                                                if (enlargedSection == "controls") 20.dp else 16.dp,
+                                            ),
                                             horizontalAlignment = Alignment.CenterHorizontally,
                                         ) {
                                             if (enlargedSection == "insights") {
-                                                // Minimal buttons when insights is enlarged
+                                                // Compact mode - Fluent pill buttons
                                                 Column(
-                                                    verticalArrangement =
-                                                        Arrangement.spacedBy(8.dp),
-                                                    horizontalAlignment =
-                                                        Alignment.CenterHorizontally,
+                                                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                                                    horizontalAlignment = Alignment.CenterHorizontally,
                                                 ) {
+                                                    // Fluent: Compact pill button
                                                     Button(
                                                         onClick = {
                                                             applicationScope.launch {
@@ -654,48 +652,29 @@ fun main() =
                                                                 learningProgressState.update {
                                                                     (it + 0.05f).coerceAtMost(1.0f)
                                                                 }
-                                                                val prediction =
-                                                                    karlContainer
-                                                                        ?.getPrediction()
+                                                                val prediction = karlContainer?.getPrediction()
                                                                 predictionState.value = prediction
-                                                                println(
-                                                                    "Prediction after Action A: $prediction",
-                                                                )
+                                                                println("Prediction after Action A: $prediction")
                                                             }
                                                         },
                                                         enabled = karlContainer != null,
-                                                        modifier =
-                                                            Modifier.height(36.dp)
-                                                                .width(100.dp),
-                                                        shape = RoundedCornerShape(18.dp),
-                                                        colors =
-                                                            ButtonDefaults.buttonColors(
-                                                                backgroundColor =
-                                                                    androidx.compose.ui
-                                                                        .graphics
-                                                                        .Color(
-                                                                            0xFF4CAF50,
-                                                                        ),
-                                                                contentColor =
-                                                                    androidx.compose.ui
-                                                                        .graphics
-                                                                        .Color
-                                                                        .White,
-                                                            ),
+                                                        modifier = Modifier.height(32.dp).width(80.dp),
+                                                        shape = RoundedCornerShape(16.dp), // Fluent: Pill shape
+                                                        colors = ButtonDefaults.buttonColors(
+                                                            backgroundColor = if (isDarkTheme) {
+                                                                androidx.compose.ui.graphics.Color(0xFF0E7B0E)
+                                                            } else {
+                                                                androidx.compose.ui.graphics.Color(0xFF0E7B0E)
+                                                            },
+                                                            contentColor = androidx.compose.ui.graphics.Color.White,
+                                                        ),
+                                                        elevation = ButtonDefaults.elevation(0.dp), // Fluent: No elevation
                                                     ) {
                                                         Text(
-                                                            text = "🔄 A",
-                                                            style =
-                                                                MaterialTheme.typography.caption
-                                                                    .copy(
-                                                                        fontWeight =
-                                                                            androidx.compose
-                                                                                .ui
-                                                                                .text
-                                                                                .font
-                                                                                .FontWeight
-                                                                                .Bold,
-                                                                    ),
+                                                            text = "A",
+                                                            style = MaterialTheme.typography.caption.copy(
+                                                                fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
+                                                            ),
                                                         )
                                                     }
                                                     Button(
