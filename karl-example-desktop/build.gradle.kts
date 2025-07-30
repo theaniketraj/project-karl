@@ -14,6 +14,7 @@ dependencies {
     implementation(libs.kotlin.stdlib.jdk8)
     implementation(libs.kotlinx.coroutines.core)
     implementation(compose.desktop.currentOs)
+    implementation(compose.materialIconsExtended)
     implementation(project(":karl-core"))
     implementation(project(":karl-kldl"))
     implementation(project(":karl-compose-ui"))

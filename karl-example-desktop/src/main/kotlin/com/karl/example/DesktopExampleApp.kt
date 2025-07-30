@@ -2,14 +2,31 @@ package com.karl.example
 
 import androidx.compose.desktop.ui.tooling.preview.Preview // Required for @Preview (though less common in main app file)
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Brightness4
+import androidx.compose.material.icons.filled.Brightness7
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import java.awt.Desktop
+import java.net.URI
 // Import KARL API and Core Interfaces/Models
 import com.karl.core.api.*
 import com.karl.core.models.DataSource
@@ -25,6 +42,63 @@ import com.karl.ui.KarlContainerUI
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.util.concurrent.atomic.AtomicLong // For generating simple unique IDs/timestamps
+
+// Custom GitHub Icon
+val GitHubIcon: ImageVector
+    get() {
+        if (_gitHubIcon != null) {
+            return _gitHubIcon!!
+        }
+        _gitHubIcon = ImageVector.Builder(
+            name = "GitHub",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        ).apply {
+            path(
+                fill = SolidColor(Color.Black),
+                stroke = null,
+                strokeLineWidth = 0f,
+                strokeLineCap = StrokeCap.Butt,
+                strokeLineJoin = StrokeJoin.Miter,
+                strokeLineMiter = 4f,
+                pathFillType = androidx.compose.ui.graphics.PathFillType.NonZero
+            ) {
+                // GitHub icon path
+                moveTo(12f, 0f)
+                curveTo(5.374f, 0f, 0f, 5.373f, 0f, 12f)
+                curveTo(0f, 17.302f, 3.438f, 21.8f, 8.207f, 23.387f)
+                curveTo(8.806f, 23.498f, 9.025f, 23.126f, 9.025f, 22.81f)
+                curveTo(9.025f, 22.524f, 9.015f, 21.924f, 9.01f, 21.148f)
+                curveTo(5.672f, 21.914f, 4.968f, 19.752f, 4.968f, 19.752f)
+                curveTo(4.422f, 18.377f, 3.633f, 18.007f, 3.633f, 18.007f)
+                curveTo(2.546f, 17.225f, 3.717f, 17.241f, 3.717f, 17.241f)
+                curveTo(4.922f, 17.328f, 5.555f, 18.514f, 5.555f, 18.514f)
+                curveTo(6.625f, 20.366f, 8.364f, 19.835f, 9.05f, 19.531f)
+                curveTo(9.158f, 18.766f, 9.467f, 18.237f, 9.81f, 17.941f)
+                curveTo(7.145f, 17.641f, 4.344f, 16.594f, 4.344f, 11.816f)
+                curveTo(4.344f, 10.489f, 4.809f, 9.406f, 5.579f, 8.554f)
+                curveTo(5.444f, 8.252f, 5.039f, 6.963f, 5.684f, 5.227f)
+                curveTo(5.684f, 5.227f, 6.689f, 4.907f, 8.984f, 6.548f)
+                curveTo(9.944f, 6.288f, 10.964f, 6.158f, 11.984f, 6.153f)
+                curveTo(13.004f, 6.158f, 14.024f, 6.288f, 14.984f, 6.548f)
+                curveTo(17.264f, 4.907f, 18.269f, 5.227f, 18.269f, 5.227f)
+                curveTo(18.914f, 6.963f, 18.509f, 8.252f, 18.389f, 8.554f)
+                curveTo(19.154f, 9.406f, 19.619f, 10.489f, 19.619f, 11.816f)
+                curveTo(19.619f, 16.607f, 16.814f, 17.638f, 14.144f, 17.931f)
+                curveTo(14.564f, 18.311f, 14.954f, 19.062f, 14.954f, 20.207f)
+                curveTo(14.954f, 21.837f, 14.939f, 23.148f, 14.939f, 23.544f)
+                curveTo(14.939f, 23.864f, 15.155f, 24.239f, 15.764f, 24.124f)
+                curveTo(20.565f, 22.529f, 24f, 18.033f, 24f, 12f)
+                curveTo(24f, 5.373f, 18.626f, 0f, 12f, 0f)
+                close()
+            }
+        }.build()
+        return _gitHubIcon!!
+    }
+
+private var _gitHubIcon: ImageVector? = null
 
 // --- 1. Simple DataSource Implementation for the Example ---
 class ExampleDataSource(
@@ -101,7 +175,7 @@ class InMemoryDataStorage : DataStorage {
 
 // --- 2. Main Application Entry Point ---
 fun main() = application {
-    val windowState = rememberWindowState(width = 800.dp, height = 600.dp)
+    val windowState = rememberWindowState(width = 900.dp, height = 800.dp)
     // Create a scope tied to the application lifecycle for cleanup
     val applicationScope = rememberCoroutineScope { SupervisorJob() + Dispatchers.Default }
     var karlContainer: KarlContainer? by remember { mutableStateOf(null) } // Hold the container instance
@@ -113,6 +187,8 @@ fun main() = application {
     val learningProgressState = remember { MutableStateFlow(0.0f) }
     // SharedFlow for triggering actions from buttons to the DataSource
     val actionFlow = remember { MutableSharedFlow<String>(extraBufferCapacity = 5) }
+    // State for theme toggle (true = dark theme, false = light theme)
+    var isDarkTheme by remember { mutableStateOf(true) }
 
     // --- Lifecycle Management ---
     // Use LaunchedEffect for one-time setup/initialization when the app starts
@@ -165,72 +241,305 @@ fun main() = application {
         state = windowState,
         title = "Project KARL - Example Desktop App"
     ) {
-        // Use Material 3 Theme (or Material 2)
-        MaterialTheme {
-            Surface(modifier = Modifier.fillMaxSize()) {
+        // Use Material Theme with conditional colors based on theme toggle
+        MaterialTheme(
+            colors = if (isDarkTheme) {
+                darkColors(
+                    primary = androidx.compose.ui.graphics.Color(0xFF2196F3),
+                    primaryVariant = androidx.compose.ui.graphics.Color(0xFF1976D2),
+                    secondary = androidx.compose.ui.graphics.Color(0xFF03DAC6),
+                    background = androidx.compose.ui.graphics.Color(0xFF121212),
+                    surface = androidx.compose.ui.graphics.Color(0xFF1E1E1E),
+                    onPrimary = androidx.compose.ui.graphics.Color.White,
+                    onSecondary = androidx.compose.ui.graphics.Color.Black,
+                    onBackground = androidx.compose.ui.graphics.Color.White,
+                    onSurface = androidx.compose.ui.graphics.Color.White
+                )
+            } else {
+                lightColors(
+                    primary = androidx.compose.ui.graphics.Color(0xFF2196F3),
+                    primaryVariant = androidx.compose.ui.graphics.Color(0xFF1976D2),
+                    secondary = androidx.compose.ui.graphics.Color(0xFF03DAC6),
+                    background = androidx.compose.ui.graphics.Color(0xFFFAFAFA),
+                    surface = androidx.compose.ui.graphics.Color.White,
+                    onPrimary = androidx.compose.ui.graphics.Color.White,
+                    onSecondary = androidx.compose.ui.graphics.Color.Black,
+                    onBackground = androidx.compose.ui.graphics.Color.Black,
+                    onSurface = androidx.compose.ui.graphics.Color.Black
+                )
+            }
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colors.background
+            ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Project KARL Example", style = MaterialTheme.typography.h4)
-
-                    // Display the KARL UI Container
-                    // Only show if initialization was successful
-                    if (karlContainer != null) {
-                        KarlContainerUI(
-                            predictionState = predictionState, // Pass the StateFlow
-                            learningProgressState = learningProgressState // Pass the StateFlow
-                            // Add callbacks here if KarlContainerUI had buttons
-                        )
-                    } else {
-                        Text("KARL Container failed to initialize. Check logs.", color = MaterialTheme.colors.error)
+                    // Top Controls Row (Theme Toggle and GitHub Link)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Theme Toggle Button
+                        IconButton(
+                            onClick = { isDarkTheme = !isDarkTheme },
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (isDarkTheme) Icons.Default.Brightness7 else Icons.Default.Brightness4,
+                                contentDescription = if (isDarkTheme) "Switch to Light Theme" else "Switch to Dark Theme",
+                                tint = MaterialTheme.colors.onSurface,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                        
+                        // GitHub Link Button
+                        IconButton(
+                            onClick = {
+                                try {
+                                    Desktop.getDesktop().browse(URI("https://github.com/theaniketraj/project-karl"))
+                                } catch (e: Exception) {
+                                    println("Could not open GitHub link: ${e.message}")
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = GitHubIcon,
+                                contentDescription = "Open GitHub Repository",
+                                tint = MaterialTheme.colors.onSurface,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                    
+                    // Header Section
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 24.dp),
+                        elevation = 8.dp,
+                        backgroundColor = MaterialTheme.colors.surface,
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "🧠 Project KARL",
+                                style = MaterialTheme.typography.h3.copy(
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                    color = MaterialTheme.colors.primary
+                                )
+                            )
+                            Text(
+                                text = "Kotlin Adaptive Reasoning Learner",
+                                style = MaterialTheme.typography.subtitle1,
+                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                        }
                     }
 
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Text("Simulate User Actions:", style = MaterialTheme.typography.h6)
-
-                    // Buttons to trigger the DataSource via the SharedFlow
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Button(onClick = {
-                            // Launch coroutine to handle action + prediction update
-                            applicationScope.launch {
-                                println("Button Clicked: Action A")
-                                actionFlow.emit("action_type_A") // Send to DataSource
-                                // Simulate progress increase slightly
-                                learningProgressState.update { (it + 0.05f).coerceAtMost(1.0f) }
-                                // Get and update prediction after action
-                                val prediction = karlContainer?.getPrediction()
-                                predictionState.value = prediction
-                                println("Prediction after Action A: $prediction")
+                    // Status Section
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 24.dp),
+                        elevation = 4.dp,
+                        backgroundColor = if (karlContainer != null) 
+                            androidx.compose.ui.graphics.Color(0xFF1B5E20) 
+                        else 
+                            androidx.compose.ui.graphics.Color(0xFFD32F2F),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = if (karlContainer != null) "✅" else "❌",
+                                style = MaterialTheme.typography.h5,
+                                modifier = Modifier.padding(end = 12.dp)
+                            )
+                            Column {
+                                Text(
+                                    text = if (karlContainer != null) "KARL System Ready" else "System Initializing...",
+                                    style = MaterialTheme.typography.h6.copy(
+                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                    ),
+                                    color = androidx.compose.ui.graphics.Color.White
+                                )
+                                Text(
+                                    text = if (karlContainer != null) 
+                                        "AI engine active and learning" 
+                                    else 
+                                        "Please wait while components initialize",
+                                    style = MaterialTheme.typography.body2,
+                                    color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.8f)
+                                )
                             }
-                        }, enabled = karlContainer != null) {
-                            Text("Perform Action A")
                         }
+                    }
 
-                        Button(onClick = {
-                            applicationScope.launch {
-                                println("Button Clicked: Action B")
-                                actionFlow.emit("action_type_B") // Send to DataSource
-                                learningProgressState.update { (it + 0.05f).coerceAtMost(1.0f) }
-                                val prediction = karlContainer?.getPrediction()
-                                predictionState.value = prediction
-                                println("Prediction after Action B: $prediction")
+                    // KARL UI Container Section
+                    if (karlContainer != null) {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 24.dp),
+                            elevation = 4.dp,
+                            backgroundColor = MaterialTheme.colors.surface,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(20.dp)
+                            ) {
+                                Text(
+                                    text = "📊 AI Insights",
+                                    style = MaterialTheme.typography.h6.copy(
+                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                    ),
+                                    color = MaterialTheme.colors.primary,
+                                    modifier = Modifier.padding(bottom = 16.dp)
+                                )
+                                KarlContainerUI(
+                                    predictionState = predictionState,
+                                    learningProgressState = learningProgressState
+                                )
                             }
-                        }, enabled = karlContainer != null) {
-                            Text("Perform Action B")
                         }
+                    }
 
-                        Button(onClick = {
-                            // Explicitly request prediction without specific action
-                            applicationScope.launch {
-                                println("Button Clicked: Get Prediction")
-                                val prediction = karlContainer?.getPrediction()
-                                predictionState.value = prediction
-                                println("Explicit Prediction Request: $prediction")
+                    // Action Section
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = 4.dp,
+                        backgroundColor = MaterialTheme.colors.surface,
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "🎮 Interaction Controls",
+                                style = MaterialTheme.typography.h6.copy(
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                ),
+                                color = MaterialTheme.colors.primary,
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
+                            
+                            Text(
+                                text = "Simulate user actions to train the AI model",
+                                style = MaterialTheme.typography.body2,
+                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                modifier = Modifier.padding(bottom = 20.dp)
+                            )
+
+                            // Enhanced Buttons
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    Button(
+                                        onClick = {
+                                            applicationScope.launch {
+                                                println("Button Clicked: Action A")
+                                                actionFlow.emit("action_type_A")
+                                                learningProgressState.update { (it + 0.05f).coerceAtMost(1.0f) }
+                                                val prediction = karlContainer?.getPrediction()
+                                                predictionState.value = prediction
+                                                println("Prediction after Action A: $prediction")
+                                            }
+                                        },
+                                        enabled = karlContainer != null,
+                                        modifier = Modifier
+                                            .height(48.dp)
+                                            .width(140.dp),
+                                        shape = RoundedCornerShape(24.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            backgroundColor = androidx.compose.ui.graphics.Color(0xFF4CAF50),
+                                            contentColor = androidx.compose.ui.graphics.Color.White
+                                        )
+                                    ) {
+                                        Text(
+                                            text = "🔄 Action A",
+                                            style = MaterialTheme.typography.button.copy(
+                                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                            )
+                                        )
+                                    }
+
+                                    Button(
+                                        onClick = {
+                                            applicationScope.launch {
+                                                println("Button Clicked: Action B")
+                                                actionFlow.emit("action_type_B")
+                                                learningProgressState.update { (it + 0.05f).coerceAtMost(1.0f) }
+                                                val prediction = karlContainer?.getPrediction()
+                                                predictionState.value = prediction
+                                                println("Prediction after Action B: $prediction")
+                                            }
+                                        },
+                                        enabled = karlContainer != null,
+                                        modifier = Modifier
+                                            .height(48.dp)
+                                            .width(140.dp),
+                                        shape = RoundedCornerShape(24.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            backgroundColor = androidx.compose.ui.graphics.Color(0xFFFF9800),
+                                            contentColor = androidx.compose.ui.graphics.Color.White
+                                        )
+                                    ) {
+                                        Text(
+                                            text = "⚡ Action B",
+                                            style = MaterialTheme.typography.button.copy(
+                                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                            )
+                                        )
+                                    }
+                                }
+
+                                Button(
+                                    onClick = {
+                                        applicationScope.launch {
+                                            println("Button Clicked: Get Prediction")
+                                            val prediction = karlContainer?.getPrediction()
+                                            predictionState.value = prediction
+                                            println("Explicit Prediction Request: $prediction")
+                                        }
+                                    },
+                                    enabled = karlContainer != null,
+                                    modifier = Modifier
+                                        .height(48.dp)
+                                        .width(200.dp),
+                                    shape = RoundedCornerShape(24.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = MaterialTheme.colors.primary,
+                                        contentColor = androidx.compose.ui.graphics.Color.White
+                                    )
+                                ) {
+                                    Text(
+                                        text = "🔮 Get Prediction",
+                                        style = MaterialTheme.typography.button.copy(
+                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                        )
+                                    )
+                                }
                             }
-                        }, enabled = karlContainer != null) {
-                            Text("Get Prediction")
                         }
                     }
                 }
