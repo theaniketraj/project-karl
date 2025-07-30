@@ -120,23 +120,20 @@ class ExampleDataSource(
         onNewData: suspend (InteractionData) -> Unit,
         coroutineScope: CoroutineScope,
     ): Job {
-        return externalActionFlow // This is the SharedFlow from the UI
+        println("ExampleDataSource: Starting observation for $userId")
+        return externalActionFlow
             .onEach { actionType ->
+                println("ExampleDataSource: Observed action '$actionType'")
                 val interaction =
                     InteractionData(
                         type = actionType,
-                        details = mapOf("source" to "example_button", "timestamp_ms" to System.currentTimeMillis()),
+                        details = mapOf("source" to "example_button"),
                         timestamp = System.currentTimeMillis(),
                         userId = userId,
                     )
-                // --- Add these logs for verification ---
-                println("DataSource: Received action '$actionType'.")
-                println("DataSource: Created InteractionData -> $interaction")
-                // --- End of logs ---
-
-                onNewData(interaction) // Pass the data to the KarlContainer
+                onNewData(interaction) // Pass data to KarlContainer
             }
-            .launchIn(coroutineScope)
+            .launchIn(coroutineScope) // Use the provided scope
     }
 }
 
@@ -858,9 +855,8 @@ fun main() =
                                                         Button(
                                                             onClick = {
                                                                 applicationScope.launch {
-                                                                    val actionType = "action_type_A"
-                                                                    println("UI: Emitting action '$actionType' to SharedFlow.")
-                                                                    actionFlow.emit("actionType")
+                                                                    println("Button Clicked: Action A")
+                                                                    actionFlow.emit("action_type_A")
                                                                     learningProgressState.update {
                                                                         (it + 0.05f).coerceAtMost(1.0f)
                                                                     }
@@ -912,9 +908,8 @@ fun main() =
                                                         Button(
                                                             onClick = {
                                                                 applicationScope.launch {
-                                                                    val actionType = "action_type_B"
-                                                                    println("UI: Emitting action '$actionType' to SharedFlow.")
-                                                                    actionFlow.emit(actionType)
+                                                                    println("Button Clicked: Action B")
+                                                                    actionFlow.emit("action_type_B")
                                                                     learningProgressState.update {
                                                                         (it + 0.05f).coerceAtMost(1.0f)
                                                                     }
