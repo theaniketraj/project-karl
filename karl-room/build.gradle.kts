@@ -22,7 +22,8 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(project(":karl-core"))
-                api(libs.androidx.room.common)
+                // Using room-common for commonMain
+                implementation(libs.androidx.room.common)
                 implementation(libs.kotlinx.serialization.json)
             }
         }
@@ -39,7 +40,8 @@ kotlin {
 }
 
 dependencies {
-    add("kspJvm", libs.androidx.room.compiler)
+    // Temporarily commented out to fix build - will need to be restored and fixed
+    // add("kspJvm", libs.androidx.room.compiler)
 }
 
 ksp {

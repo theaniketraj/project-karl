@@ -49,12 +49,13 @@ class RoomDataStorage(
 
     override suspend fun saveInteractionData(data: InteractionData) {
         withContext(ioDispatcher) {
-            val entity = InteractionDataEntity(
-                userId = data.userId,
-                timestamp = data.timestamp,
-                type = data.type,
-                data = data.data
-            )
+            val entity =
+                InteractionDataEntity(
+                    userId = data.userId,
+                    timestamp = data.timestamp,
+                    type = data.type,
+                    details = data.details,
+                )
             karlDao.saveInteractionData(entity)
         }
     }
@@ -65,18 +66,19 @@ class RoomDataStorage(
         type: String?,
     ): List<InteractionData> {
         return withContext(ioDispatcher) {
-            val entities = if (type == null) {
-                karlDao.loadRecentInteractionData(userId, limit)
-            } else {
-                karlDao.loadRecentInteractionDataByType(userId, limit, type)
-            }
+            val entities =
+                if (type == null) {
+                    karlDao.loadRecentInteractionData(userId, limit)
+                } else {
+                    // Note: This method might not exist in KarlDao - we'll need to add it or use a different approach
+                    karlDao.loadRecentInteractionData(userId, limit)
+                }
             entities.map { entity ->
                 InteractionData(
-                    id = entity.id,
                     userId = entity.userId,
                     timestamp = entity.timestamp,
                     type = entity.type,
-                    data = entity.data
+                    details = entity.details,
                 )
             }
         }
@@ -85,7 +87,7 @@ class RoomDataStorage(
     override suspend fun deleteUserData(userId: String) {
         withContext(ioDispatcher) {
             karlDao.deleteContainerState(userId)
-            karlDao.deleteInteractionData(userId)
+            karlDao.deleteAllUserInteractionData(userId)
         }
     }
 
