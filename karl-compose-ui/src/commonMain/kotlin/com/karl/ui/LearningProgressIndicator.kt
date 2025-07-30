@@ -1,13 +1,17 @@
 package com.karl.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 
 /**
@@ -26,12 +30,19 @@ fun KarlLearningProgressIndicator(
         modifier = Modifier.padding(8.dp),
     ) {
         Text(label)
+        // Add more spacing between text and indicator
+        Spacer(modifier = Modifier.height(16.dp))
         LinearProgressIndicator(
-            progress = progress,
-            modifier = Modifier.width(128.dp), // Example fixed width
+            progress = { progress },
+            modifier = Modifier
+                .width(200.dp) // Wider progress bar
+                .height(8.dp) // Much thicker progress bar
+                .clip(RoundedCornerShape(4.dp)), // Rounded corners for better appearance
         )
+        // Add spacing after the indicator too
+        Spacer(modifier = Modifier.height(8.dp))
         // Optional: Add a text representation of the percentage
-        // Text("${(progress * 100).toInt()}%")
+        Text("${(progress * 100).toInt()}%")
     }
 }
 
