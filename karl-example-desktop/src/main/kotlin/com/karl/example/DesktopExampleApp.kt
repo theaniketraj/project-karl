@@ -2,6 +2,7 @@ package com.karl.example
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.TooltipPlacement
@@ -27,11 +28,6 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.foundation.Canvas
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.input.pointer.PointerIcon
@@ -51,6 +47,7 @@ import com.karl.core.models.DataStorage
 import com.karl.core.models.InteractionData
 import com.karl.core.models.Prediction
 import kotlinx.coroutines.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import java.awt.Desktop
 import java.net.URI
@@ -62,7 +59,7 @@ data class StructuredInteraction(
     val timestamp: String,
     val action: String,
     val prediction: String,
-    val confidence: Float
+    val confidence: Float,
 )
 
 // Custom GitHub Icon
@@ -230,35 +227,35 @@ fun SparklineChart(
     data: List<Float>,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
-    lineWidth: Float = 2f
+    lineWidth: Float = 2f,
 ) {
     Canvas(modifier = modifier) {
         if (data.size < 2) return@Canvas
-        
+
         val width = size.width
         val height = size.height
         val maxValue = data.maxOrNull() ?: 1f
         val minValue = data.minOrNull() ?: 0f
         val range = maxValue - minValue
-        
+
         if (range == 0f) return@Canvas
-        
+
         val stepX = width / (data.size - 1)
-        
+
         for (i in 0 until data.size - 1) {
             val x1 = i * stepX
             val y1 = height - ((data[i] - minValue) / range) * height
             val x2 = (i + 1) * stepX
             val y2 = height - ((data[i + 1] - minValue) / range) * height
-            
+
             drawLine(
                 color = color,
                 start = androidx.compose.ui.geometry.Offset(x1, y1),
                 end = androidx.compose.ui.geometry.Offset(x2, y2),
-                strokeWidth = lineWidth
+                strokeWidth = lineWidth,
             )
         }
-        
+
         // Draw dots at each data point
         data.forEachIndexed { index, value ->
             val x = index * stepX
@@ -266,13 +263,14 @@ fun SparklineChart(
             drawCircle(
                 color = color,
                 radius = lineWidth,
-                center = androidx.compose.ui.geometry.Offset(x, y)
+                center = androidx.compose.ui.geometry.Offset(x, y),
             )
         }
     }
 }
 
 // --- 2. Main Application Entry Point ---
+@OptIn(ExperimentalFoundationApi::class)
 fun main() =
     application {
         val windowState = rememberWindowState() // Remove fixed size, let it be resizable
@@ -310,21 +308,23 @@ fun main() =
         var modelArchitecture by remember { mutableStateOf("Transformer-GPT") }
         var interactionsProcessed by remember { mutableStateOf(1247) }
         var interactionLog by remember { mutableStateOf(listOf("User clicked 'build'", "Analysis complete", "Model updated")) }
-        
+
         // Enhanced structured interaction log with timestamps and predictions
-        var structuredInteractionLog by remember { 
-            mutableStateOf(listOf(
-                StructuredInteraction("14:23:15", "build", "run tests", 0.87f),
-                StructuredInteraction("14:22:48", "git pull", "resolve conflicts", 0.92f),
-                StructuredInteraction("14:21:33", "open file", "edit code", 0.79f)
-            )) 
+        var structuredInteractionLog by remember {
+            mutableStateOf(
+                listOf(
+                    StructuredInteraction("14:23:15", "build", "run tests", 0.87f),
+                    StructuredInteraction("14:22:48", "git pull", "resolve conflicts", 0.92f),
+                    StructuredInteraction("14:21:33", "open file", "edit code", 0.79f),
+                ),
+            )
         }
-        
+
         // Confidence history for sparkline chart (last 20 interactions)
-        var confidenceHistory by remember { 
-            mutableStateOf(listOf(0.75f, 0.82f, 0.79f, 0.87f, 0.92f, 0.85f, 0.89f, 0.91f, 0.83f, 0.87f)) 
+        var confidenceHistory by remember {
+            mutableStateOf(listOf(0.75f, 0.82f, 0.79f, 0.87f, 0.92f, 0.85f, 0.89f, 0.91f, 0.83f, 0.87f))
         }
-        
+
         // Action feedback state for visual feedback
         var actionFeedbackMessage by remember { mutableStateOf<String?>(null) }
         var showActionFeedback by remember { mutableStateOf(false) }
@@ -349,28 +349,29 @@ fun main() =
                     2 -> "Learning"
                     else -> "Ready"
                 }
-            
+
             // Visual feedback
             actionFeedbackMessage = "Action '$action' sent!"
             showActionFeedback = true
-            
+
             // Generate prediction based on action
-            val prediction = when (action) {
-                "git push" -> "wait for CI"
-                "git pull" -> "resolve conflicts"
-                "run tests" -> "fix failures"
-                "build project" -> "run tests"
-                else -> "analyze context"
-            }
-            
+            val prediction =
+                when (action) {
+                    "git push" -> "wait for CI"
+                    "git pull" -> "resolve conflicts"
+                    "run tests" -> "fix failures"
+                    "build project" -> "run tests"
+                    else -> "analyze context"
+                }
+
             // Add to structured interaction log
             val currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
             val newStructuredInteraction = StructuredInteraction(currentTime, action, prediction, confidenceScore)
             structuredInteractionLog = (structuredInteractionLog + newStructuredInteraction).takeLast(8)
-            
+
             // Update confidence history for sparkline
             confidenceHistory = (confidenceHistory + confidenceScore).takeLast(20)
-            
+
             adaptivePredictions =
                 when (action) {
                     "git push" -> listOf("Next: wait for CI", "Monitor: build status", "Consider: review PR")
@@ -384,22 +385,27 @@ fun main() =
         fun runScenario(scenario: String) {
             systemStatus = "Processing"
             interactionLog = (interactionLog + "Scenario: $scenario started").takeLast(5)
-            
+
+            // Visual feedback
+            actionFeedbackMessage = "Scenario '$scenario' started!"
+            showActionFeedback = true
+
             val confidence = kotlin.random.Random.nextFloat() * 0.15f + 0.8f // 0.8f to 0.95f
-            val prediction = when (scenario) {
-                "Heavy Load Test" -> "optimize performance"
-                "Data Migration" -> "validate integrity"
-                else -> "monitor results"
-            }
-            
+            val prediction =
+                when (scenario) {
+                    "Heavy Load Test" -> "optimize performance"
+                    "Data Migration" -> "validate integrity"
+                    else -> "monitor results"
+                }
+
             // Add to structured interaction log
             val currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
             val newStructuredInteraction = StructuredInteraction(currentTime, scenario.lowercase(), prediction, confidence)
             structuredInteractionLog = (structuredInteractionLog + newStructuredInteraction).takeLast(8)
-            
+
             // Update confidence history for sparkline
             confidenceHistory = (confidenceHistory + confidence).takeLast(20)
-            
+
             when (scenario) {
                 "Heavy Load Test" -> {
                     interactionsProcessed += 50
@@ -696,7 +702,7 @@ fun main() =
                                             },
                                         style =
                                             MaterialTheme.typography.body1.copy( // Reduced from h6
-                                                fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                                fontWeight = FontWeight.Medium,
                                             ),
                                         color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
                                     )
@@ -865,7 +871,7 @@ fun main() =
                                                         },
                                                     style =
                                                         MaterialTheme.typography.h5.copy( // Larger text size
-                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                                            fontWeight = FontWeight.SemiBold,
                                                         ),
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
                                                     modifier =
@@ -934,17 +940,17 @@ fun main() =
                                                 Row(
                                                     modifier = Modifier.fillMaxWidth(),
                                                     horizontalArrangement = Arrangement.SpaceBetween,
-                                                    verticalAlignment = Alignment.CenterVertically
+                                                    verticalAlignment = Alignment.CenterVertically,
                                                 ) {
                                                     Text(
                                                         text = "Interactions Processed: $interactionsProcessed",
                                                         style = MaterialTheme.typography.body2,
                                                         color = accentColor.copy(alpha = 0.9f),
                                                     )
-                                                    
+
                                                     // AI Maturity Meter - Sparkline Chart
                                                     Column(
-                                                        horizontalAlignment = Alignment.End
+                                                        horizontalAlignment = Alignment.End,
                                                     ) {
                                                         Text(
                                                             text = "Confidence Trend",
@@ -955,13 +961,14 @@ fun main() =
                                                             data = confidenceHistory,
                                                             modifier = Modifier.size(width = 60.dp, height = 20.dp),
                                                             color = accentColor,
-                                                            lineWidth = 1.5f
+                                                            lineWidth = 1.5f,
                                                         )
                                                         Text(
                                                             text = "${(confidenceHistory.lastOrNull() ?: 0.87f).times(100).toInt()}%",
-                                                            style = MaterialTheme.typography.caption.copy(
-                                                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                                                            ),
+                                                            style =
+                                                                MaterialTheme.typography.caption.copy(
+                                                                    fontWeight = FontWeight.Bold,
+                                                                ),
                                                             color = accentColor,
                                                         )
                                                     }
@@ -973,7 +980,7 @@ fun main() =
                                                     text = "Recent Interactions:",
                                                     style =
                                                         MaterialTheme.typography.body2.copy(
-                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                                            fontWeight = FontWeight.Medium,
                                                         ),
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                 )
@@ -992,32 +999,44 @@ fun main() =
                                                 ) {
                                                     items(structuredInteractionLog.reversed()) { interaction ->
                                                         Column(
-                                                            modifier = Modifier.fillMaxWidth()
+                                                            modifier = Modifier.fillMaxWidth(),
                                                         ) {
                                                             // Timestamp and action line
                                                             Row(
                                                                 modifier = Modifier.fillMaxWidth(),
                                                                 horizontalArrangement = Arrangement.SpaceBetween,
-                                                                verticalAlignment = Alignment.CenterVertically
+                                                                verticalAlignment = Alignment.CenterVertically,
                                                             ) {
                                                                 Text(
                                                                     text = "[${interaction.timestamp}] Action: '${interaction.action}'",
-                                                                    style = MaterialTheme.typography.caption.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
-                                                                    ),
+                                                                    style =
+                                                                        MaterialTheme.typography.caption.copy(
+                                                                            fontWeight = FontWeight.Medium,
+                                                                        ),
                                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                                 )
                                                                 Text(
                                                                     text = "${(interaction.confidence * 100).toInt()}%",
-                                                                    style = MaterialTheme.typography.caption.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                                                                    ),
-                                                                    color = when {
-                                                                        interaction.confidence >= 0.9f -> androidx.compose.ui.graphics.Color(0xFF4CAF50)
-                                                                        interaction.confidence >= 0.8f -> androidx.compose.ui.graphics.Color(0xFF8BC34A)
-                                                                        interaction.confidence >= 0.7f -> androidx.compose.ui.graphics.Color(0xFFFFEB3B)
-                                                                        else -> androidx.compose.ui.graphics.Color(0xFFFF9800)
-                                                                    },
+                                                                    style =
+                                                                        MaterialTheme.typography.caption.copy(
+                                                                            fontWeight = FontWeight.Bold,
+                                                                        ),
+                                                                    color =
+                                                                        when {
+                                                                            interaction.confidence >= 0.9f ->
+                                                                                androidx.compose.ui.graphics.Color(
+                                                                                    0xFF4CAF50,
+                                                                                )
+                                                                            interaction.confidence >= 0.8f ->
+                                                                                androidx.compose.ui.graphics.Color(
+                                                                                    0xFF8BC34A,
+                                                                                )
+                                                                            interaction.confidence >= 0.7f ->
+                                                                                androidx.compose.ui.graphics.Color(
+                                                                                    0xFFFFEB3B,
+                                                                                )
+                                                                            else -> androidx.compose.ui.graphics.Color(0xFFFF9800)
+                                                                        },
                                                                 )
                                                             }
                                                             // Prediction line
@@ -1025,7 +1044,7 @@ fun main() =
                                                                 text = "→ Predicted: '${interaction.prediction}'",
                                                                 style = MaterialTheme.typography.caption,
                                                                 color = accentColor.copy(alpha = 0.9f),
-                                                                modifier = Modifier.padding(start = 8.dp)
+                                                                modifier = Modifier.padding(start = 8.dp),
                                                             )
                                                         }
                                                     }
@@ -1128,7 +1147,7 @@ fun main() =
                                                         },
                                                     style =
                                                         MaterialTheme.typography.h5.copy( // Larger text size
-                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                                            fontWeight = FontWeight.SemiBold,
                                                         ),
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
                                                     modifier =
@@ -1187,7 +1206,7 @@ fun main() =
                                                     text = "Input Context:",
                                                     style =
                                                         MaterialTheme.typography.body2.copy(
-                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                                            fontWeight = FontWeight.Medium,
                                                         ),
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                 )
@@ -1196,66 +1215,69 @@ fun main() =
                                                     style = MaterialTheme.typography.caption,
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
                                                 )
-                                                
+
                                                 // Input Features with Tooltip
                                                 @OptIn(ExperimentalFoundationApi::class)
                                                 TooltipArea(
                                                     tooltip = {
                                                         // Tooltip content
                                                         Box(
-                                                            modifier = Modifier
-                                                                .background(
-                                                                    color = MaterialTheme.colors.surface,
-                                                                    shape = RoundedCornerShape(8.dp)
-                                                                )
-                                                                .border(
-                                                                    width = 1.dp,
-                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f),
-                                                                    shape = RoundedCornerShape(8.dp)
-                                                                )
-                                                                .padding(12.dp)
+                                                            modifier =
+                                                                Modifier
+                                                                    .background(
+                                                                        color = MaterialTheme.colors.surface,
+                                                                        shape = RoundedCornerShape(8.dp),
+                                                                    )
+                                                                    .border(
+                                                                        width = 1.dp,
+                                                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f),
+                                                                        shape = RoundedCornerShape(8.dp),
+                                                                    )
+                                                                    .padding(12.dp),
                                                         ) {
                                                             Column(
-                                                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                                                                verticalArrangement = Arrangement.spacedBy(4.dp),
                                                             ) {
                                                                 Text(
                                                                     text = "Input Features Explained",
-                                                                    style = MaterialTheme.typography.caption.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                                                                    ),
-                                                                    color = MaterialTheme.colors.onSurface
+                                                                    style =
+                                                                        MaterialTheme.typography.caption.copy(
+                                                                            fontWeight = FontWeight.Bold,
+                                                                        ),
+                                                                    color = MaterialTheme.colors.onSurface,
                                                                 )
                                                                 Text(
                                                                     text = "Number of numerical features derived from:",
                                                                     style = MaterialTheme.typography.caption,
-                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f)
+                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                                 )
                                                                 Text(
                                                                     text = "• Action context and timing",
                                                                     style = MaterialTheme.typography.caption,
-                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f)
+                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
                                                                 )
                                                                 Text(
                                                                     text = "• Historical interaction patterns",
                                                                     style = MaterialTheme.typography.caption,
-                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f)
+                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
                                                                 )
                                                                 Text(
                                                                     text = "• Environmental state vectors",
                                                                     style = MaterialTheme.typography.caption,
-                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f)
+                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
                                                                 )
                                                             }
                                                         }
                                                     },
                                                     delayMillis = 600, // Show tooltip after 600ms hover
-                                                    tooltipPlacement = TooltipPlacement.CursorPoint(
-                                                        offset = androidx.compose.ui.unit.DpOffset(0.dp, 16.dp)
-                                                    )
+                                                    tooltipPlacement =
+                                                        TooltipPlacement.CursorPoint(
+                                                            offset = androidx.compose.ui.unit.DpOffset(0.dp, 16.dp),
+                                                        ),
                                                 ) {
                                                     Row(
                                                         verticalAlignment = Alignment.CenterVertically,
-                                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                                                     ) {
                                                         Text(
                                                             text = "Input Features: $inputFeatures",
@@ -1266,7 +1288,7 @@ fun main() =
                                                             imageVector = Icons.Default.Info,
                                                             contentDescription = "Feature information",
                                                             modifier = Modifier.size(14.dp),
-                                                            tint = MaterialTheme.colors.onSurface.copy(alpha = 0.5f)
+                                                            tint = MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
                                                         )
                                                     }
                                                 }
@@ -1278,44 +1300,47 @@ fun main() =
                                                     text = "Primary Prediction:",
                                                     style =
                                                         MaterialTheme.typography.body2.copy(
-                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                                            fontWeight = FontWeight.Medium,
                                                         ),
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                 )
-                                                
+
                                                 // Primary prediction with enhanced styling
                                                 Box(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .background(
-                                                            color = accentColor.copy(alpha = 0.1f),
-                                                            shape = RoundedCornerShape(8.dp)
-                                                        )
-                                                        .border(
-                                                            width = 1.dp,
-                                                            color = accentColor.copy(alpha = 0.3f),
-                                                            shape = RoundedCornerShape(8.dp)
-                                                        )
-                                                        .padding(12.dp)
+                                                    modifier =
+                                                        Modifier
+                                                            .fillMaxWidth()
+                                                            .background(
+                                                                color = accentColor.copy(alpha = 0.1f),
+                                                                shape = RoundedCornerShape(8.dp),
+                                                            )
+                                                            .border(
+                                                                width = 1.dp,
+                                                                color = accentColor.copy(alpha = 0.3f),
+                                                                shape = RoundedCornerShape(8.dp),
+                                                            )
+                                                            .padding(12.dp),
                                                 ) {
                                                     Column {
                                                         Text(
                                                             text = adaptivePredictions.firstOrNull() ?: "Analyzing...",
-                                                            style = MaterialTheme.typography.body1.copy(
-                                                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                                                                fontSize = 16.sp
-                                                            ),
+                                                            style =
+                                                                MaterialTheme.typography.body1.copy(
+                                                                    fontWeight = FontWeight.SemiBold,
+                                                                    fontSize = 16.sp,
+                                                                ),
                                                             color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
                                                         )
                                                         Spacer(modifier = Modifier.height(4.dp))
                                                         Row(
-                                                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                                            horizontalArrangement = Arrangement.spacedBy(16.dp),
                                                         ) {
                                                             Text(
                                                                 text = "Confidence: ${(confidenceScore * 100).toInt()}%",
-                                                                style = MaterialTheme.typography.caption.copy(
-                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
-                                                                ),
+                                                                style =
+                                                                    MaterialTheme.typography.caption.copy(
+                                                                        fontWeight = FontWeight.Medium,
+                                                                    ),
                                                                 color = accentColor.copy(alpha = 0.9f),
                                                             )
                                                             Text(
@@ -1332,13 +1357,13 @@ fun main() =
                                                 // Alternative Predictions - Secondary styling
                                                 Row(
                                                     horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                                    verticalAlignment = Alignment.CenterVertically
+                                                    verticalAlignment = Alignment.CenterVertically,
                                                 ) {
                                                     Text(
                                                         text = "Alternative Predictions:",
                                                         style =
                                                             MaterialTheme.typography.body2.copy(
-                                                                fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                                                fontWeight = FontWeight.Medium,
                                                             ),
                                                         color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                     )
@@ -1364,21 +1389,23 @@ fun main() =
                                                     items(adaptivePredictions.drop(1)) { prediction ->
                                                         Row(
                                                             horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                                            verticalAlignment = Alignment.CenterVertically
+                                                            verticalAlignment = Alignment.CenterVertically,
                                                         ) {
                                                             Box(
-                                                                modifier = Modifier
-                                                                    .size(4.dp)
-                                                                    .background(
-                                                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.4f),
-                                                                        shape = CircleShape
-                                                                    )
+                                                                modifier =
+                                                                    Modifier
+                                                                        .size(4.dp)
+                                                                        .background(
+                                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.4f),
+                                                                            shape = CircleShape,
+                                                                        ),
                                                             )
                                                             Text(
                                                                 text = prediction,
-                                                                style = MaterialTheme.typography.caption.copy(
-                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Normal
-                                                                ),
+                                                                style =
+                                                                    MaterialTheme.typography.caption.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
+                                                                    ),
                                                                 color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
                                                             )
                                                         }
@@ -1483,7 +1510,7 @@ fun main() =
                                                         },
                                                     style =
                                                         MaterialTheme.typography.h5.copy( // Larger text size
-                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                                            fontWeight = FontWeight.SemiBold,
                                                         ),
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
                                                     modifier =
@@ -1621,7 +1648,7 @@ fun main() =
                                                                 text = "A",
                                                                 style =
                                                                     MaterialTheme.typography.caption.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                                                        fontWeight = FontWeight.Medium,
                                                                     ),
                                                             )
                                                         }
@@ -1681,7 +1708,7 @@ fun main() =
                                                                 text = "B",
                                                                 style =
                                                                     MaterialTheme.typography.caption.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                                                        fontWeight = FontWeight.Medium,
                                                                     ),
                                                             )
                                                         }
@@ -1755,7 +1782,7 @@ fun main() =
                                                                     text = "🔮",
                                                                     style =
                                                                         MaterialTheme.typography.caption.copy(
-                                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                            fontWeight = FontWeight.Bold,
                                                                         ),
                                                                 )
                                                             }
@@ -1795,7 +1822,7 @@ fun main() =
                                                                 text = "🔄 Action A",
                                                                 style =
                                                                     MaterialTheme.typography.h6.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                        fontWeight = FontWeight.Bold,
                                                                     ),
                                                             )
                                                         }
@@ -1829,7 +1856,7 @@ fun main() =
                                                                 text = "⚡ Action B",
                                                                 style =
                                                                     MaterialTheme.typography.h6.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                        fontWeight = FontWeight.Bold,
                                                                     ),
                                                             )
                                                         }
@@ -1840,7 +1867,7 @@ fun main() =
                                                         text = "🚀 Simulate Actions",
                                                         style =
                                                             MaterialTheme.typography.h6.copy(
-                                                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                                                fontWeight = FontWeight.SemiBold,
                                                             ),
                                                         color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                         modifier = Modifier.padding(vertical = 8.dp),
@@ -1872,7 +1899,7 @@ fun main() =
                                                                 text = "📤 Git Push",
                                                                 style =
                                                                     MaterialTheme.typography.body1.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                        fontWeight = FontWeight.Bold,
                                                                     ),
                                                             )
                                                         }
@@ -1900,7 +1927,7 @@ fun main() =
                                                                 text = "🧪 Run Tests",
                                                                 style =
                                                                     MaterialTheme.typography.body1.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                        fontWeight = FontWeight.Bold,
                                                                     ),
                                                             )
                                                         }
@@ -1932,7 +1959,7 @@ fun main() =
                                                                 text = "🔨 Build",
                                                                 style =
                                                                     MaterialTheme.typography.body1.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                        fontWeight = FontWeight.Bold,
                                                                     ),
                                                             )
                                                         }
@@ -1960,7 +1987,7 @@ fun main() =
                                                                 text = "📥 Git Pull",
                                                                 style =
                                                                     MaterialTheme.typography.body1.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                        fontWeight = FontWeight.Bold,
                                                                     ),
                                                             )
                                                         }
@@ -1971,7 +1998,7 @@ fun main() =
                                                         text = "🎯 Test Scenarios",
                                                         style =
                                                             MaterialTheme.typography.h6.copy(
-                                                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                                                fontWeight = FontWeight.SemiBold,
                                                             ),
                                                         color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                         modifier = Modifier.padding(vertical = 8.dp),
@@ -2003,7 +2030,7 @@ fun main() =
                                                                 text = "🔥 Heavy Load",
                                                                 style =
                                                                     MaterialTheme.typography.body1.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                        fontWeight = FontWeight.Bold,
                                                                     ),
                                                             )
                                                         }
@@ -2031,7 +2058,7 @@ fun main() =
                                                                 text = "📊 Migration",
                                                                 style =
                                                                     MaterialTheme.typography.body1.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                        fontWeight = FontWeight.Bold,
                                                                     ),
                                                             )
                                                         }
@@ -2116,7 +2143,7 @@ fun main() =
                                                                     text = "Getting Prediction...",
                                                                     style =
                                                                         MaterialTheme.typography.h6.copy(
-                                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                            fontWeight = FontWeight.Bold,
                                                                         ),
                                                                 )
                                                             }
@@ -2125,7 +2152,7 @@ fun main() =
                                                                 text = "🔮 Get Prediction",
                                                                 style =
                                                                     MaterialTheme.typography.h6.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                        fontWeight = FontWeight.Bold,
                                                                     ),
                                                             )
                                                         }
@@ -2164,7 +2191,7 @@ fun main() =
                                                                 text = "🔄 Action A",
                                                                 style =
                                                                     MaterialTheme.typography.body1.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                        fontWeight = FontWeight.Bold,
                                                                     ),
                                                             )
                                                         }
@@ -2198,7 +2225,7 @@ fun main() =
                                                                 text = "⚡ Action B",
                                                                 style =
                                                                     MaterialTheme.typography.body1.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                        fontWeight = FontWeight.Bold,
                                                                     ),
                                                             )
                                                         }
@@ -2208,120 +2235,212 @@ fun main() =
                                                     Row(
                                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                                                     ) {
-                                                        Button(
-                                                            onClick = {
-                                                                applicationScope.launch {
-                                                                    simulateAction("git push")
+                                                        // Git Push Button with Tooltip
+                                                        TooltipArea(
+                                                            tooltip = {
+                                                                Surface(
+                                                                    color = MaterialTheme.colors.surface,
+                                                                    shape = RoundedCornerShape(8.dp),
+                                                                    elevation = 8.dp,
+                                                                    modifier = Modifier.padding(4.dp),
+                                                                ) {
+                                                                    Text(
+                                                                        text = "Simulate 'Git Push' Action",
+                                                                        style = MaterialTheme.typography.caption,
+                                                                        modifier = Modifier.padding(8.dp),
+                                                                    )
                                                                 }
                                                             },
-                                                            enabled = karlContainer != null,
-                                                            modifier =
-                                                                Modifier
-                                                                    .height(40.dp)
-                                                                    .width(90.dp)
-                                                                    .pointerHoverIcon(PointerIcon.Hand),
-                                                            shape = RoundedCornerShape(20.dp),
-                                                            colors =
-                                                                ButtonDefaults.buttonColors(
-                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFF2196F3),
-                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                            delayMillis = 600,
+                                                            tooltipPlacement =
+                                                                TooltipPlacement.CursorPoint(
+                                                                    offset = androidx.compose.ui.unit.DpOffset(0.dp, 16.dp),
                                                                 ),
                                                         ) {
-                                                            Text(
-                                                                text = "📤",
-                                                                style =
-                                                                    MaterialTheme.typography.caption.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                            Button(
+                                                                onClick = {
+                                                                    applicationScope.launch {
+                                                                        simulateAction("git push")
+                                                                    }
+                                                                },
+                                                                enabled = karlContainer != null,
+                                                                modifier =
+                                                                    Modifier
+                                                                        .height(40.dp)
+                                                                        .width(90.dp)
+                                                                        .pointerHoverIcon(PointerIcon.Hand),
+                                                                shape = RoundedCornerShape(20.dp),
+                                                                colors =
+                                                                    ButtonDefaults.buttonColors(
+                                                                        backgroundColor = androidx.compose.ui.graphics.Color(0xFF2196F3),
+                                                                        contentColor = androidx.compose.ui.graphics.Color.White,
                                                                     ),
-                                                            )
+                                                            ) {
+                                                                Text(
+                                                                    text = "📤",
+                                                                    style =
+                                                                        MaterialTheme.typography.caption.copy(
+                                                                            fontWeight = FontWeight.Bold,
+                                                                        ),
+                                                                )
+                                                            }
                                                         }
 
-                                                        Button(
-                                                            onClick = {
-                                                                applicationScope.launch {
-                                                                    simulateAction("run tests")
+                                                        // Run Tests Button with Tooltip
+                                                        TooltipArea(
+                                                            tooltip = {
+                                                                Surface(
+                                                                    color = MaterialTheme.colors.surface,
+                                                                    shape = RoundedCornerShape(8.dp),
+                                                                    elevation = 8.dp,
+                                                                    modifier = Modifier.padding(4.dp),
+                                                                ) {
+                                                                    Text(
+                                                                        text = "Simulate 'Run Tests' Action",
+                                                                        style = MaterialTheme.typography.caption,
+                                                                        modifier = Modifier.padding(8.dp),
+                                                                    )
                                                                 }
                                                             },
-                                                            enabled = karlContainer != null,
-                                                            modifier =
-                                                                Modifier
-                                                                    .height(40.dp)
-                                                                    .width(90.dp)
-                                                                    .pointerHoverIcon(PointerIcon.Hand),
-                                                            shape = RoundedCornerShape(20.dp),
-                                                            colors =
-                                                                ButtonDefaults.buttonColors(
-                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFF9C27B0),
-                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                            delayMillis = 600,
+                                                            tooltipPlacement =
+                                                                TooltipPlacement.CursorPoint(
+                                                                    offset = androidx.compose.ui.unit.DpOffset(0.dp, 16.dp),
                                                                 ),
                                                         ) {
-                                                            Text(
-                                                                text = "🧪",
-                                                                style =
-                                                                    MaterialTheme.typography.caption.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                            Button(
+                                                                onClick = {
+                                                                    applicationScope.launch {
+                                                                        simulateAction("run tests")
+                                                                    }
+                                                                },
+                                                                enabled = karlContainer != null,
+                                                                modifier =
+                                                                    Modifier
+                                                                        .height(40.dp)
+                                                                        .width(90.dp)
+                                                                        .pointerHoverIcon(PointerIcon.Hand),
+                                                                shape = RoundedCornerShape(20.dp),
+                                                                colors =
+                                                                    ButtonDefaults.buttonColors(
+                                                                        backgroundColor = androidx.compose.ui.graphics.Color(0xFF9C27B0),
+                                                                        contentColor = androidx.compose.ui.graphics.Color.White,
                                                                     ),
-                                                            )
+                                                            ) {
+                                                                Text(
+                                                                    text = "🧪",
+                                                                    style =
+                                                                        MaterialTheme.typography.caption.copy(
+                                                                            fontWeight = FontWeight.Bold,
+                                                                        ),
+                                                                )
+                                                            }
                                                         }
                                                     }
 
                                                     Row(
                                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                                                     ) {
-                                                        Button(
-                                                            onClick = {
-                                                                applicationScope.launch {
-                                                                    runScenario("Heavy Load Test")
+                                                        // Heavy Load Test Button with Tooltip
+                                                        TooltipArea(
+                                                            tooltip = {
+                                                                Surface(
+                                                                    color = MaterialTheme.colors.surface,
+                                                                    shape = RoundedCornerShape(8.dp),
+                                                                    elevation = 8.dp,
+                                                                    modifier = Modifier.padding(4.dp),
+                                                                ) {
+                                                                    Text(
+                                                                        text = "Run 'Heavy Load Test' Scenario",
+                                                                        style = MaterialTheme.typography.caption,
+                                                                        modifier = Modifier.padding(8.dp),
+                                                                    )
                                                                 }
                                                             },
-                                                            enabled = karlContainer != null,
-                                                            modifier =
-                                                                Modifier
-                                                                    .height(40.dp)
-                                                                    .width(90.dp)
-                                                                    .pointerHoverIcon(PointerIcon.Hand),
-                                                            shape = RoundedCornerShape(20.dp),
-                                                            colors =
-                                                                ButtonDefaults.buttonColors(
-                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFFFF5722),
-                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                            delayMillis = 600,
+                                                            tooltipPlacement =
+                                                                TooltipPlacement.CursorPoint(
+                                                                    offset = androidx.compose.ui.unit.DpOffset(0.dp, 16.dp),
                                                                 ),
                                                         ) {
-                                                            Text(
-                                                                text = "🔥",
-                                                                style =
-                                                                    MaterialTheme.typography.caption.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                            Button(
+                                                                onClick = {
+                                                                    applicationScope.launch {
+                                                                        runScenario("Heavy Load Test")
+                                                                    }
+                                                                },
+                                                                enabled = karlContainer != null,
+                                                                modifier =
+                                                                    Modifier
+                                                                        .height(40.dp)
+                                                                        .width(90.dp)
+                                                                        .pointerHoverIcon(PointerIcon.Hand),
+                                                                shape = RoundedCornerShape(20.dp),
+                                                                colors =
+                                                                    ButtonDefaults.buttonColors(
+                                                                        backgroundColor = androidx.compose.ui.graphics.Color(0xFFFF5722),
+                                                                        contentColor = androidx.compose.ui.graphics.Color.White,
                                                                     ),
-                                                            )
+                                                            ) {
+                                                                Text(
+                                                                    text = "🔥",
+                                                                    style =
+                                                                        MaterialTheme.typography.caption.copy(
+                                                                            fontWeight = FontWeight.Bold,
+                                                                        ),
+                                                                )
+                                                            }
                                                         }
 
-                                                        Button(
-                                                            onClick = {
-                                                                applicationScope.launch {
-                                                                    runScenario("Data Migration")
+                                                        // Data Migration Button with Tooltip
+                                                        TooltipArea(
+                                                            tooltip = {
+                                                                Surface(
+                                                                    color = MaterialTheme.colors.surface,
+                                                                    shape = RoundedCornerShape(8.dp),
+                                                                    elevation = 8.dp,
+                                                                    modifier = Modifier.padding(4.dp),
+                                                                ) {
+                                                                    Text(
+                                                                        text = "Run 'Data Migration' Scenario",
+                                                                        style = MaterialTheme.typography.caption,
+                                                                        modifier = Modifier.padding(8.dp),
+                                                                    )
                                                                 }
                                                             },
-                                                            enabled = karlContainer != null,
-                                                            modifier =
-                                                                Modifier
-                                                                    .height(40.dp)
-                                                                    .width(90.dp)
-                                                                    .pointerHoverIcon(PointerIcon.Hand),
-                                                            shape = RoundedCornerShape(20.dp),
-                                                            colors =
-                                                                ButtonDefaults.buttonColors(
-                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFF3F51B5),
-                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                            delayMillis = 600,
+                                                            tooltipPlacement =
+                                                                TooltipPlacement.CursorPoint(
+                                                                    offset = androidx.compose.ui.unit.DpOffset(0.dp, 16.dp),
                                                                 ),
                                                         ) {
-                                                            Text(
-                                                                text = "📊",
-                                                                style =
-                                                                    MaterialTheme.typography.caption.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                            Button(
+                                                                onClick = {
+                                                                    applicationScope.launch {
+                                                                        runScenario("Data Migration")
+                                                                    }
+                                                                },
+                                                                enabled = karlContainer != null,
+                                                                modifier =
+                                                                    Modifier
+                                                                        .height(40.dp)
+                                                                        .width(90.dp)
+                                                                        .pointerHoverIcon(PointerIcon.Hand),
+                                                                shape = RoundedCornerShape(20.dp),
+                                                                colors =
+                                                                    ButtonDefaults.buttonColors(
+                                                                        backgroundColor = androidx.compose.ui.graphics.Color(0xFF3F51B5),
+                                                                        contentColor = androidx.compose.ui.graphics.Color.White,
                                                                     ),
-                                                            )
+                                                            ) {
+                                                                Text(
+                                                                    text = "📊",
+                                                                    style =
+                                                                        MaterialTheme.typography.caption.copy(
+                                                                            fontWeight = FontWeight.Bold,
+                                                                        ),
+                                                                )
+                                                            }
                                                         }
                                                     }
 
@@ -2404,7 +2523,7 @@ fun main() =
                                                                     text = "Loading...",
                                                                     style =
                                                                         MaterialTheme.typography.body1.copy(
-                                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                            fontWeight = FontWeight.Bold,
                                                                         ),
                                                                 )
                                                             }
@@ -2413,9 +2532,45 @@ fun main() =
                                                                 text = "🔮 Get Prediction",
                                                                 style =
                                                                     MaterialTheme.typography.body1.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                        fontWeight = FontWeight.Bold,
                                                                     ),
                                                             )
+                                                        }
+                                                    }
+
+                                                    // Visual Feedback for Action Clicks
+                                                    if (showActionFeedback && actionFeedbackMessage != null) {
+                                                        Box(
+                                                            modifier =
+                                                                Modifier
+                                                                    .fillMaxWidth()
+                                                                    .padding(vertical = 8.dp),
+                                                            contentAlignment = Alignment.Center,
+                                                        ) {
+                                                            Surface(
+                                                                color = MaterialTheme.colors.primary.copy(alpha = 0.1f),
+                                                                shape = RoundedCornerShape(16.dp),
+                                                                modifier = Modifier.padding(4.dp),
+                                                            ) {
+                                                                Text(
+                                                                    text = actionFeedbackMessage!!,
+                                                                    style =
+                                                                        MaterialTheme.typography.caption.copy(
+                                                                            fontWeight = FontWeight.Bold,
+                                                                            color = MaterialTheme.colors.primary,
+                                                                        ),
+                                                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                                                )
+                                                            }
+                                                        }
+
+                                                        // Auto-hide the feedback after 2 seconds
+                                                        LaunchedEffect(showActionFeedback) {
+                                                            if (showActionFeedback) {
+                                                                delay(2000)
+                                                                showActionFeedback = false
+                                                                actionFeedbackMessage = null
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -2449,7 +2604,7 @@ fun main() =
                                         text = "Initializing KARL AI...",
                                         style =
                                             MaterialTheme.typography.h5.copy(
-                                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                                fontWeight = FontWeight.SemiBold,
                                             ),
                                         color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                         modifier = Modifier.graphicsLayer(alpha = loadingAlpha),
