@@ -853,131 +853,210 @@ fun main() =
                                     modifier =
                                         Modifier
                                             .weight(predictionWeight)
-                                            .fillMaxHeight()
+                                            .fillMaxHeight() // Use available height instead of fixed height
                                             .graphicsLayer(alpha = predictionAlpha),
                                 ) {
+                                    // Enhanced hover interaction with animated background
                                     val predictionInteractionSource = remember { MutableInteractionSource() }
                                     val isPredictionHovered by predictionInteractionSource.collectIsHoveredAsState()
 
+                                    // Animated hover effects
                                     val hoverScale by animateFloatAsState(
                                         targetValue = if (isPredictionHovered) 1.02f else 1.0f,
                                         animationSpec = tween(durationMillis = 200),
                                     )
+                                    val hoverElevation by animateFloatAsState(
+                                        targetValue = if (isPredictionHovered) 8.dp.value else 0.dp.value,
+                                        animationSpec = tween(durationMillis = 200),
+                                    )
+                                    val backgroundAlpha by animateFloatAsState(
+                                        targetValue = if (isPredictionHovered) 0.12f else 0.05f,
+                                        animationSpec = tween(durationMillis = 300),
+                                    )
+                                    val borderAlpha by animateFloatAsState(
+                                        targetValue = if (isPredictionHovered) 0.2f else 0.08f,
+                                        animationSpec = tween(durationMillis = 300),
+                                    )
 
-                                    val accentColor = if (isDarkTheme) Color(0xFF81C784) else Color(0xFF388E3C)
+                                    // Colorful accent animation for hover - different color for Prediction
+                                    val accentColor =
+                                        if (isDarkTheme) {
+                                            androidx.compose.ui.graphics.Color(0xFF81C784) // Light green for dark theme
+                                        } else {
+                                            androidx.compose.ui.graphics.Color(0xFF388E3C) // Darker green for light theme
+                                        }
 
+                                    // Transparent background with subtle border and hover effects
                                     Box(
                                         modifier =
                                             Modifier
                                                 .fillMaxSize()
-                                                .graphicsLayer(scaleX = hoverScale, scaleY = hoverScale)
+                                                .graphicsLayer(
+                                                    scaleX = hoverScale,
+                                                    scaleY = hoverScale,
+                                                    shadowElevation = hoverElevation,
+                                                )
                                                 .background(
-                                                    color = accentColor.copy(alpha = if (isPredictionHovered) 0.12f else 0.05f),
-                                                    shape = MaterialTheme.shapes.medium,
+                                                    color =
+                                                        if (isPredictionHovered) {
+                                                            accentColor.copy(alpha = backgroundAlpha * 0.3f)
+                                                        } else {
+                                                            MaterialTheme.colors.surface.copy(alpha = backgroundAlpha)
+                                                        },
+                                                    shape = RoundedCornerShape(12.dp),
                                                 )
                                                 .border(
-                                                    width = 1.dp,
-                                                    color = accentColor.copy(alpha = if (isPredictionHovered) 0.2f else 0.08f),
-                                                    shape = MaterialTheme.shapes.medium,
+                                                    width = if (isPredictionHovered) 2.dp else 1.dp,
+                                                    color =
+                                                        if (isPredictionHovered) {
+                                                            accentColor.copy(alpha = borderAlpha)
+                                                        } else {
+                                                            MaterialTheme.colors.onSurface.copy(alpha = borderAlpha)
+                                                        },
+                                                    shape = RoundedCornerShape(12.dp),
                                                 )
-                                                .hoverable(interactionSource = predictionInteractionSource)
-                                                .padding(16.dp),
+                                                .hoverable(predictionInteractionSource)
+                                                .padding(32.dp), // Enlarged padding for bigger content
                                     ) {
                                         Column(
                                             modifier = Modifier.fillMaxSize(),
-                                            verticalArrangement = Arrangement.spacedBy(12.dp),
                                         ) {
-                                            // Panel Title
                                             Row(
                                                 modifier = Modifier.fillMaxWidth(),
                                                 horizontalArrangement = Arrangement.SpaceBetween,
                                                 verticalAlignment = Alignment.CenterVertically,
                                             ) {
-                                                Text(
-                                                    text = "🔮 Prediction Details",
-                                                    style = MaterialTheme.typography.h6.copy(
-                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                                    ),
-                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
+                                                // Enhanced header with animation
+                                                val headerScale by animateFloatAsState(
+                                                    targetValue = if (karlContainer != null) 1.0f else 0.95f,
+                                                    animationSpec = tween(durationMillis = 600),
                                                 )
+
+                                                Text(
+                                                    text =
+                                                        if (enlargedSection == "prediction") {
+                                                            "🔮 Prediction Details"
+                                                        } else {
+                                                            "🔮 Prediction Details"
+                                                        },
+                                                    style =
+                                                        MaterialTheme.typography.h5.copy( // Larger text size
+                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                                        ),
+                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
+                                                    modifier =
+                                                        Modifier.graphicsLayer(
+                                                            scaleX = headerScale,
+                                                            scaleY = headerScale,
+                                                        ),
+                                                )
+
+                                                // Transparent ghost button
                                                 IconButton(
                                                     onClick = {
                                                         enlargedSection = if (enlargedSection == "prediction") null else "prediction"
                                                     },
-                                                    modifier = Modifier.size(24.dp),
+                                                    modifier =
+                                                        Modifier
+                                                            .size(40.dp) // Larger button
+                                                            .background(
+                                                                color =
+                                                                    if (enlargedSection == "prediction") {
+                                                                        MaterialTheme.colors.primary.copy(alpha = 0.1f)
+                                                                    } else {
+                                                                        androidx.compose.ui.graphics.Color.Transparent
+                                                                    },
+                                                                shape = RoundedCornerShape(8.dp),
+                                                            ),
                                                 ) {
                                                     Icon(
-                                                        imageVector = if (enlargedSection == "prediction") Icons.Default.CloseFullscreen else Icons.Default.OpenInFull,
-                                                        contentDescription = if (enlargedSection == "prediction") "Minimize" else "Expand",
-                                                        tint = accentColor.copy(alpha = 0.7f),
-                                                        modifier = Modifier.size(16.dp),
+                                                        imageVector =
+                                                            if (enlargedSection == "prediction") {
+                                                                Icons.Default.CloseFullscreen
+                                                            } else {
+                                                                Icons.Default.OpenInFull
+                                                            },
+                                                        contentDescription =
+                                                            if (enlargedSection == "prediction") {
+                                                                "Restore Size"
+                                                            } else {
+                                                                "Focus Mode"
+                                                            },
+                                                        tint = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                                        modifier = Modifier.size(20.dp), // Larger icon
                                                     )
                                                 }
                                             }
 
-                                            Divider(color = accentColor.copy(alpha = 0.2f), thickness = 1.dp)
+                                            Spacer(modifier = Modifier.height(24.dp)) // More spacing
 
-                                            // Input Context
-                                            Text(
-                                                text = "Input Context:",
-                                                style = MaterialTheme.typography.body2.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),
-                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
-                                            )
-                                            Text(
-                                                text = "Last Action: \"$lastActionProcessed\"",
-                                                style = MaterialTheme.typography.caption,
-                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                            )
-                                            Text(
-                                                text = "Input Features: $inputFeatures",
-                                                style = MaterialTheme.typography.caption,
-                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                            )
-
-                                            Spacer(modifier = Modifier.height(8.dp))
-
-                                            // Prediction Output
-                                            Text(
-                                                text = "Prediction Output:",
-                                                style = MaterialTheme.typography.body2.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),
-                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
-                                            )
-                                            Text(
-                                                text = "Confidence: ${(confidenceScore * 100).toInt()}%",
-                                                style = MaterialTheme.typography.caption,
-                                                color = accentColor.copy(alpha = 0.9f),
-                                            )
-                                            Text(
-                                                text = "Processing Time: ${processingTime}ms",
-                                                style = MaterialTheme.typography.caption,
-                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                            )
-
-                                            Spacer(modifier = Modifier.height(8.dp))
-
-                                            Text(
-                                                text = "Adaptive Predictions:",
-                                                style = MaterialTheme.typography.body2.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),
-                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
-                                            )
-
-                                            LazyColumn(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .weight(1f)
-                                                    .background(
-                                                        color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
-                                                        shape = MaterialTheme.shapes.small,
-                                                    )
-                                                    .padding(8.dp),
-                                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                                            // Dynamic Prediction Content
+                                            Column(
+                                                modifier = Modifier.fillMaxSize(),
+                                                verticalArrangement = Arrangement.spacedBy(12.dp),
                                             ) {
-                                                items(adaptivePredictions) { prediction ->
-                                                    Text(
-                                                        text = "• $prediction",
-                                                        style = MaterialTheme.typography.caption,
-                                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                                    )
+                                                // Input Context
+                                                Text(
+                                                    text = "Input Context:",
+                                                    style = MaterialTheme.typography.body2.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),
+                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                                )
+                                                Text(
+                                                    text = "Last Action: \"$lastActionProcessed\"",
+                                                    style = MaterialTheme.typography.caption,
+                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                )
+                                                Text(
+                                                    text = "Input Features: $inputFeatures",
+                                                    style = MaterialTheme.typography.caption,
+                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                )
+
+                                                Spacer(modifier = Modifier.height(8.dp))
+
+                                                // Prediction Output
+                                                Text(
+                                                    text = "Prediction Output:",
+                                                    style = MaterialTheme.typography.body2.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),
+                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                                )
+                                                Text(
+                                                    text = "Confidence: ${(confidenceScore * 100).toInt()}%",
+                                                    style = MaterialTheme.typography.caption,
+                                                    color = accentColor.copy(alpha = 0.9f),
+                                                )
+                                                Text(
+                                                    text = "Processing Time: ${processingTime}ms",
+                                                    style = MaterialTheme.typography.caption,
+                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                )
+
+                                                Spacer(modifier = Modifier.height(8.dp))
+
+                                                Text(
+                                                    text = "Adaptive Predictions:",
+                                                    style = MaterialTheme.typography.body2.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),
+                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                                )
+
+                                                LazyColumn(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .weight(1f)
+                                                        .background(
+                                                            color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
+                                                            shape = MaterialTheme.shapes.small,
+                                                        )
+                                                        .padding(8.dp),
+                                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                                ) {
+                                                    items(adaptivePredictions) { prediction ->
+                                                        Text(
+                                                            text = "• $prediction",
+                                                            style = MaterialTheme.typography.caption,
+                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                        )
+                                                    }
                                                 }
                                             }
                                         }
