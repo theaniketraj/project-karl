@@ -313,6 +313,13 @@ fun main() =
         val recentInteractionsState = remember { MutableStateFlow<List<String>>(emptyList()) }
         val recentInteractions by recentInteractionsState.collectAsState()
 
+        // Panel 2: Prediction Details data - Real-time state flows
+        val lastActionState = remember { MutableStateFlow("No action yet") }
+        val lastAction by lastActionState.collectAsState()
+        val processingTimeState = remember { MutableStateFlow(0L) }
+        val processingTime by processingTimeState.collectAsState()
+        val predictionValue by predictionState.collectAsState()
+
         var modelArchitecture by remember { mutableStateOf("MLP(3,16,8,4)") }
         var interactionLog by remember { mutableStateOf(listOf("User clicked 'build'", "Analysis complete", "Model updated")) }
 
@@ -340,7 +347,6 @@ fun main() =
         var lastActionProcessed by remember { mutableStateOf("build project") }
         var inputFeatures by remember { mutableStateOf(42) }
         var confidenceScore by remember { mutableStateOf(0.87f) }
-        var processingTime by remember { mutableStateOf(156) }
         var adaptivePredictions by remember { mutableStateOf(listOf("Next: run tests", "Likely: commit changes", "Alternative: debug")) }
 
         // --- Helper function to update learning progress and insights ---
@@ -382,6 +388,34 @@ fun main() =
             recentInteractionsState.value = newList
         }
 
+        // Helper function to handle prediction with timing measurement
+        suspend fun handlePredictionWithTiming(
+            actionType: String,
+            actionDescription: String,
+        ) {
+            // Update last action state
+            lastActionState.value = actionDescription
+            systemStatusState.value = "Processing prediction..."
+
+            // Measure prediction time
+            val startTime = System.currentTimeMillis()
+            val prediction = karlContainer?.getPrediction()
+            val endTime = System.currentTimeMillis()
+            val measuredProcessingTime = endTime - startTime
+
+            // Update states
+            processingTimeState.value = measuredProcessingTime
+            predictionState.value = prediction
+
+            // Add to interaction log
+            prediction?.let { pred ->
+                addInteractionLogEntry(actionType, pred.suggestion, pred.confidence)
+            }
+
+            systemStatusState.value = "Ready"
+            println("Prediction for '$actionType' completed in ${measuredProcessingTime}ms: $prediction")
+        }
+
         // --- Helper Functions for Dynamic Data ---
         fun simulateAction(action: String) {
             // Set system status to processing
@@ -390,7 +424,6 @@ fun main() =
             lastActionProcessed = action
             interactionLog = (interactionLog + "Action: $action").takeLast(5)
             confidenceScore = kotlin.random.Random.nextFloat() * 0.25f + 0.7f // 0.7f to 0.95f
-            processingTime = kotlin.random.Random.nextInt(100, 301) // 100 to 300
 
             // Visual feedback
             actionFeedbackMessage = "Action '$action' sent!"
@@ -1267,7 +1300,7 @@ fun main() =
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                 )
                                                 Text(
-                                                    text = "Last Action: \"$lastActionProcessed\"",
+                                                    text = "Last Action: \"$lastAction\"",
                                                     style = MaterialTheme.typography.caption,
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
                                                 )
@@ -1336,7 +1369,10 @@ fun main() =
                                                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                                                     ) {
                                                         Text(
-                                                            text = "Input Features: $inputFeatures",
+                                                            text =
+                                                                "Input Features: ${
+                                                                    predictionValue?.metadata?.get("input_features") ?: "Not available"
+                                                                }",
                                                             style = MaterialTheme.typography.caption,
                                                             color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
                                                         )
@@ -1379,7 +1415,7 @@ fun main() =
                                                 ) {
                                                     Column {
                                                         Text(
-                                                            text = adaptivePredictions.firstOrNull() ?: "Analyzing...",
+                                                            text = predictionValue?.suggestion ?: "No prediction available",
                                                             style =
                                                                 MaterialTheme.typography.body1.copy(
                                                                     fontWeight = FontWeight.SemiBold,
@@ -1392,7 +1428,10 @@ fun main() =
                                                             horizontalArrangement = Arrangement.spacedBy(16.dp),
                                                         ) {
                                                             Text(
-                                                                text = "Confidence: ${(confidenceScore * 100).toInt()}%",
+                                                                text =
+                                                                    "Confidence: ${
+                                                                        ((predictionValue?.confidence ?: 0f) * 100).toInt()
+                                                                    }%",
                                                                 style =
                                                                     MaterialTheme.typography.caption.copy(
                                                                         fontWeight = FontWeight.Medium,
@@ -1424,7 +1463,7 @@ fun main() =
                                                         color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                     )
                                                     Text(
-                                                        text = "(${adaptivePredictions.size - 1} options)",
+                                                        text = "(${predictionValue?.alternatives?.size ?: 0} options)",
                                                         style = MaterialTheme.typography.caption,
                                                         color = MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
                                                     )
@@ -1442,7 +1481,7 @@ fun main() =
                                                             .padding(8.dp),
                                                     verticalArrangement = Arrangement.spacedBy(6.dp),
                                                 ) {
-                                                    items(adaptivePredictions.drop(1)) { prediction ->
+                                                    items(predictionValue?.alternatives ?: emptyList()) { alternative ->
                                                         Row(
                                                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                                                             verticalAlignment = Alignment.CenterVertically,
@@ -1457,7 +1496,7 @@ fun main() =
                                                                         ),
                                                             )
                                                             Text(
-                                                                text = prediction,
+                                                                text = alternative,
                                                                 style =
                                                                     MaterialTheme.typography.caption.copy(
                                                                         fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
@@ -1669,9 +1708,7 @@ fun main() =
                                                                     println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
                                                                     updateLearningProgress()
-                                                                    val prediction = karlContainer?.getPrediction()
-                                                                    predictionState.value = prediction
-                                                                    println("Prediction after Action A: $prediction")
+                                                                    handlePredictionWithTiming(actionType, "Clicked 'Action A'")
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
@@ -1729,9 +1766,7 @@ fun main() =
                                                                     println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
                                                                     updateLearningProgress()
-                                                                    val prediction = karlContainer?.getPrediction()
-                                                                    predictionState.value = prediction
-                                                                    println("Prediction after Action B: $prediction")
+                                                                    handlePredictionWithTiming(actionType, "Clicked 'Action B'")
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
@@ -1792,9 +1827,10 @@ fun main() =
                                                                         isLoadingPrediction.value = true
                                                                         try {
                                                                             println("Button Clicked: Get Prediction")
-                                                                            val prediction = karlContainer?.getPrediction()
-                                                                            predictionState.value = prediction
-                                                                            println("Explicit Prediction Request: $prediction")
+                                                                            handlePredictionWithTiming(
+                                                                                "explicit_prediction",
+                                                                                "Clicked 'Get Prediction'",
+                                                                            )
                                                                         } finally {
                                                                             isLoadingPrediction.value = false
                                                                         }
@@ -1852,24 +1888,14 @@ fun main() =
                                                         Button(
                                                             onClick = {
                                                                 applicationScope.launch {
-                                                                    systemStatusState.value = "Processing"
                                                                     val actionType = "action_type_A"
                                                                     println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
-
-                                                                    val prediction = karlContainer?.getPrediction()
-                                                                    predictionState.value = prediction
-
-                                                                    // Add to interaction log with prediction details
-                                                                    prediction?.let { pred ->
-                                                                        addInteractionLogEntry(actionType, pred.suggestion, pred.confidence)
-                                                                    } ?: addInteractionLogEntry(actionType, "no prediction", 0.0f)
-
                                                                     updateLearningProgress()
-                                                                    println("Prediction after Action A: $prediction")
-
-                                                                    delay(500) // Simulate processing
-                                                                    systemStatusState.value = "Ready"
+                                                                    handlePredictionWithTiming(
+                                                                        actionType,
+                                                                        "Clicked 'Action A' (large view)",
+                                                                    )
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
@@ -1897,24 +1923,14 @@ fun main() =
                                                         Button(
                                                             onClick = {
                                                                 applicationScope.launch {
-                                                                    systemStatusState.value = "Processing"
                                                                     val actionType = "action_type_B"
                                                                     println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
-
-                                                                    val prediction = karlContainer?.getPrediction()
-                                                                    predictionState.value = prediction
-
-                                                                    // Add to interaction log with prediction details
-                                                                    prediction?.let { pred ->
-                                                                        addInteractionLogEntry(actionType, pred.suggestion, pred.confidence)
-                                                                    } ?: addInteractionLogEntry(actionType, "no prediction", 0.0f)
-
                                                                     updateLearningProgress()
-                                                                    println("Prediction after Action B: $prediction")
-
-                                                                    delay(500) // Simulate processing
-                                                                    systemStatusState.value = "Ready"
+                                                                    handlePredictionWithTiming(
+                                                                        actionType,
+                                                                        "Clicked 'Action B' (large view)",
+                                                                    )
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,

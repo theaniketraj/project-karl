@@ -32,6 +32,7 @@ data class Prediction(
     val confidence: Float,
     val type: String,
     val metadata: Map<String, Any>? = emptyMap(),
+    val alternatives: List<String>? = null,
 )
 
 sealed class KarlInstruction {

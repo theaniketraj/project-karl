@@ -295,20 +295,60 @@ class RealLearningEngine(
                 // Forward pass to get prediction
                 val (_, output) = forwardPass(input)
 
-                // Convert neural network output to prediction
-                val confidence = output[0]
-                val suggestion = if (confidence > 0.6f) "action_type_A" else "action_type_B"
+                // Generate multiple predictions with different thresholds
+                val primaryConfidence = output[0]
+                val timingPrediction = output[1]
+                val preferenceScore = output[2]
+
+                // Create action suggestions based on all outputs
+                val actionSuggestions = mutableListOf<Pair<String, Float>>()
+
+                // Primary action based on main confidence
+                val primaryAction =
+                    when {
+                        primaryConfidence > 0.7f -> "High Priority Action"
+                        primaryConfidence > 0.5f -> "Standard Action"
+                        else -> "Low Priority Action"
+                    }
+                actionSuggestions.add(primaryAction to primaryConfidence)
+
+                // Alternative actions based on timing and preference
+                val timingAction =
+                    when {
+                        timingPrediction > 0.7f -> "Time-Sensitive Task"
+                        timingPrediction > 0.4f -> "Scheduled Task"
+                        else -> "Background Task"
+                    }
+                actionSuggestions.add(timingAction to timingPrediction)
+
+                val preferenceAction =
+                    when {
+                        preferenceScore > 0.6f -> "User Preferred Action"
+                        preferenceScore > 0.3f -> "Alternative Action"
+                        else -> "Fallback Action"
+                    }
+                actionSuggestions.add(preferenceAction to preferenceScore)
+
+                // Sort by confidence and take top suggestion as primary
+                val sortedSuggestions = actionSuggestions.sortedByDescending { it.second }
+                val suggestion = sortedSuggestions.first().first
+                val alternatives = sortedSuggestions.drop(1).map { it.first }
 
                 val prediction =
                     Prediction(
                         suggestion = suggestion,
-                        confidence = confidence,
+                        confidence = primaryConfidence,
                         type = "neural_network_prediction",
+                        alternatives = alternatives,
                         metadata =
                             mapOf(
                                 "training_steps" to trainingSteps.toString(),
                                 "model_output" to output.contentToString(),
                                 "context_size" to contextData.size.toString(),
+                                "input_features" to input.contentToString(),
+                                "timing_prediction" to timingPrediction.toString(),
+                                "preference_score" to preferenceScore.toString(),
+                                "action_count" to actionSuggestions.size.toString(),
                             ),
                     )
 
