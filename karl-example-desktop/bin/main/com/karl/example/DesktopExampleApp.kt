@@ -24,6 +24,11 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.foundation.Canvas
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.input.pointer.PointerIcon
@@ -46,6 +51,16 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.awt.Desktop
 import java.net.URI
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+// Data structure for structured interaction logs
+data class StructuredInteraction(
+    val timestamp: String,
+    val action: String,
+    val prediction: String,
+    val confidence: Float
+)
 
 // Custom GitHub Icon
 private var gitHubIconCache: ImageVector? = null
@@ -206,6 +221,54 @@ class InMemoryDataStorage : DataStorage {
     }
 }
 
+// Simple Sparkline Chart Composable
+@Composable
+fun SparklineChart(
+    data: List<Float>,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colors.primary,
+    lineWidth: Float = 2f
+) {
+    Canvas(modifier = modifier) {
+        if (data.size < 2) return@Canvas
+        
+        val width = size.width
+        val height = size.height
+        val maxValue = data.maxOrNull() ?: 1f
+        val minValue = data.minOrNull() ?: 0f
+        val range = maxValue - minValue
+        
+        if (range == 0f) return@Canvas
+        
+        val stepX = width / (data.size - 1)
+        
+        for (i in 0 until data.size - 1) {
+            val x1 = i * stepX
+            val y1 = height - ((data[i] - minValue) / range) * height
+            val x2 = (i + 1) * stepX
+            val y2 = height - ((data[i + 1] - minValue) / range) * height
+            
+            drawLine(
+                color = color,
+                start = androidx.compose.ui.geometry.Offset(x1, y1),
+                end = androidx.compose.ui.geometry.Offset(x2, y2),
+                strokeWidth = lineWidth
+            )
+        }
+        
+        // Draw dots at each data point
+        data.forEachIndexed { index, value ->
+            val x = index * stepX
+            val y = height - ((value - minValue) / range) * height
+            drawCircle(
+                color = color,
+                radius = lineWidth,
+                center = androidx.compose.ui.geometry.Offset(x, y)
+            )
+        }
+    }
+}
+
 // --- 2. Main Application Entry Point ---
 fun main() =
     application {
@@ -244,6 +307,20 @@ fun main() =
         var modelArchitecture by remember { mutableStateOf("Transformer-GPT") }
         var interactionsProcessed by remember { mutableStateOf(1247) }
         var interactionLog by remember { mutableStateOf(listOf("User clicked 'build'", "Analysis complete", "Model updated")) }
+        
+        // Enhanced structured interaction log with timestamps and predictions
+        var structuredInteractionLog by remember { 
+            mutableStateOf(listOf(
+                StructuredInteraction("14:23:15", "build", "run tests", 0.87f),
+                StructuredInteraction("14:22:48", "git pull", "resolve conflicts", 0.92f),
+                StructuredInteraction("14:21:33", "open file", "edit code", 0.79f)
+            )) 
+        }
+        
+        // Confidence history for sparkline chart (last 20 interactions)
+        var confidenceHistory by remember { 
+            mutableStateOf(listOf(0.75f, 0.82f, 0.79f, 0.87f, 0.92f, 0.85f, 0.89f, 0.91f, 0.83f, 0.87f)) 
+        }
 
         // Panel 2: Prediction Details data
         var lastActionProcessed by remember { mutableStateOf("build project") }
@@ -265,6 +342,24 @@ fun main() =
                     2 -> "Learning"
                     else -> "Ready"
                 }
+            
+            // Generate prediction based on action
+            val prediction = when (action) {
+                "git push" -> "wait for CI"
+                "git pull" -> "resolve conflicts"
+                "run tests" -> "fix failures"
+                "build project" -> "run tests"
+                else -> "analyze context"
+            }
+            
+            // Add to structured interaction log
+            val currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+            val newStructuredInteraction = StructuredInteraction(currentTime, action, prediction, confidenceScore)
+            structuredInteractionLog = (structuredInteractionLog + newStructuredInteraction).takeLast(8)
+            
+            // Update confidence history for sparkline
+            confidenceHistory = (confidenceHistory + confidenceScore).takeLast(20)
+            
             adaptivePredictions =
                 when (action) {
                     "git push" -> listOf("Next: wait for CI", "Monitor: build status", "Consider: review PR")
@@ -278,6 +373,22 @@ fun main() =
         fun runScenario(scenario: String) {
             systemStatus = "Processing"
             interactionLog = (interactionLog + "Scenario: $scenario started").takeLast(5)
+            
+            val confidence = kotlin.random.Random.nextFloat() * 0.15f + 0.8f // 0.8f to 0.95f
+            val prediction = when (scenario) {
+                "Heavy Load Test" -> "optimize performance"
+                "Data Migration" -> "validate integrity"
+                else -> "monitor results"
+            }
+            
+            // Add to structured interaction log
+            val currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+            val newStructuredInteraction = StructuredInteraction(currentTime, scenario.lowercase(), prediction, confidence)
+            structuredInteractionLog = (structuredInteractionLog + newStructuredInteraction).takeLast(8)
+            
+            // Update confidence history for sparkline
+            confidenceHistory = (confidenceHistory + confidence).takeLast(20)
+            
             when (scenario) {
                 "Heavy Load Test" -> {
                     interactionsProcessed += 50
@@ -809,11 +920,41 @@ fun main() =
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
                                                 )
 
-                                                Text(
-                                                    text = "Interactions Processed: $interactionsProcessed",
-                                                    style = MaterialTheme.typography.body2,
-                                                    color = accentColor.copy(alpha = 0.9f),
-                                                )
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(
+                                                        text = "Interactions Processed: $interactionsProcessed",
+                                                        style = MaterialTheme.typography.body2,
+                                                        color = accentColor.copy(alpha = 0.9f),
+                                                    )
+                                                    
+                                                    // AI Maturity Meter - Sparkline Chart
+                                                    Column(
+                                                        horizontalAlignment = Alignment.End
+                                                    ) {
+                                                        Text(
+                                                            text = "Confidence Trend",
+                                                            style = MaterialTheme.typography.caption,
+                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                                                        )
+                                                        SparklineChart(
+                                                            data = confidenceHistory,
+                                                            modifier = Modifier.size(width = 60.dp, height = 20.dp),
+                                                            color = accentColor,
+                                                            lineWidth = 1.5f
+                                                        )
+                                                        Text(
+                                                            text = "${(confidenceHistory.lastOrNull() ?: 0.87f).times(100).toInt()}%",
+                                                            style = MaterialTheme.typography.caption.copy(
+                                                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                                            ),
+                                                            color = accentColor,
+                                                        )
+                                                    }
+                                                }
 
                                                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -836,14 +977,46 @@ fun main() =
                                                                 shape = MaterialTheme.shapes.small,
                                                             )
                                                             .padding(8.dp),
-                                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                                    verticalArrangement = Arrangement.spacedBy(6.dp),
                                                 ) {
-                                                    items(interactionLog) { interaction ->
-                                                        Text(
-                                                            text = "• $interaction",
-                                                            style = MaterialTheme.typography.caption,
-                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                                        )
+                                                    items(structuredInteractionLog.reversed()) { interaction ->
+                                                        Column(
+                                                            modifier = Modifier.fillMaxWidth()
+                                                        ) {
+                                                            // Timestamp and action line
+                                                            Row(
+                                                                modifier = Modifier.fillMaxWidth(),
+                                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                                verticalAlignment = Alignment.CenterVertically
+                                                            ) {
+                                                                Text(
+                                                                    text = "[${interaction.timestamp}] Action: '${interaction.action}'",
+                                                                    style = MaterialTheme.typography.caption.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
+                                                                    ),
+                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                                                )
+                                                                Text(
+                                                                    text = "${(interaction.confidence * 100).toInt()}%",
+                                                                    style = MaterialTheme.typography.caption.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                                                    ),
+                                                                    color = when {
+                                                                        interaction.confidence >= 0.9f -> androidx.compose.ui.graphics.Color(0xFF4CAF50)
+                                                                        interaction.confidence >= 0.8f -> androidx.compose.ui.graphics.Color(0xFF8BC34A)
+                                                                        interaction.confidence >= 0.7f -> androidx.compose.ui.graphics.Color(0xFFFFEB3B)
+                                                                        else -> androidx.compose.ui.graphics.Color(0xFFFF9800)
+                                                                    },
+                                                                )
+                                                            }
+                                                            // Prediction line
+                                                            Text(
+                                                                text = "→ Predicted: '${interaction.prediction}'",
+                                                                style = MaterialTheme.typography.caption,
+                                                                color = accentColor.copy(alpha = 0.9f),
+                                                                modifier = Modifier.padding(start = 8.dp)
+                                                            )
+                                                        }
                                                     }
                                                 }
                                             }
