@@ -1,6 +1,7 @@
 package com.karl.kldl
 
 import api.LearningEngine
+import com.karl.core.learning.LearningInsights
 import com.karl.core.models.InteractionData
 import com.karl.core.models.KarlContainerState
 import com.karl.core.models.KarlInstruction
@@ -23,6 +24,7 @@ class KLDLLearningEngine(
     private val modelMutex = Mutex()
     private lateinit var engineScope: CoroutineScope
     private val recentHistory = mutableListOf<Int>()
+    private var interactionCount: Long = 0L
 
     override suspend fun initialize(
         state: KarlContainerState?,
@@ -68,6 +70,9 @@ class KLDLLearningEngine(
             modelMutex.withLock {
                 println("KLDLLearningEngine: Training step with data: ${data.type}")
 
+                // Increment interaction count
+                interactionCount++
+
                 // Simulate learning by adding interaction data to our history
                 // In a real implementation, this would update neural network weights
                 val interactionHash = data.type.hashCode() + data.timestamp.hashCode()
@@ -78,7 +83,7 @@ class KLDLLearningEngine(
                     recentHistory.removeAt(0)
                 }
 
-                println("KLDLLearningEngine: Updated model state, history size=${recentHistory.size}")
+                println("KLDLLearningEngine: Updated model state, history size=${recentHistory.size}, interactions=$interactionCount")
             }
         }
     }
@@ -124,7 +129,7 @@ class KLDLLearningEngine(
         // that includes some actual data from our recent history and parameters
         val stateBuilder = mutableListOf<Byte>()
 
-        // Add learning rate as bytes
+        // Add learning rate as bytes (4 bytes)
         val learningRateBytes =
             learningRate.toBits().let { bits ->
                 byteArrayOf(
@@ -136,7 +141,21 @@ class KLDLLearningEngine(
             }
         stateBuilder.addAll(learningRateBytes.toList())
 
-        // Add recent history size
+        // Add interaction count as bytes (8 bytes)
+        val interactionCountBytes =
+            byteArrayOf(
+                (interactionCount shr 56).toByte(),
+                (interactionCount shr 48).toByte(),
+                (interactionCount shr 40).toByte(),
+                (interactionCount shr 32).toByte(),
+                (interactionCount shr 24).toByte(),
+                (interactionCount shr 16).toByte(),
+                (interactionCount shr 8).toByte(),
+                interactionCount.toByte(),
+            )
+        stateBuilder.addAll(interactionCountBytes.toList())
+
+        // Add recent history size (4 bytes)
         stateBuilder.addAll(
             recentHistory.size.let { size ->
                 byteArrayOf(
@@ -163,7 +182,7 @@ class KLDLLearningEngine(
         }
 
         val result = stateBuilder.toByteArray()
-        println("KLDLLearningEngine: serializeWeights() completed, serialized ${result.size} bytes")
+        println("KLDLLearningEngine: serializeWeights() completed, serialized ${result.size} bytes (interactionCount=$interactionCount)")
         return result
     }
 
@@ -199,6 +218,27 @@ class KLDLLearningEngine(
                     )
                 offset += 4
                 println("KLDLLearningEngine: Restored learning rate: $restoredLearningRate (current: $learningRate)")
+
+                // Restore interaction count (8 bytes)
+                if (data.size < offset + 8) {
+                    println("KLDLLearningEngine: WARNING - State data too small to contain interaction count")
+                    return@withLock
+                }
+
+                val restoredInteractionCount =
+                    (
+                        ((data[offset].toLong() and 0xFF) shl 56) or
+                            ((data[offset + 1].toLong() and 0xFF) shl 48) or
+                            ((data[offset + 2].toLong() and 0xFF) shl 40) or
+                            ((data[offset + 3].toLong() and 0xFF) shl 32) or
+                            ((data[offset + 4].toLong() and 0xFF) shl 24) or
+                            ((data[offset + 5].toLong() and 0xFF) shl 16) or
+                            ((data[offset + 6].toLong() and 0xFF) shl 8) or
+                            (data[offset + 7].toLong() and 0xFF)
+                    )
+                offset += 8
+                interactionCount = restoredInteractionCount
+                println("KLDLLearningEngine: Restored interaction count: $interactionCount")
 
                 // Restore history size (4 bytes)
                 if (data.size < offset + 4) {
@@ -237,7 +277,7 @@ class KLDLLearningEngine(
                     offset += 4
                 }
 
-                println("KLDLLearningEngine: Successfully restored ${recentHistory.size} history items")
+                println("KLDLLearningEngine: Successfully restored ${recentHistory.size} history items, interactionCount=$interactionCount")
                 println("KLDLLearningEngine: Model state restoration complete - ready to continue learning")
             } catch (e: Exception) {
                 println("KLDLLearningEngine: ERROR during state restoration: ${e.message}")
@@ -250,11 +290,28 @@ class KLDLLearningEngine(
     override suspend fun reset() {
         modelMutex.withLock {
             recentHistory.clear()
-            println("KLDLLearningEngine (Stub): Reset completed.")
+            interactionCount = 0L
+            println("KLDLLearningEngine (Stub): Reset completed - cleared history and reset interaction count.")
         }
     }
 
     override suspend fun release() {
         println("KLDLLearningEngine (Stub): Released.")
+    }
+
+    override suspend fun getLearningInsights(): LearningInsights {
+        return LearningInsights(
+            interactionCount = interactionCount,
+            progressEstimate =
+                minOf(
+                    interactionCount / 100.0f,
+                    1.0f,
+                ), // Simple progress: 1% per interaction, capped at 100%
+            customMetrics =
+                mapOf(
+                    "historySize" to recentHistory.size,
+                    "learningRate" to learningRate,
+                ),
+        )
     }
 }
