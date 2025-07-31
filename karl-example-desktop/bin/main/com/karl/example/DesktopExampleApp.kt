@@ -1504,9 +1504,9 @@ fun main() =
                                                 Text(
                                                     text =
                                                         if (enlargedSection == "controls") {
-                                                            "🎮 Controls"
+                                                            "🧑‍💻 Controls"
                                                         } else {
-                                                            "🎮 Controls"
+                                                            "🧑‍💻 Controls"
                                                         },
                                                     style =
                                                         MaterialTheme.typography.h5.copy( // Larger text size
