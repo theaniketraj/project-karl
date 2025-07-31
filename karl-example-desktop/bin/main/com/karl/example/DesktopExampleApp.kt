@@ -305,7 +305,7 @@ fun main() =
         // --- Dynamic Data State for Three Panels ---
         // Panel 1: AI Insights data
         var systemStatus by remember { mutableStateOf("Learning") }
-        var modelArchitecture by remember { mutableStateOf("Transformer-GPT") }
+        var modelArchitecture by remember { mutableStateOf("MLP(3,16,8,4)") }
         var interactionsProcessed by remember { mutableStateOf(1247) }
         var interactionLog by remember { mutableStateOf(listOf("User clicked 'build'", "Analysis complete", "Model updated")) }
 
