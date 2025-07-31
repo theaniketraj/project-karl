@@ -42,7 +42,6 @@ import com.karl.core.models.DataSource
 import com.karl.core.models.DataStorage
 import com.karl.core.models.InteractionData
 import com.karl.core.models.Prediction
-import com.karl.ui.KarlContainerUI
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.awt.Desktop
@@ -245,7 +244,7 @@ fun main() =
         var modelArchitecture by remember { mutableStateOf("Transformer-GPT") }
         var interactionsProcessed by remember { mutableStateOf(1247) }
         var interactionLog by remember { mutableStateOf(listOf("User clicked 'build'", "Analysis complete", "Model updated")) }
-        
+
         // Panel 2: Prediction Details data
         var lastActionProcessed by remember { mutableStateOf("build project") }
         var inputFeatures by remember { mutableStateOf(42) }
@@ -260,20 +259,22 @@ fun main() =
             interactionLog = (interactionLog + "Action: $action").takeLast(5)
             confidenceScore = kotlin.random.Random.nextFloat() * 0.25f + 0.7f // 0.7f to 0.95f
             processingTime = kotlin.random.Random.nextInt(100, 301) // 100 to 300
-            systemStatus = when (kotlin.random.Random.nextInt(1, 4)) {
-                1 -> "Processing"
-                2 -> "Learning"
-                else -> "Ready"
-            }
-            adaptivePredictions = when (action) {
-                "git push" -> listOf("Next: wait for CI", "Monitor: build status", "Consider: review PR")
-                "git pull" -> listOf("Next: resolve conflicts", "Check: new dependencies", "Update: local branch")
-                "run tests" -> listOf("Next: fix failures", "Check: coverage report", "Consider: add tests")
-                "build project" -> listOf("Next: run tests", "Check: warnings", "Deploy: staging")
-                else -> listOf("Next: analyze context", "Monitor: system state", "Adapt: strategy")
-            }
+            systemStatus =
+                when (kotlin.random.Random.nextInt(1, 4)) {
+                    1 -> "Processing"
+                    2 -> "Learning"
+                    else -> "Ready"
+                }
+            adaptivePredictions =
+                when (action) {
+                    "git push" -> listOf("Next: wait for CI", "Monitor: build status", "Consider: review PR")
+                    "git pull" -> listOf("Next: resolve conflicts", "Check: new dependencies", "Update: local branch")
+                    "run tests" -> listOf("Next: fix failures", "Check: coverage report", "Consider: add tests")
+                    "build project" -> listOf("Next: run tests", "Check: warnings", "Deploy: staging")
+                    else -> listOf("Next: analyze context", "Monitor: system state", "Adapt: strategy")
+                }
         }
-        
+
         fun runScenario(scenario: String) {
             systemStatus = "Processing"
             interactionLog = (interactionLog + "Scenario: $scenario started").takeLast(5)
@@ -417,12 +418,12 @@ fun main() =
                     color = MaterialTheme.colors.background,
                 ) {
                     Column(
-                        modifier = Modifier.fillMaxSize().padding(32.dp),
+                        modifier = Modifier.fillMaxSize().padding(24.dp), // Reduced padding from 32.dp
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         // Top Controls Row (Theme Toggle and GitHub Link)
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), // Reduced from 16.dp
                             horizontalArrangement = Arrangement.End,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -474,34 +475,34 @@ fun main() =
                             }
                         }
 
-                        // Header Section - Transparent with centered content
+                        // Header Section - Compact with centered content
                         Box(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = 32.dp),
+                                    .padding(bottom = 16.dp), // Reduced from 32.dp
                             contentAlignment = Alignment.Center,
                         ) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
-                                // Animated icon with subtle scale effect
+                                // Animated icon with subtle scale effect - smaller size
                                 val iconScale by animateFloatAsState(
-                                    targetValue = if (karlContainer != null) 1.1f else 1.0f,
+                                    targetValue = if (karlContainer != null) 1.05f else 1.0f, // Reduced from 1.1f
                                     animationSpec = tween(durationMillis = 1000),
                                 )
                                 Text(
                                     text = "🧠",
-                                    style = MaterialTheme.typography.h1,
+                                    style = MaterialTheme.typography.h3, // Reduced from h1
                                     modifier =
                                         Modifier
                                             .graphicsLayer(scaleX = iconScale, scaleY = iconScale)
-                                            .padding(bottom = 8.dp),
+                                            .padding(bottom = 4.dp), // Reduced from 8.dp
                                 )
                                 Text(
                                     text = "Project KARL",
                                     style =
-                                        MaterialTheme.typography.h2.copy(
+                                        MaterialTheme.typography.h4.copy( // Reduced from h2
                                             fontWeight = androidx.compose.ui.text.font.FontWeight.Light,
                                         ),
                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
@@ -509,21 +510,21 @@ fun main() =
                                 Text(
                                     text = "Kotlin Adaptive Reasoning Learner",
                                     style =
-                                        MaterialTheme.typography.h6.copy(
+                                        MaterialTheme.typography.body1.copy( // Reduced from h6
                                             fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
                                         ),
                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                    modifier = Modifier.padding(top = 8.dp),
+                                    modifier = Modifier.padding(top = 4.dp), // Reduced from 8.dp
                                 )
                             }
                         }
 
-                        // Status Section - Transparent with subtle glow effect
+                        // Status Section - Compact with subtle glow effect
                         Box(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = 32.dp),
+                                    .padding(bottom = 16.dp), // Reduced from 32.dp
                             contentAlignment = Alignment.Center,
                         ) {
                             // Animated status indicator with glow effect
@@ -537,16 +538,16 @@ fun main() =
                                 horizontalArrangement = Arrangement.Center,
                                 modifier = Modifier.graphicsLayer(alpha = statusAlpha),
                             ) {
-                                // Animated status dot with pulsing effect
+                                // Animated status dot with pulsing effect - smaller size
                                 val pulseScale by animateFloatAsState(
-                                    targetValue = if (karlContainer != null) 1.0f else 1.2f,
+                                    targetValue = if (karlContainer != null) 1.0f else 1.1f, // Reduced pulse effect
                                     animationSpec = tween(durationMillis = 1500),
                                 )
 
                                 Box(
                                     modifier =
                                         Modifier
-                                            .size(16.dp)
+                                            .size(12.dp) // Reduced from 16.dp
                                             .graphicsLayer(scaleX = pulseScale, scaleY = pulseScale)
                                             .background(
                                                 color =
@@ -559,7 +560,7 @@ fun main() =
                                             ),
                                 )
 
-                                Spacer(modifier = Modifier.width(16.dp))
+                                Spacer(modifier = Modifier.width(12.dp)) // Reduced from 16.dp
 
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -572,7 +573,7 @@ fun main() =
                                                 "System Initializing..."
                                             },
                                         style =
-                                            MaterialTheme.typography.h6.copy(
+                                            MaterialTheme.typography.body1.copy( // Reduced from h6
                                                 fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
                                             ),
                                         color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
@@ -584,7 +585,7 @@ fun main() =
                                             } else {
                                                 "Please wait while components initialize"
                                             },
-                                        style = MaterialTheme.typography.body2,
+                                        style = MaterialTheme.typography.caption, // Reduced from body2
                                         color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
                                     )
                                 }
@@ -646,7 +647,7 @@ fun main() =
                                 )
 
                             Row(
-                                modifier = Modifier.fillMaxWidth().weight(1f),
+                                modifier = Modifier.fillMaxWidth().weight(1f, fill = true), // Ensure fill = true for maximum height usage
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
                                 // AI Insights Section - Transparent with subtle animations
@@ -717,7 +718,7 @@ fun main() =
                                                     shape = RoundedCornerShape(12.dp),
                                                 )
                                                 .hoverable(insightsInteractionSource)
-                                                .padding(32.dp), // Enlarged padding for bigger content
+                                                .padding(20.dp), // Reduced padding from 32.dp
                                     ) {
                                         Column(
                                             modifier = Modifier.fillMaxSize(),
@@ -789,11 +790,11 @@ fun main() =
                                                 }
                                             }
                                             Spacer(modifier = Modifier.height(16.dp))
-                                            
+
                                             // Dynamic AI Insights Content
                                             Column(
                                                 modifier = Modifier.fillMaxSize(),
-                                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                                verticalArrangement = Arrangement.spacedBy(8.dp), // Reduced from 12.dp
                                             ) {
                                                 // System Status
                                                 Text(
@@ -818,21 +819,23 @@ fun main() =
 
                                                 Text(
                                                     text = "Recent Interactions:",
-                                                    style = MaterialTheme.typography.body2.copy(
-                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
-                                                    ),
+                                                    style =
+                                                        MaterialTheme.typography.body2.copy(
+                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                                        ),
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                 )
 
                                                 LazyColumn(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .weight(1f)
-                                                        .background(
-                                                            color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
-                                                            shape = MaterialTheme.shapes.small,
-                                                        )
-                                                        .padding(8.dp),
+                                                    modifier =
+                                                        Modifier
+                                                            .fillMaxWidth()
+                                                            .weight(1f)
+                                                            .background(
+                                                                color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
+                                                                shape = MaterialTheme.shapes.small,
+                                                            )
+                                                            .padding(8.dp),
                                                     verticalArrangement = Arrangement.spacedBy(4.dp),
                                                 ) {
                                                     items(interactionLog) { interaction ->
@@ -916,7 +919,7 @@ fun main() =
                                                     shape = RoundedCornerShape(12.dp),
                                                 )
                                                 .hoverable(predictionInteractionSource)
-                                                .padding(32.dp), // Enlarged padding for bigger content
+                                                .padding(20.dp), // Reduced padding from 32.dp
                                     ) {
                                         Column(
                                             modifier = Modifier.fillMaxSize(),
@@ -998,7 +1001,10 @@ fun main() =
                                                 // Input Context
                                                 Text(
                                                     text = "Input Context:",
-                                                    style = MaterialTheme.typography.body2.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),
+                                                    style =
+                                                        MaterialTheme.typography.body2.copy(
+                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                                        ),
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                 )
                                                 Text(
@@ -1017,7 +1023,10 @@ fun main() =
                                                 // Prediction Output
                                                 Text(
                                                     text = "Prediction Output:",
-                                                    style = MaterialTheme.typography.body2.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),
+                                                    style =
+                                                        MaterialTheme.typography.body2.copy(
+                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                                        ),
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                 )
                                                 Text(
@@ -1035,19 +1044,23 @@ fun main() =
 
                                                 Text(
                                                     text = "Adaptive Predictions:",
-                                                    style = MaterialTheme.typography.body2.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),
+                                                    style =
+                                                        MaterialTheme.typography.body2.copy(
+                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                                        ),
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                 )
 
                                                 LazyColumn(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .weight(1f)
-                                                        .background(
-                                                            color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
-                                                            shape = MaterialTheme.shapes.small,
-                                                        )
-                                                        .padding(8.dp),
+                                                    modifier =
+                                                        Modifier
+                                                            .fillMaxWidth()
+                                                            .weight(1f)
+                                                            .background(
+                                                                color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
+                                                                shape = MaterialTheme.shapes.small,
+                                                            )
+                                                            .padding(8.dp),
                                                     verticalArrangement = Arrangement.spacedBy(4.dp),
                                                 ) {
                                                     items(adaptivePredictions) { prediction ->
@@ -1131,7 +1144,7 @@ fun main() =
                                                     shape = RoundedCornerShape(12.dp),
                                                 )
                                                 .hoverable(controlsInteractionSource)
-                                                .padding(32.dp), // Enlarged padding for bigger content
+                                                .padding(20.dp), // Reduced padding from 32.dp
                                     ) {
                                         Column(
                                             modifier = Modifier.fillMaxSize(),
@@ -1512,11 +1525,12 @@ fun main() =
                                                     // Dynamic Action Simulation Buttons
                                                     Text(
                                                         text = "🚀 Simulate Actions",
-                                                        style = MaterialTheme.typography.h6.copy(
-                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                                                        ),
+                                                        style =
+                                                            MaterialTheme.typography.h6.copy(
+                                                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                                            ),
                                                         color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
-                                                        modifier = Modifier.padding(vertical = 8.dp)
+                                                        modifier = Modifier.padding(vertical = 8.dp),
                                                     )
 
                                                     Row(
@@ -1529,21 +1543,24 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier
-                                                                .height(56.dp)
-                                                                .width(140.dp)
-                                                                .pointerHoverIcon(PointerIcon.Hand),
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(56.dp)
+                                                                    .width(140.dp)
+                                                                    .pointerHoverIcon(PointerIcon.Hand),
                                                             shape = RoundedCornerShape(28.dp),
-                                                            colors = ButtonDefaults.buttonColors(
-                                                                backgroundColor = androidx.compose.ui.graphics.Color(0xFF2196F3),
-                                                                contentColor = androidx.compose.ui.graphics.Color.White,
-                                                            ),
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFF2196F3),
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
                                                         ) {
                                                             Text(
                                                                 text = "📤 Git Push",
-                                                                style = MaterialTheme.typography.body1.copy(
-                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                                                ),
+                                                                style =
+                                                                    MaterialTheme.typography.body1.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
                                                             )
                                                         }
 
@@ -1554,21 +1571,24 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier
-                                                                .height(56.dp)
-                                                                .width(140.dp)
-                                                                .pointerHoverIcon(PointerIcon.Hand),
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(56.dp)
+                                                                    .width(140.dp)
+                                                                    .pointerHoverIcon(PointerIcon.Hand),
                                                             shape = RoundedCornerShape(28.dp),
-                                                            colors = ButtonDefaults.buttonColors(
-                                                                backgroundColor = androidx.compose.ui.graphics.Color(0xFF9C27B0),
-                                                                contentColor = androidx.compose.ui.graphics.Color.White,
-                                                            ),
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFF9C27B0),
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
                                                         ) {
                                                             Text(
                                                                 text = "🧪 Run Tests",
-                                                                style = MaterialTheme.typography.body1.copy(
-                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                                                ),
+                                                                style =
+                                                                    MaterialTheme.typography.body1.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
                                                             )
                                                         }
                                                     }
@@ -1583,21 +1603,24 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier
-                                                                .height(56.dp)
-                                                                .width(140.dp)
-                                                                .pointerHoverIcon(PointerIcon.Hand),
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(56.dp)
+                                                                    .width(140.dp)
+                                                                    .pointerHoverIcon(PointerIcon.Hand),
                                                             shape = RoundedCornerShape(28.dp),
-                                                            colors = ButtonDefaults.buttonColors(
-                                                                backgroundColor = androidx.compose.ui.graphics.Color(0xFFE91E63),
-                                                                contentColor = androidx.compose.ui.graphics.Color.White,
-                                                            ),
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFFE91E63),
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
                                                         ) {
                                                             Text(
                                                                 text = "🔨 Build",
-                                                                style = MaterialTheme.typography.body1.copy(
-                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                                                ),
+                                                                style =
+                                                                    MaterialTheme.typography.body1.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
                                                             )
                                                         }
 
@@ -1608,21 +1631,24 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier
-                                                                .height(56.dp)
-                                                                .width(140.dp)
-                                                                .pointerHoverIcon(PointerIcon.Hand),
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(56.dp)
+                                                                    .width(140.dp)
+                                                                    .pointerHoverIcon(PointerIcon.Hand),
                                                             shape = RoundedCornerShape(28.dp),
-                                                            colors = ButtonDefaults.buttonColors(
-                                                                backgroundColor = androidx.compose.ui.graphics.Color(0xFF607D8B),
-                                                                contentColor = androidx.compose.ui.graphics.Color.White,
-                                                            ),
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFF607D8B),
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
                                                         ) {
                                                             Text(
                                                                 text = "📥 Git Pull",
-                                                                style = MaterialTheme.typography.body1.copy(
-                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                                                ),
+                                                                style =
+                                                                    MaterialTheme.typography.body1.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
                                                             )
                                                         }
                                                     }
@@ -1630,11 +1656,12 @@ fun main() =
                                                     // Scenario Testing Buttons
                                                     Text(
                                                         text = "🎯 Test Scenarios",
-                                                        style = MaterialTheme.typography.h6.copy(
-                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                                                        ),
+                                                        style =
+                                                            MaterialTheme.typography.h6.copy(
+                                                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                                            ),
                                                         color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
-                                                        modifier = Modifier.padding(vertical = 8.dp)
+                                                        modifier = Modifier.padding(vertical = 8.dp),
                                                     )
 
                                                     Row(
@@ -1647,21 +1674,24 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier
-                                                                .height(56.dp)
-                                                                .width(145.dp)
-                                                                .pointerHoverIcon(PointerIcon.Hand),
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(56.dp)
+                                                                    .width(145.dp)
+                                                                    .pointerHoverIcon(PointerIcon.Hand),
                                                             shape = RoundedCornerShape(28.dp),
-                                                            colors = ButtonDefaults.buttonColors(
-                                                                backgroundColor = androidx.compose.ui.graphics.Color(0xFFFF5722),
-                                                                contentColor = androidx.compose.ui.graphics.Color.White,
-                                                            ),
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFFFF5722),
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
                                                         ) {
                                                             Text(
                                                                 text = "🔥 Heavy Load",
-                                                                style = MaterialTheme.typography.body1.copy(
-                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                                                ),
+                                                                style =
+                                                                    MaterialTheme.typography.body1.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
                                                             )
                                                         }
 
@@ -1672,21 +1702,24 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier
-                                                                .height(56.dp)
-                                                                .width(145.dp)
-                                                                .pointerHoverIcon(PointerIcon.Hand),
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(56.dp)
+                                                                    .width(145.dp)
+                                                                    .pointerHoverIcon(PointerIcon.Hand),
                                                             shape = RoundedCornerShape(28.dp),
-                                                            colors = ButtonDefaults.buttonColors(
-                                                                backgroundColor = androidx.compose.ui.graphics.Color(0xFF3F51B5),
-                                                                contentColor = androidx.compose.ui.graphics.Color.White,
-                                                            ),
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFF3F51B5),
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
                                                         ) {
                                                             Text(
                                                                 text = "📊 Migration",
-                                                                style = MaterialTheme.typography.body1.copy(
-                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                                                ),
+                                                                style =
+                                                                    MaterialTheme.typography.body1.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
                                                             )
                                                         }
                                                     }
@@ -1869,21 +1902,24 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier
-                                                                .height(40.dp)
-                                                                .width(90.dp)
-                                                                .pointerHoverIcon(PointerIcon.Hand),
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(40.dp)
+                                                                    .width(90.dp)
+                                                                    .pointerHoverIcon(PointerIcon.Hand),
                                                             shape = RoundedCornerShape(20.dp),
-                                                            colors = ButtonDefaults.buttonColors(
-                                                                backgroundColor = androidx.compose.ui.graphics.Color(0xFF2196F3),
-                                                                contentColor = androidx.compose.ui.graphics.Color.White,
-                                                            ),
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFF2196F3),
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
                                                         ) {
                                                             Text(
                                                                 text = "📤",
-                                                                style = MaterialTheme.typography.caption.copy(
-                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                                                ),
+                                                                style =
+                                                                    MaterialTheme.typography.caption.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
                                                             )
                                                         }
 
@@ -1894,21 +1930,24 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier
-                                                                .height(40.dp)
-                                                                .width(90.dp)
-                                                                .pointerHoverIcon(PointerIcon.Hand),
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(40.dp)
+                                                                    .width(90.dp)
+                                                                    .pointerHoverIcon(PointerIcon.Hand),
                                                             shape = RoundedCornerShape(20.dp),
-                                                            colors = ButtonDefaults.buttonColors(
-                                                                backgroundColor = androidx.compose.ui.graphics.Color(0xFF9C27B0),
-                                                                contentColor = androidx.compose.ui.graphics.Color.White,
-                                                            ),
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFF9C27B0),
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
                                                         ) {
                                                             Text(
                                                                 text = "🧪",
-                                                                style = MaterialTheme.typography.caption.copy(
-                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                                                ),
+                                                                style =
+                                                                    MaterialTheme.typography.caption.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
                                                             )
                                                         }
                                                     }
@@ -1923,21 +1962,24 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier
-                                                                .height(40.dp)
-                                                                .width(90.dp)
-                                                                .pointerHoverIcon(PointerIcon.Hand),
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(40.dp)
+                                                                    .width(90.dp)
+                                                                    .pointerHoverIcon(PointerIcon.Hand),
                                                             shape = RoundedCornerShape(20.dp),
-                                                            colors = ButtonDefaults.buttonColors(
-                                                                backgroundColor = androidx.compose.ui.graphics.Color(0xFFFF5722),
-                                                                contentColor = androidx.compose.ui.graphics.Color.White,
-                                                            ),
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFFFF5722),
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
                                                         ) {
                                                             Text(
                                                                 text = "🔥",
-                                                                style = MaterialTheme.typography.caption.copy(
-                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                                                ),
+                                                                style =
+                                                                    MaterialTheme.typography.caption.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
                                                             )
                                                         }
 
@@ -1948,21 +1990,24 @@ fun main() =
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
-                                                            modifier = Modifier
-                                                                .height(40.dp)
-                                                                .width(90.dp)
-                                                                .pointerHoverIcon(PointerIcon.Hand),
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(40.dp)
+                                                                    .width(90.dp)
+                                                                    .pointerHoverIcon(PointerIcon.Hand),
                                                             shape = RoundedCornerShape(20.dp),
-                                                            colors = ButtonDefaults.buttonColors(
-                                                                backgroundColor = androidx.compose.ui.graphics.Color(0xFF3F51B5),
-                                                                contentColor = androidx.compose.ui.graphics.Color.White,
-                                                            ),
+                                                            colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFF3F51B5),
+                                                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                                                ),
                                                         ) {
                                                             Text(
                                                                 text = "📊",
-                                                                style = MaterialTheme.typography.caption.copy(
-                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                                                ),
+                                                                style =
+                                                                    MaterialTheme.typography.caption.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                                    ),
                                                             )
                                                         }
                                                     }
