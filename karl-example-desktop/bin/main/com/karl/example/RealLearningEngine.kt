@@ -43,23 +43,12 @@ class RealLearningEngine(
     private val trainingHistory = mutableListOf<TrainingExample>()
     private var trainingSteps = 0
     private var interactionCount = 0L
-    
-    // Phase 2: Confidence history for sparkline visualization
-    private val confidenceHistory = mutableListOf<Float>()
-    
-    // Phase 2: Model architecture name for UI display
-    val architectureName = "MLP(${inputSize},${hiddenSize},${outputSize})"
 
     data class TrainingExample(
         val input: FloatArray,
         val expectedOutput: FloatArray,
         val timestamp: Long,
     )
-    
-    /**
-     * Phase 2: Returns the model architecture name for UI display
-     */
-    fun getModelArchitectureName(): String = architectureName
 
     override suspend fun initialize(
         state: KarlContainerState?,
@@ -345,13 +334,6 @@ class RealLearningEngine(
                 val suggestion = sortedSuggestions.first().first
                 val alternatives = sortedSuggestions.drop(1).map { it.first }
 
-                // Phase 2: Track confidence history for sparkline
-                confidenceHistory.add(primaryConfidence)
-                // Keep confidence history capped at 100 items for performance
-                if (confidenceHistory.size > 100) {
-                    confidenceHistory.removeAt(0)
-                }
-
                 val prediction =
                     Prediction(
                         suggestion = suggestion,
@@ -478,7 +460,6 @@ class RealLearningEngine(
     override suspend fun reset() {
         modelMutex.withLock {
             trainingHistory.clear()
-            confidenceHistory.clear() // Phase 2: Clear confidence history on reset
             trainingSteps = 0
             interactionCount = 0L
             initializeNewModel()
@@ -506,10 +487,8 @@ class RealLearningEngine(
                         "averageConfidence" to averageConfidence,
                         "trainingSteps" to trainingSteps,
                         "modelVersion" to "neural_network_v1",
-                        "confidenceHistory" to confidenceHistory.toList(), // Phase 2: Include confidence history
                     ),
             )
-        }
         }
     }
 
