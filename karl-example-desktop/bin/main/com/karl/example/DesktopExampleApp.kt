@@ -9,14 +9,13 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Brightness2
-import androidx.compose.material.icons.filled.CloseFullscreen
-import androidx.compose.material.icons.filled.OpenInFull
-import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -238,7 +237,21 @@ fun main() =
         // State for enlarged sections
         var enlargedSection by remember {
             mutableStateOf<String?>(null)
-        } // "insights" or "controls" or null
+        } // "insights", "prediction", "controls", or null
+
+        // --- Dynamic Data State for Three Panels ---
+        // Panel 1: AI Insights data
+        var systemStatus by remember { mutableStateOf("Learning") }
+        var modelArchitecture by remember { mutableStateOf("Transformer-GPT") }
+        var interactionsProcessed by remember { mutableStateOf(1247) }
+        var interactionLog by remember { mutableStateOf(listOf("User clicked 'build'", "Analysis complete", "Model updated")) }
+        
+        // Panel 2: Prediction Details data
+        var lastActionProcessed by remember { mutableStateOf("build project") }
+        var inputFeatures by remember { mutableStateOf(42) }
+        var confidenceScore by remember { mutableStateOf(0.87f) }
+        var processingTime by remember { mutableStateOf(156) }
+        var adaptivePredictions by remember { mutableStateOf(listOf("Next: run tests", "Likely: commit changes", "Alternative: debug")) }
 
         // --- Lifecycle Management ---
         // Use LaunchedEffect for one-time setup/initialization when the app starts
@@ -542,44 +555,63 @@ fun main() =
                             }
                         }
 
-                        // Main Content Section - Fluent Side by Side Layout
+                        // Main Content Section - Three Panel Layout
                         if (karlContainer != null) {
                             // Calculate weights based on enlarged section
                             val insightsWeight by
                                 animateFloatAsState(
                                     targetValue =
                                         when (enlargedSection) {
-                                            "insights" -> 0.75f
-                                            "controls" -> 0.25f
-                                            else -> 0.5f
+                                            "insights" -> 0.6f
+                                            "prediction" -> 0.2f
+                                            "controls" -> 0.2f
+                                            else -> 0.33f
                                         },
-                                    animationSpec = tween(durationMillis = 300), // Fluent: Faster, more responsive
+                                    animationSpec = tween(durationMillis = 300),
                                 )
-                            val controlsWeight = 1f - insightsWeight
+                            val predictionWeight by
+                                animateFloatAsState(
+                                    targetValue =
+                                        when (enlargedSection) {
+                                            "insights" -> 0.2f
+                                            "prediction" -> 0.6f
+                                            "controls" -> 0.2f
+                                            else -> 0.33f
+                                        },
+                                    animationSpec = tween(durationMillis = 300),
+                                )
+                            val controlsWeight by
+                                animateFloatAsState(
+                                    targetValue =
+                                        when (enlargedSection) {
+                                            "insights" -> 0.2f
+                                            "prediction" -> 0.2f
+                                            "controls" -> 0.6f
+                                            else -> 0.33f
+                                        },
+                                    animationSpec = tween(durationMillis = 300),
+                                )
 
                             // Content fade animations for smooth transitions
                             val insightsAlpha by
                                 animateFloatAsState(
-                                    targetValue =
-                                        when (enlargedSection) {
-                                            "controls" -> 0.6f
-                                            else -> 1.0f
-                                        },
+                                    targetValue = if (enlargedSection == null || enlargedSection == "insights") 1.0f else 0.7f,
+                                    animationSpec = tween(durationMillis = 400),
+                                )
+                            val predictionAlpha by
+                                animateFloatAsState(
+                                    targetValue = if (enlargedSection == null || enlargedSection == "prediction") 1.0f else 0.7f,
                                     animationSpec = tween(durationMillis = 400),
                                 )
                             val controlsAlpha by
                                 animateFloatAsState(
-                                    targetValue =
-                                        when (enlargedSection) {
-                                            "insights" -> 0.6f
-                                            else -> 1.0f
-                                        },
+                                    targetValue = if (enlargedSection == null || enlargedSection == "controls") 1.0f else 0.7f,
                                     animationSpec = tween(durationMillis = 400),
                                 )
 
                             Row(
-                                modifier = Modifier.fillMaxWidth().weight(1f), // Use weight to fill available space
-                                horizontalArrangement = Arrangement.spacedBy(12.dp), // Fluent: Tighter spacing
+                                modifier = Modifier.fillMaxWidth().weight(1f),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
                                 // AI Insights Section - Transparent with subtle animations
                                 Box(
@@ -720,12 +752,197 @@ fun main() =
                                                     )
                                                 }
                                             }
-                                            Spacer(modifier = Modifier.height(24.dp)) // More spacing
-                                            Box(modifier = Modifier.fillMaxSize()) {
-                                                KarlContainerUI(
-                                                    predictionState = predictionState,
-                                                    learningProgressState = learningProgressState,
+                                            Spacer(modifier = Modifier.height(16.dp))
+                                            
+                                            // Dynamic AI Insights Content
+                                            Column(
+                                                modifier = Modifier.fillMaxSize(),
+                                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                            ) {
+                                                // System Status
+                                                Text(
+                                                    text = "System Status: $systemStatus",
+                                                    style = MaterialTheme.typography.body2,
+                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                 )
+
+                                                Text(
+                                                    text = "Architecture: $modelArchitecture",
+                                                    style = MaterialTheme.typography.body2,
+                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                )
+
+                                                Text(
+                                                    text = "Interactions Processed: $interactionsProcessed",
+                                                    style = MaterialTheme.typography.body2,
+                                                    color = accentColor.copy(alpha = 0.9f),
+                                                )
+
+                                                Spacer(modifier = Modifier.height(8.dp))
+
+                                                Text(
+                                                    text = "Recent Interactions:",
+                                                    style = MaterialTheme.typography.body2.copy(
+                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                                    ),
+                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                                )
+
+                                                LazyColumn(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .weight(1f)
+                                                        .background(
+                                                            color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
+                                                            shape = MaterialTheme.shapes.small,
+                                                        )
+                                                        .padding(8.dp),
+                                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                                ) {
+                                                    items(interactionLog) { interaction ->
+                                                        Text(
+                                                            text = "• $interaction",
+                                                            style = MaterialTheme.typography.caption,
+                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Prediction Details Section - Middle panel with dynamic data
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .weight(predictionWeight)
+                                            .fillMaxHeight()
+                                            .graphicsLayer(alpha = predictionAlpha),
+                                ) {
+                                    val predictionInteractionSource = remember { MutableInteractionSource() }
+                                    val isPredictionHovered by predictionInteractionSource.collectIsHoveredAsState()
+
+                                    val hoverScale by animateFloatAsState(
+                                        targetValue = if (isPredictionHovered) 1.02f else 1.0f,
+                                        animationSpec = tween(durationMillis = 200),
+                                    )
+
+                                    val accentColor = if (isDarkTheme) Color(0xFF81C784) else Color(0xFF388E3C)
+
+                                    Box(
+                                        modifier =
+                                            Modifier
+                                                .fillMaxSize()
+                                                .graphicsLayer(scaleX = hoverScale, scaleY = hoverScale)
+                                                .background(
+                                                    color = accentColor.copy(alpha = if (isPredictionHovered) 0.12f else 0.05f),
+                                                    shape = MaterialTheme.shapes.medium,
+                                                )
+                                                .border(
+                                                    width = 1.dp,
+                                                    color = accentColor.copy(alpha = if (isPredictionHovered) 0.2f else 0.08f),
+                                                    shape = MaterialTheme.shapes.medium,
+                                                )
+                                                .hoverable(interactionSource = predictionInteractionSource)
+                                                .padding(16.dp),
+                                    ) {
+                                        Column(
+                                            modifier = Modifier.fillMaxSize(),
+                                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                                        ) {
+                                            // Panel Title
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically,
+                                            ) {
+                                                Text(
+                                                    text = "🔮 Prediction Details",
+                                                    style = MaterialTheme.typography.h6.copy(
+                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                    ),
+                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
+                                                )
+                                                IconButton(
+                                                    onClick = {
+                                                        enlargedSection = if (enlargedSection == "prediction") null else "prediction"
+                                                    },
+                                                    modifier = Modifier.size(24.dp),
+                                                ) {
+                                                    Icon(
+                                                        imageVector = if (enlargedSection == "prediction") Icons.Default.CloseFullscreen else Icons.Default.OpenInFull,
+                                                        contentDescription = if (enlargedSection == "prediction") "Minimize" else "Expand",
+                                                        tint = accentColor.copy(alpha = 0.7f),
+                                                        modifier = Modifier.size(16.dp),
+                                                    )
+                                                }
+                                            }
+
+                                            Divider(color = accentColor.copy(alpha = 0.2f), thickness = 1.dp)
+
+                                            // Input Context
+                                            Text(
+                                                text = "Input Context:",
+                                                style = MaterialTheme.typography.body2.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),
+                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                            )
+                                            Text(
+                                                text = "Last Action: \"$lastActionProcessed\"",
+                                                style = MaterialTheme.typography.caption,
+                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                            )
+                                            Text(
+                                                text = "Input Features: $inputFeatures",
+                                                style = MaterialTheme.typography.caption,
+                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                            )
+
+                                            Spacer(modifier = Modifier.height(8.dp))
+
+                                            // Prediction Output
+                                            Text(
+                                                text = "Prediction Output:",
+                                                style = MaterialTheme.typography.body2.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),
+                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                            )
+                                            Text(
+                                                text = "Confidence: ${(confidenceScore * 100).toInt()}%",
+                                                style = MaterialTheme.typography.caption,
+                                                color = accentColor.copy(alpha = 0.9f),
+                                            )
+                                            Text(
+                                                text = "Processing Time: ${processingTime}ms",
+                                                style = MaterialTheme.typography.caption,
+                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                            )
+
+                                            Spacer(modifier = Modifier.height(8.dp))
+
+                                            Text(
+                                                text = "Adaptive Predictions:",
+                                                style = MaterialTheme.typography.body2.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),
+                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                            )
+
+                                            LazyColumn(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .weight(1f)
+                                                    .background(
+                                                        color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
+                                                        shape = MaterialTheme.shapes.small,
+                                                    )
+                                                    .padding(8.dp),
+                                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                                            ) {
+                                                items(adaptivePredictions) { prediction ->
+                                                    Text(
+                                                        text = "• $prediction",
+                                                        style = MaterialTheme.typography.caption,
+                                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                    )
+                                                }
                                             }
                                         }
                                     }
