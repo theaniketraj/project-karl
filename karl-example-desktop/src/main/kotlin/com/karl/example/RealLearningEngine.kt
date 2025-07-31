@@ -342,9 +342,25 @@ class RealLearningEngine(
 
     override suspend fun getLearningInsights(): LearningInsights {
         return modelMutex.withLock {
+            // Calculate average confidence from recent training history
+            val averageConfidence =
+                if (trainingHistory.isNotEmpty()) {
+                    val recentHistory = trainingHistory.takeLast(20) // Last 20 training examples
+                    val totalConfidence = recentHistory.sumOf { it.expectedOutput[0].toDouble() }
+                    (totalConfidence / recentHistory.size).toFloat()
+                } else {
+                    0.5f // Default confidence when no training history
+                }
+
             LearningInsights(
                 interactionCount = interactionCount,
                 progressEstimate = (interactionCount / 100.0f).coerceAtMost(1.0f),
+                customMetrics =
+                    mapOf(
+                        "averageConfidence" to averageConfidence,
+                        "trainingSteps" to trainingSteps,
+                        "modelVersion" to "neural_network_v1",
+                    ),
             )
         }
     }

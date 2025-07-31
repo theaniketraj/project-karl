@@ -303,10 +303,17 @@ fun main() =
         } // "insights", "prediction", "controls", or null
 
         // --- Dynamic Data State for Three Panels ---
-        // Panel 1: AI Insights data
-        var systemStatus by remember { mutableStateOf("Learning") }
+        // Panel 1: AI Insights data - Real-time state flows
+        val systemStatusState = remember { MutableStateFlow("Initializing") }
+        val systemStatus by systemStatusState.collectAsState()
+        val interactionCountState = remember { MutableStateFlow(0L) }
+        val interactionsProcessed by interactionCountState.collectAsState()
+        val averageConfidenceState = remember { MutableStateFlow(0.0f) }
+        val averageConfidence by averageConfidenceState.collectAsState()
+        val recentInteractionsState = remember { MutableStateFlow<List<String>>(emptyList()) }
+        val recentInteractions by recentInteractionsState.collectAsState()
+
         var modelArchitecture by remember { mutableStateOf("MLP(3,16,8,4)") }
-        var interactionsProcessed by remember { mutableStateOf(1247) }
         var interactionLog by remember { mutableStateOf(listOf("User clicked 'build'", "Analysis complete", "Model updated")) }
 
         // Enhanced structured interaction log with timestamps and predictions
@@ -336,19 +343,54 @@ fun main() =
         var processingTime by remember { mutableStateOf(156) }
         var adaptivePredictions by remember { mutableStateOf(listOf("Next: run tests", "Likely: commit changes", "Alternative: debug")) }
 
+        // --- Helper function to update learning progress and insights ---
+        fun updateLearningProgress() {
+            applicationScope.launch {
+                learningEngine?.let { engine ->
+                    try {
+                        val insights = engine.getLearningInsights()
+                        learningProgressState.update { insights.progressEstimate }
+
+                        // Update AI Insights panel data
+                        interactionCountState.value = insights.interactionCount
+                        val averageConfidence = insights.customMetrics["averageConfidence"] as? Float ?: 0.5f
+                        averageConfidenceState.value = averageConfidence
+
+                        println(
+                            "Progress: ${insights.interactionCount} interactions, " +
+                                "${(insights.progressEstimate * 100).toInt()}%, " +
+                                "confidence: ${(averageConfidence * 100).toInt()}%",
+                        )
+                    } catch (e: Exception) {
+                        println("Error getting learning insights: ${e.message}")
+                    }
+                }
+            }
+        }
+
+        // Helper function to add interaction log entry
+        fun addInteractionLogEntry(
+            action: String,
+            prediction: String,
+            confidence: Float,
+        ) {
+            val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+            val logEntry = "[$timestamp] Action: '$action' -> Predicted: '$prediction' (${(confidence * 100).toInt()}%)"
+
+            val currentList = recentInteractionsState.value
+            val newList = (listOf(logEntry) + currentList).take(10) // Keep only last 10 entries
+            recentInteractionsState.value = newList
+        }
+
         // --- Helper Functions for Dynamic Data ---
         fun simulateAction(action: String) {
+            // Set system status to processing
+            systemStatusState.value = "Processing"
+
             lastActionProcessed = action
-            interactionsProcessed++
             interactionLog = (interactionLog + "Action: $action").takeLast(5)
             confidenceScore = kotlin.random.Random.nextFloat() * 0.25f + 0.7f // 0.7f to 0.95f
             processingTime = kotlin.random.Random.nextInt(100, 301) // 100 to 300
-            systemStatus =
-                when (kotlin.random.Random.nextInt(1, 4)) {
-                    1 -> "Processing"
-                    2 -> "Learning"
-                    else -> "Ready"
-                }
 
             // Visual feedback
             actionFeedbackMessage = "Action '$action' sent!"
@@ -372,6 +414,9 @@ fun main() =
             // Update confidence history for sparkline
             confidenceHistory = (confidenceHistory + confidenceScore).takeLast(20)
 
+            // Add to real-time interaction log
+            addInteractionLogEntry(action, prediction, confidenceScore)
+
             adaptivePredictions =
                 when (action) {
                     "git push" -> listOf("Next: wait for CI", "Monitor: build status", "Consider: review PR")
@@ -380,10 +425,21 @@ fun main() =
                     "build project" -> listOf("Next: run tests", "Check: warnings", "Deploy: staging")
                     else -> listOf("Next: analyze context", "Monitor: system state", "Adapt: strategy")
                 }
+
+            // Update learning insights
+            updateLearningProgress()
+
+            // Reset system status to ready after a delay
+            applicationScope.launch {
+                delay(1000) // Simulate processing time
+                systemStatusState.value = "Ready"
+            }
         }
 
         fun runScenario(scenario: String) {
-            systemStatus = "Processing"
+            // Set system status to processing
+            systemStatusState.value = "Processing"
+
             interactionLog = (interactionLog + "Scenario: $scenario started").takeLast(5)
 
             // Visual feedback
@@ -406,15 +462,25 @@ fun main() =
             // Update confidence history for sparkline
             confidenceHistory = (confidenceHistory + confidence).takeLast(20)
 
+            // Add to real-time interaction log
+            addInteractionLogEntry(scenario.lowercase(), prediction, confidence)
+
             when (scenario) {
                 "Heavy Load Test" -> {
-                    interactionsProcessed += 50
                     adaptivePredictions = listOf("Optimize: memory usage", "Scale: horizontally", "Monitor: performance")
                 }
                 "Data Migration" -> {
-                    interactionsProcessed += 25
                     adaptivePredictions = listOf("Validate: data integrity", "Backup: before migration", "Test: rollback procedure")
                 }
+            }
+
+            // Update learning insights
+            updateLearningProgress()
+
+            // Reset system status to ready after a delay
+            applicationScope.launch {
+                delay(1500) // Simulate longer processing time for scenarios
+                systemStatusState.value = "Ready"
             }
         }
 
@@ -454,6 +520,13 @@ fun main() =
 
                 karlContainer = container // Store the initialized container
                 learningEngine = engine // Store the learning engine for insights
+
+                // Update system status to Ready
+                systemStatusState.value = "Ready"
+
+                // Set model architecture info from the learning engine
+                modelArchitecture = "MLP(${4}x${8}x${3})" // inputSize x hiddenSize x outputSize
+
                 println("App LaunchedEffect: KARL setup complete.")
 
                 // === TEST: Auto-emit a test action to verify the flow works ===
@@ -474,23 +547,6 @@ fun main() =
                 println("App LaunchedEffect: ERROR setting up KARL: ${e.message}")
                 e.printStackTrace()
                 // Handle error (e.g., show error message in UI)
-            }
-        }
-
-        // --- Helper function to update learning progress ---
-        fun updateLearningProgress() {
-            applicationScope.launch {
-                learningEngine?.let { engine ->
-                    try {
-                        val insights = engine.getLearningInsights()
-                        learningProgressState.update { insights.progressEstimate }
-                        println(
-                            "Progress: ${insights.interactionCount} interactions, ${(insights.progressEstimate * 100).toInt()}%",
-                        )
-                    } catch (e: Exception) {
-                        println("Error getting learning insights: ${e.message}")
-                    }
-                }
             }
         }
 
@@ -1796,13 +1852,24 @@ fun main() =
                                                         Button(
                                                             onClick = {
                                                                 applicationScope.launch {
+                                                                    systemStatusState.value = "Processing"
                                                                     val actionType = "action_type_A"
                                                                     println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
-                                                                    updateLearningProgress()
+
                                                                     val prediction = karlContainer?.getPrediction()
                                                                     predictionState.value = prediction
+
+                                                                    // Add to interaction log with prediction details
+                                                                    prediction?.let { pred ->
+                                                                        addInteractionLogEntry(actionType, pred.suggestion, pred.confidence)
+                                                                    } ?: addInteractionLogEntry(actionType, "no prediction", 0.0f)
+
+                                                                    updateLearningProgress()
                                                                     println("Prediction after Action A: $prediction")
+
+                                                                    delay(500) // Simulate processing
+                                                                    systemStatusState.value = "Ready"
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
@@ -1830,13 +1897,24 @@ fun main() =
                                                         Button(
                                                             onClick = {
                                                                 applicationScope.launch {
+                                                                    systemStatusState.value = "Processing"
                                                                     val actionType = "action_type_B"
                                                                     println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
-                                                                    updateLearningProgress()
+
                                                                     val prediction = karlContainer?.getPrediction()
                                                                     predictionState.value = prediction
+
+                                                                    // Add to interaction log with prediction details
+                                                                    prediction?.let { pred ->
+                                                                        addInteractionLogEntry(actionType, pred.suggestion, pred.confidence)
+                                                                    } ?: addInteractionLogEntry(actionType, "no prediction", 0.0f)
+
+                                                                    updateLearningProgress()
                                                                     println("Prediction after Action B: $prediction")
+
+                                                                    delay(500) // Simulate processing
+                                                                    systemStatusState.value = "Ready"
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
@@ -2165,13 +2243,24 @@ fun main() =
                                                         Button(
                                                             onClick = {
                                                                 applicationScope.launch {
+                                                                    systemStatusState.value = "Processing"
                                                                     val actionType = "action_type_A"
                                                                     println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
-                                                                    updateLearningProgress()
+
                                                                     val prediction = karlContainer?.getPrediction()
                                                                     predictionState.value = prediction
+
+                                                                    // Add to interaction log with prediction details
+                                                                    prediction?.let { pred ->
+                                                                        addInteractionLogEntry(actionType, pred.suggestion, pred.confidence)
+                                                                    } ?: addInteractionLogEntry(actionType, "no prediction", 0.0f)
+
+                                                                    updateLearningProgress()
                                                                     println("Prediction after Action A: $prediction")
+
+                                                                    delay(500) // Simulate processing
+                                                                    systemStatusState.value = "Ready"
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
@@ -2199,13 +2288,24 @@ fun main() =
                                                         Button(
                                                             onClick = {
                                                                 applicationScope.launch {
+                                                                    systemStatusState.value = "Processing"
                                                                     val actionType = "action_type_B"
                                                                     println("UI: Emitting action '$actionType' to SharedFlow.")
                                                                     actionFlow.emit(actionType)
-                                                                    updateLearningProgress()
+
                                                                     val prediction = karlContainer?.getPrediction()
                                                                     predictionState.value = prediction
+
+                                                                    // Add to interaction log with prediction details
+                                                                    prediction?.let { pred ->
+                                                                        addInteractionLogEntry(actionType, pred.suggestion, pred.confidence)
+                                                                    } ?: addInteractionLogEntry(actionType, "no prediction", 0.0f)
+
+                                                                    updateLearningProgress()
                                                                     println("Prediction after Action B: $prediction")
+
+                                                                    delay(500) // Simulate processing
+                                                                    systemStatusState.value = "Ready"
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
