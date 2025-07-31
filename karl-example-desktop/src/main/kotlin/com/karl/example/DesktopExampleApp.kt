@@ -392,10 +392,16 @@ fun main() =
         suspend fun handlePredictionWithTiming(
             actionType: String,
             actionDescription: String,
+            emitToActionFlow: Boolean = true,
         ) {
             // Update last action state
             lastActionState.value = actionDescription
             systemStatusState.value = "Processing prediction..."
+
+            // Emit to actionFlow only if specified (not for "Get Prediction" button)
+            if (emitToActionFlow) {
+                actionFlow.emit(actionType)
+            }
 
             // Measure prediction time
             val startTime = System.currentTimeMillis()
@@ -1830,6 +1836,7 @@ fun main() =
                                                                             handlePredictionWithTiming(
                                                                                 "explicit_prediction",
                                                                                 "Clicked 'Get Prediction'",
+                                                                                emitToActionFlow = false,
                                                                             )
                                                                         } finally {
                                                                             isLoadingPrediction.value = false
@@ -1973,7 +1980,14 @@ fun main() =
                                                         Button(
                                                             onClick = {
                                                                 applicationScope.launch {
-                                                                    simulateAction("git push")
+                                                                    val actionType = "simulate_git_push"
+                                                                    println("UI: Emitting action '$actionType' to SharedFlow.")
+                                                                    actionFlow.emit(actionType)
+                                                                    updateLearningProgress()
+                                                                    handlePredictionWithTiming(
+                                                                        actionType,
+                                                                        "Clicked 'Git Push'",
+                                                                    )
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
@@ -2001,7 +2015,14 @@ fun main() =
                                                         Button(
                                                             onClick = {
                                                                 applicationScope.launch {
-                                                                    simulateAction("run tests")
+                                                                    val actionType = "simulate_run_tests"
+                                                                    println("UI: Emitting action '$actionType' to SharedFlow.")
+                                                                    actionFlow.emit(actionType)
+                                                                    updateLearningProgress()
+                                                                    handlePredictionWithTiming(
+                                                                        actionType,
+                                                                        "Clicked 'Run Tests'",
+                                                                    )
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
@@ -2033,7 +2054,14 @@ fun main() =
                                                         Button(
                                                             onClick = {
                                                                 applicationScope.launch {
-                                                                    simulateAction("build project")
+                                                                    val actionType = "simulate_build_project"
+                                                                    println("UI: Emitting action '$actionType' to SharedFlow.")
+                                                                    actionFlow.emit(actionType)
+                                                                    updateLearningProgress()
+                                                                    handlePredictionWithTiming(
+                                                                        actionType,
+                                                                        "Clicked 'Build Project'",
+                                                                    )
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
@@ -2061,7 +2089,14 @@ fun main() =
                                                         Button(
                                                             onClick = {
                                                                 applicationScope.launch {
-                                                                    simulateAction("git pull")
+                                                                    val actionType = "simulate_git_pull"
+                                                                    println("UI: Emitting action '$actionType' to SharedFlow.")
+                                                                    actionFlow.emit(actionType)
+                                                                    updateLearningProgress()
+                                                                    handlePredictionWithTiming(
+                                                                        actionType,
+                                                                        "Clicked 'Git Pull'",
+                                                                    )
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
@@ -2104,7 +2139,14 @@ fun main() =
                                                         Button(
                                                             onClick = {
                                                                 applicationScope.launch {
-                                                                    runScenario("Heavy Load Test")
+                                                                    val actionType = "scenario_heavy_load_test"
+                                                                    println("UI: Emitting action '$actionType' to SharedFlow.")
+                                                                    actionFlow.emit(actionType)
+                                                                    updateLearningProgress()
+                                                                    handlePredictionWithTiming(
+                                                                        actionType,
+                                                                        "Clicked 'Heavy Load Test'",
+                                                                    )
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
@@ -2132,7 +2174,14 @@ fun main() =
                                                         Button(
                                                             onClick = {
                                                                 applicationScope.launch {
-                                                                    runScenario("Data Migration")
+                                                                    val actionType = "scenario_data_migration"
+                                                                    println("UI: Emitting action '$actionType' to SharedFlow.")
+                                                                    actionFlow.emit(actionType)
+                                                                    updateLearningProgress()
+                                                                    handlePredictionWithTiming(
+                                                                        actionType,
+                                                                        "Clicked 'Data Migration'",
+                                                                    )
                                                                 }
                                                             },
                                                             enabled = karlContainer != null,
@@ -2183,9 +2232,11 @@ fun main() =
                                                                     isLoadingPrediction.value = true
                                                                     try {
                                                                         println("Button Clicked: Get Prediction")
-                                                                        val prediction = karlContainer?.getPrediction()
-                                                                        predictionState.value = prediction
-                                                                        println("Explicit Prediction Request: $prediction")
+                                                                        handlePredictionWithTiming(
+                                                                            "explicit_prediction_request",
+                                                                            "Clicked 'Get Prediction'",
+                                                                            emitToActionFlow = false,
+                                                                        )
                                                                     } finally {
                                                                         isLoadingPrediction.value = false
                                                                     }
@@ -2482,7 +2533,14 @@ fun main() =
                                                             Button(
                                                                 onClick = {
                                                                     applicationScope.launch {
-                                                                        runScenario("Heavy Load Test")
+                                                                        val actionType = "scenario_heavy_load_test"
+                                                                        println("UI: Emitting action '$actionType' to SharedFlow.")
+                                                                        actionFlow.emit(actionType)
+                                                                        updateLearningProgress()
+                                                                        handlePredictionWithTiming(
+                                                                            actionType,
+                                                                            "Clicked 'Heavy Load Test' (compact)",
+                                                                        )
                                                                     }
                                                                 },
                                                                 enabled = karlContainer != null,
@@ -2533,7 +2591,14 @@ fun main() =
                                                             Button(
                                                                 onClick = {
                                                                     applicationScope.launch {
-                                                                        runScenario("Data Migration")
+                                                                        val actionType = "scenario_data_migration"
+                                                                        println("UI: Emitting action '$actionType' to SharedFlow.")
+                                                                        actionFlow.emit(actionType)
+                                                                        updateLearningProgress()
+                                                                        handlePredictionWithTiming(
+                                                                            actionType,
+                                                                            "Clicked 'Data Migration' (compact)",
+                                                                        )
                                                                     }
                                                                 },
                                                                 enabled = karlContainer != null,
