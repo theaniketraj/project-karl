@@ -2,6 +2,9 @@ package com.karl.example
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.TooltipArea
+import androidx.compose.foundation.TooltipPlacement
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.hoverable
@@ -321,6 +324,10 @@ fun main() =
         var confidenceHistory by remember { 
             mutableStateOf(listOf(0.75f, 0.82f, 0.79f, 0.87f, 0.92f, 0.85f, 0.89f, 0.91f, 0.83f, 0.87f)) 
         }
+        
+        // Action feedback state for visual feedback
+        var actionFeedbackMessage by remember { mutableStateOf<String?>(null) }
+        var showActionFeedback by remember { mutableStateOf(false) }
 
         // Panel 2: Prediction Details data
         var lastActionProcessed by remember { mutableStateOf("build project") }
@@ -342,6 +349,10 @@ fun main() =
                     2 -> "Learning"
                     else -> "Ready"
                 }
+            
+            // Visual feedback
+            actionFeedbackMessage = "Action '$action' sent!"
+            showActionFeedback = true
             
             // Generate prediction based on action
             val prediction = when (action) {
@@ -1185,44 +1196,158 @@ fun main() =
                                                     style = MaterialTheme.typography.caption,
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
                                                 )
-                                                Text(
-                                                    text = "Input Features: $inputFeatures",
-                                                    style = MaterialTheme.typography.caption,
-                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                                )
+                                                
+                                                // Input Features with Tooltip
+                                                @OptIn(ExperimentalFoundationApi::class)
+                                                TooltipArea(
+                                                    tooltip = {
+                                                        // Tooltip content
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .background(
+                                                                    color = MaterialTheme.colors.surface,
+                                                                    shape = RoundedCornerShape(8.dp)
+                                                                )
+                                                                .border(
+                                                                    width = 1.dp,
+                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f),
+                                                                    shape = RoundedCornerShape(8.dp)
+                                                                )
+                                                                .padding(12.dp)
+                                                        ) {
+                                                            Column(
+                                                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                                                            ) {
+                                                                Text(
+                                                                    text = "Input Features Explained",
+                                                                    style = MaterialTheme.typography.caption.copy(
+                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                                                    ),
+                                                                    color = MaterialTheme.colors.onSurface
+                                                                )
+                                                                Text(
+                                                                    text = "Number of numerical features derived from:",
+                                                                    style = MaterialTheme.typography.caption,
+                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f)
+                                                                )
+                                                                Text(
+                                                                    text = "• Action context and timing",
+                                                                    style = MaterialTheme.typography.caption,
+                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f)
+                                                                )
+                                                                Text(
+                                                                    text = "• Historical interaction patterns",
+                                                                    style = MaterialTheme.typography.caption,
+                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f)
+                                                                )
+                                                                Text(
+                                                                    text = "• Environmental state vectors",
+                                                                    style = MaterialTheme.typography.caption,
+                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f)
+                                                                )
+                                                            }
+                                                        }
+                                                    },
+                                                    delayMillis = 600, // Show tooltip after 600ms hover
+                                                    tooltipPlacement = TooltipPlacement.CursorPoint(
+                                                        offset = androidx.compose.ui.unit.DpOffset(0.dp, 16.dp)
+                                                    )
+                                                ) {
+                                                    Row(
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                                    ) {
+                                                        Text(
+                                                            text = "Input Features: $inputFeatures",
+                                                            style = MaterialTheme.typography.caption,
+                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                        )
+                                                        Icon(
+                                                            imageVector = Icons.Default.Info,
+                                                            contentDescription = "Feature information",
+                                                            modifier = Modifier.size(14.dp),
+                                                            tint = MaterialTheme.colors.onSurface.copy(alpha = 0.5f)
+                                                        )
+                                                    }
+                                                }
 
                                                 Spacer(modifier = Modifier.height(8.dp))
 
-                                                // Prediction Output
+                                                // Primary Prediction Output - Prominently styled
                                                 Text(
-                                                    text = "Prediction Output:",
+                                                    text = "Primary Prediction:",
                                                     style =
                                                         MaterialTheme.typography.body2.copy(
                                                             fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
                                                         ),
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                 )
-                                                Text(
-                                                    text = "Confidence: ${(confidenceScore * 100).toInt()}%",
-                                                    style = MaterialTheme.typography.caption,
-                                                    color = accentColor.copy(alpha = 0.9f),
-                                                )
-                                                Text(
-                                                    text = "Processing Time: ${processingTime}ms",
-                                                    style = MaterialTheme.typography.caption,
-                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                                )
+                                                
+                                                // Primary prediction with enhanced styling
+                                                Box(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .background(
+                                                            color = accentColor.copy(alpha = 0.1f),
+                                                            shape = RoundedCornerShape(8.dp)
+                                                        )
+                                                        .border(
+                                                            width = 1.dp,
+                                                            color = accentColor.copy(alpha = 0.3f),
+                                                            shape = RoundedCornerShape(8.dp)
+                                                        )
+                                                        .padding(12.dp)
+                                                ) {
+                                                    Column {
+                                                        Text(
+                                                            text = adaptivePredictions.firstOrNull() ?: "Analyzing...",
+                                                            style = MaterialTheme.typography.body1.copy(
+                                                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                                                fontSize = 16.sp
+                                                            ),
+                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
+                                                        )
+                                                        Spacer(modifier = Modifier.height(4.dp))
+                                                        Row(
+                                                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                                        ) {
+                                                            Text(
+                                                                text = "Confidence: ${(confidenceScore * 100).toInt()}%",
+                                                                style = MaterialTheme.typography.caption.copy(
+                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
+                                                                ),
+                                                                color = accentColor.copy(alpha = 0.9f),
+                                                            )
+                                                            Text(
+                                                                text = "Processing: ${processingTime}ms",
+                                                                style = MaterialTheme.typography.caption,
+                                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                                                            )
+                                                        }
+                                                    }
+                                                }
 
                                                 Spacer(modifier = Modifier.height(8.dp))
 
-                                                Text(
-                                                    text = "Adaptive Predictions:",
-                                                    style =
-                                                        MaterialTheme.typography.body2.copy(
-                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
-                                                        ),
-                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
-                                                )
+                                                // Alternative Predictions - Secondary styling
+                                                Row(
+                                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(
+                                                        text = "Alternative Predictions:",
+                                                        style =
+                                                            MaterialTheme.typography.body2.copy(
+                                                                fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                                            ),
+                                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                                    )
+                                                    Text(
+                                                        text = "(${adaptivePredictions.size - 1} options)",
+                                                        style = MaterialTheme.typography.caption,
+                                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
+                                                    )
+                                                }
 
                                                 LazyColumn(
                                                     modifier =
@@ -1234,14 +1359,29 @@ fun main() =
                                                                 shape = MaterialTheme.shapes.small,
                                                             )
                                                             .padding(8.dp),
-                                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                                    verticalArrangement = Arrangement.spacedBy(6.dp),
                                                 ) {
-                                                    items(adaptivePredictions) { prediction ->
-                                                        Text(
-                                                            text = "• $prediction",
-                                                            style = MaterialTheme.typography.caption,
-                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                                        )
+                                                    items(adaptivePredictions.drop(1)) { prediction ->
+                                                        Row(
+                                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                            verticalAlignment = Alignment.CenterVertically
+                                                        ) {
+                                                            Box(
+                                                                modifier = Modifier
+                                                                    .size(4.dp)
+                                                                    .background(
+                                                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.4f),
+                                                                        shape = CircleShape
+                                                                    )
+                                                            )
+                                                            Text(
+                                                                text = prediction,
+                                                                style = MaterialTheme.typography.caption.copy(
+                                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Normal
+                                                                ),
+                                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                            )
+                                                        }
                                                     }
                                                 }
                                             }
