@@ -33,6 +33,26 @@ class KLDLLearningEngine(
             return
         }
         this.engineScope = coroutineScope
+
+        // Phase 2 Loading Flow: Process the saved state
+        if (state != null) {
+            println("KLDLLearningEngine: initialize() received saved state with ${state.data.size} bytes")
+            println("KLDLLearningEngine: State version=${state.version}")
+            println("KLDLLearningEngine: About to restore model from saved state...")
+
+            try {
+                restoreFromState(state)
+                println("KLDLLearningEngine: Successfully restored model from saved state")
+                println("KLDLLearningEngine: Model is now ready to continue learning from previous session")
+            } catch (e: Exception) {
+                println("KLDLLearningEngine: ERROR - Failed to restore from saved state: ${e.message}")
+                println("KLDLLearningEngine: Will continue with fresh initialization")
+            }
+        } else {
+            println("KLDLLearningEngine: initialize() called with no saved state")
+            println("KLDLLearningEngine: Starting with fresh model - no previous learning to restore")
+        }
+
         println("KLDLLearningEngine (Stub): Initialized successfully.")
     }
 
@@ -145,6 +165,86 @@ class KLDLLearningEngine(
         val result = stateBuilder.toByteArray()
         println("KLDLLearningEngine: serializeWeights() completed, serialized ${result.size} bytes")
         return result
+    }
+
+    /**
+     * Restores the model state from a previously saved KarlContainerState.
+     * This is the counterpart to serializeWeights() and getCurrentState().
+     */
+    private suspend fun restoreFromState(state: KarlContainerState) {
+        modelMutex.withLock {
+            println("KLDLLearningEngine: restoreFromState() called with ${state.data.size} bytes")
+
+            if (state.data.isEmpty()) {
+                println("KLDLLearningEngine: WARNING - Empty state data, nothing to restore")
+                return@withLock
+            }
+
+            try {
+                val data = state.data
+                var offset = 0
+
+                // Restore learning rate (4 bytes)
+                if (data.size < 4) {
+                    println("KLDLLearningEngine: WARNING - State data too small to contain learning rate")
+                    return@withLock
+                }
+
+                val restoredLearningRate =
+                    Float.fromBits(
+                        ((data[offset].toInt() and 0xFF) shl 24) or
+                            ((data[offset + 1].toInt() and 0xFF) shl 16) or
+                            ((data[offset + 2].toInt() and 0xFF) shl 8) or
+                            (data[offset + 3].toInt() and 0xFF),
+                    )
+                offset += 4
+                println("KLDLLearningEngine: Restored learning rate: $restoredLearningRate (current: $learningRate)")
+
+                // Restore history size (4 bytes)
+                if (data.size < offset + 4) {
+                    println("KLDLLearningEngine: WARNING - State data too small to contain history size")
+                    return@withLock
+                }
+
+                val historySize =
+                    ((data[offset].toInt() and 0xFF) shl 24) or
+                        ((data[offset + 1].toInt() and 0xFF) shl 16) or
+                        ((data[offset + 2].toInt() and 0xFF) shl 8) or
+                        (data[offset + 3].toInt() and 0xFF)
+                offset += 4
+                println("KLDLLearningEngine: Restored history size: $historySize")
+
+                // Restore recent history data
+                recentHistory.clear()
+                val itemsToRestore = minOf(historySize, 10) // Only restore up to 10 items
+                val expectedDataSize = offset + (itemsToRestore * 4)
+
+                if (data.size < expectedDataSize) {
+                    println(
+                        "KLDLLearningEngine: WARNING - State data too small for history items, " +
+                            "expected $expectedDataSize but got ${data.size}",
+                    )
+                    return@withLock
+                }
+
+                repeat(itemsToRestore) {
+                    val value =
+                        ((data[offset].toInt() and 0xFF) shl 24) or
+                            ((data[offset + 1].toInt() and 0xFF) shl 16) or
+                            ((data[offset + 2].toInt() and 0xFF) shl 8) or
+                            (data[offset + 3].toInt() and 0xFF)
+                    recentHistory.add(value)
+                    offset += 4
+                }
+
+                println("KLDLLearningEngine: Successfully restored ${recentHistory.size} history items")
+                println("KLDLLearningEngine: Model state restoration complete - ready to continue learning")
+            } catch (e: Exception) {
+                println("KLDLLearningEngine: ERROR during state restoration: ${e.message}")
+                recentHistory.clear() // Clear partial state on error
+                throw e
+            }
+        }
     }
 
     override suspend fun reset() {

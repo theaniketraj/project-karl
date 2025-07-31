@@ -57,7 +57,14 @@ internal class KarlContainerImpl( // Use internal as it's not part of the public
             println("KARL Container for user $userId: DataStorage initialized.")
 
             // 2. Load Learning Engine State
+            println("KARL Container: About to load saved state from DataStorage...")
             val savedState = dataStorage.loadContainerState(userId)
+            if (savedState != null) {
+                println("KARL Container: Found saved state with ${savedState.data.size} bytes, version=${savedState.version}")
+                println("KARL Container: Will pass this state to LearningEngine for restoration")
+            } else {
+                println("KARL Container: No saved state found, LearningEngine will start fresh")
+            }
             println("KARL Container for user $userId: Loaded state (exists: ${savedState != null}).")
 
             // 3. Initialize Learning Engine with state

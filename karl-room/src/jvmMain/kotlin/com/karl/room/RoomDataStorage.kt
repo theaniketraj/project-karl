@@ -43,10 +43,19 @@ class RoomDataStorage(
     }
 
     override suspend fun loadContainerState(userId: String): KarlContainerState? {
+        println("RoomDataStorage: loadContainerState called for userId=$userId")
         return withContext(ioDispatcher) {
-            karlDao.loadContainerState(userId)?.let { entity ->
-                // Convert from Entity back to the core model
-                KarlContainerState(data = entity.stateData, version = entity.version)
+            println("RoomDataStorage: About to call karlDao.loadContainerState()...")
+            val entity = karlDao.loadContainerState(userId)
+            if (entity != null) {
+                println("RoomDataStorage: Found existing state in database")
+                println("RoomDataStorage: State data size=${entity.stateData.size} bytes, version=${entity.version}")
+                val state = KarlContainerState(data = entity.stateData, version = entity.version)
+                println("RoomDataStorage: Successfully loaded container state from database")
+                return@withContext state
+            } else {
+                println("RoomDataStorage: No existing state found in database for userId=$userId")
+                return@withContext null
             }
         }
     }
