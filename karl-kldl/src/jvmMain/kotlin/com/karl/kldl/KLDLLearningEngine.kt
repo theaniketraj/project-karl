@@ -45,7 +45,21 @@ class KLDLLearningEngine(
         println("KLDLLearningEngine: trainStep() received data -> $data")
 
         return engineScope.launch {
-            println("KLDLLearningEngine: Training step with data: ${data.type}")
+            modelMutex.withLock {
+                println("KLDLLearningEngine: Training step with data: ${data.type}")
+
+                // Simulate learning by adding interaction data to our history
+                // In a real implementation, this would update neural network weights
+                val interactionHash = data.type.hashCode() + data.timestamp.hashCode()
+                recentHistory.add(interactionHash)
+
+                // Keep only recent history (e.g., last 50 interactions)
+                if (recentHistory.size > 50) {
+                    recentHistory.removeAt(0)
+                }
+
+                println("KLDLLearningEngine: Updated model state, history size=${recentHistory.size}")
+            }
         }
     }
 
@@ -63,10 +77,74 @@ class KLDLLearningEngine(
     }
 
     override suspend fun getCurrentState(): KarlContainerState {
+        println("KLDLLearningEngine: getCurrentState() called")
+
+        // Serialize the current model weights/state
+        // For now, this is a mock implementation but in a real scenario this would
+        // serialize the actual neural network weights and state
+        val modelStateData = serializeWeights()
+
+        println("KLDLLearningEngine: Serialized model state, data size=${modelStateData.size} bytes")
+        println("KLDLLearningEngine: Recent history size=${recentHistory.size}, learning rate=$learningRate")
+
         return KarlContainerState(
-            data = byteArrayOf(1, 2, 3, 4), // Mock state data
+            data = modelStateData,
             version = 1,
         )
+    }
+
+    /**
+     * Serializes the current model weights and state.
+     * In a real implementation, this would serialize the actual neural network weights.
+     */
+    private fun serializeWeights(): ByteArray {
+        println("KLDLLearningEngine: serializeWeights() called")
+
+        // For this stub implementation, we'll create a more realistic mock state
+        // that includes some actual data from our recent history and parameters
+        val stateBuilder = mutableListOf<Byte>()
+
+        // Add learning rate as bytes
+        val learningRateBytes =
+            learningRate.toBits().let { bits ->
+                byteArrayOf(
+                    (bits shr 24).toByte(),
+                    (bits shr 16).toByte(),
+                    (bits shr 8).toByte(),
+                    bits.toByte(),
+                )
+            }
+        stateBuilder.addAll(learningRateBytes.toList())
+
+        // Add recent history size
+        stateBuilder.addAll(
+            recentHistory.size.let { size ->
+                byteArrayOf(
+                    (size shr 24).toByte(),
+                    (size shr 16).toByte(),
+                    (size shr 8).toByte(),
+                    size.toByte(),
+                )
+            }.toList(),
+        )
+
+        // Add recent history data (truncated to avoid too much data)
+        recentHistory.take(10).forEach { value ->
+            stateBuilder.addAll(
+                value.let { v ->
+                    byteArrayOf(
+                        (v shr 24).toByte(),
+                        (v shr 16).toByte(),
+                        (v shr 8).toByte(),
+                        v.toByte(),
+                    )
+                }.toList(),
+            )
+        }
+
+        val result = stateBuilder.toByteArray()
+        println("KLDLLearningEngine: serializeWeights() completed, serialized ${result.size} bytes")
+        return result
     }
 
     override suspend fun reset() {

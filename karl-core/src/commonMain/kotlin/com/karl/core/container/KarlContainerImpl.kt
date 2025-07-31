@@ -174,11 +174,14 @@ internal class KarlContainerImpl( // Use internal as it's not part of the public
             stateMutex.withLock { // Ensure no other state ops interfere
                 println("KARL Container for user $userId: Saving state...")
                 // Get the current state from the learning engine
+                println("KARL Container for user $userId: Getting current state from learning engine...")
                 val currentState = learningEngine.getCurrentState()
+                println("KARL Container for user $userId: Current state obtained from learning engine: $currentState")
 
                 // Save the state using the data storage
+                println("KARL Container for user $userId: Calling dataStorage.saveContainerState()...")
                 dataStorage.saveContainerState(userId, currentState)
-                println("KARL Container for user $userId: State saved.")
+                println("KARL Container for user $userId: State saved successfully to data storage.")
             }
         }
 

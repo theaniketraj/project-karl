@@ -27,6 +27,8 @@ class RoomDataStorage(
         userId: String,
         state: KarlContainerState,
     ) {
+        println("RoomDataStorage: saveContainerState called for userId=$userId")
+        println("RoomDataStorage: State data size=${state.data.size}, version=${state.version}")
         withContext(ioDispatcher) {
             val entity =
                 KarlContainerStateEntity(
@@ -34,7 +36,9 @@ class RoomDataStorage(
                     stateData = state.data,
                     version = state.version,
                 )
+            println("RoomDataStorage: Created entity, about to call karlDao.saveContainerState()...")
             karlDao.saveContainerState(entity)
+            println("RoomDataStorage: Successfully saved container state to database via DAO")
         }
     }
 

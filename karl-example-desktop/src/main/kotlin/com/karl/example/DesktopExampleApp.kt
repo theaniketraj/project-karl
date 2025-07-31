@@ -596,11 +596,14 @@ fun main() =
                 // Launch cleanup in the application scope
                 applicationScope
                     .launch {
+                        println("App onCloseRequest: About to call karlContainer.saveState()...")
                         karlContainer?.saveState()?.join() // Save state and wait
+                        println("App onCloseRequest: saveState() completed successfully")
                         karlContainer?.release() // Release resources
                         println("App onCloseRequest: KARL cleanup finished.")
                     }
                     .invokeOnCompletion { // Ensure application exits after cleanup
+                        println("App onCloseRequest: Cleanup coroutine completed, exiting application")
                         exitApplication()
                     }
             },
