@@ -62,6 +62,14 @@ data class StructuredInteraction(
     val confidence: Float,
 )
 
+// Phase 2: Data structure for real-time log entries
+data class LogEntry(
+    val action: String,
+    val prediction: String,
+    val confidence: Float,
+    val timestamp: String = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+)
+
 // Custom GitHub Icon
 private var gitHubIconCache: ImageVector? = null
 
@@ -312,6 +320,17 @@ fun main() =
         val averageConfidence by averageConfidenceState.collectAsState()
         val recentInteractionsState = remember { MutableStateFlow<List<String>>(emptyList()) }
         val recentInteractions by recentInteractionsState.collectAsState()
+        
+        // Phase 2: StateFlow for confidence history (sparkline data)
+        val confidenceHistoryState = remember { MutableStateFlow<List<Float>>(emptyList()) }
+        val confidenceHistoryData by confidenceHistoryState.collectAsState()
+        
+        // Phase 2: StateFlow for real-time log entries
+        val logEntriesState = remember { MutableStateFlow<List<LogEntry>>(emptyList()) }
+        val logEntries by logEntriesState.collectAsState()
+        
+        // Phase 2: Model architecture from learning engine
+        var modelArchitectureFromEngine by remember { mutableStateOf("Loading...") }
 
         // Panel 2: Prediction Details data - Real-time state flows
         val lastActionState = remember { MutableStateFlow("No action yet") }
@@ -361,6 +380,10 @@ fun main() =
                         interactionCountState.value = insights.interactionCount
                         val averageConfidence = insights.customMetrics["averageConfidence"] as? Float ?: 0.5f
                         averageConfidenceState.value = averageConfidence
+                        
+                        // Phase 2: Update confidence history for sparkline
+                        val confidenceHistory = insights.customMetrics["confidenceHistory"] as? List<Float> ?: emptyList()
+                        confidenceHistoryState.value = confidenceHistory
 
                         println(
                             "Progress: ${insights.interactionCount} interactions, " +
@@ -374,7 +397,19 @@ fun main() =
             }
         }
 
-        // Helper function to add interaction log entry
+        // Phase 2: Helper function to add real-time log entry
+        fun addRealtimeLogEntry(
+            action: String,
+            prediction: String,
+            confidence: Float,
+        ) {
+            val logEntry = LogEntry(action, prediction, confidence)
+            val currentEntries = logEntriesState.value
+            val newEntries = (listOf(logEntry) + currentEntries).take(7) // Keep last 7 entries for display
+            logEntriesState.value = newEntries
+        }
+
+        // Helper function to add interaction log entry (legacy for recent interactions)
         fun addInteractionLogEntry(
             action: String,
             prediction: String,
@@ -386,6 +421,9 @@ fun main() =
             val currentList = recentInteractionsState.value
             val newList = (listOf(logEntry) + currentList).take(10) // Keep only last 10 entries
             recentInteractionsState.value = newList
+            
+            // Phase 2: Also add to real-time log
+            addRealtimeLogEntry(action, prediction, confidence)
         }
 
         // Helper function to handle prediction with timing measurement
@@ -394,9 +432,11 @@ fun main() =
             actionDescription: String,
             emitToActionFlow: Boolean = true,
         ) {
+            // Phase 2: Set system status to "Processing" at the beginning of onClick coroutines
+            systemStatusState.value = "Processing"
+            
             // Update last action state
             lastActionState.value = actionDescription
-            systemStatusState.value = "Processing prediction..."
 
             // Emit to actionFlow only if specified (not for "Get Prediction" button)
             if (emitToActionFlow) {
@@ -417,6 +457,10 @@ fun main() =
             prediction?.let { pred ->
                 addInteractionLogEntry(actionType, pred.suggestion, pred.confidence)
             }
+            
+            // Phase 2: Set system status back to "Ready" at the end
+            systemStatusState.value = "Ready"
+        }
 
             systemStatusState.value = "Ready"
             println("Prediction for '$actionType' completed in ${measuredProcessingTime}ms: $prediction")
@@ -560,11 +604,18 @@ fun main() =
                 karlContainer = container // Store the initialized container
                 learningEngine = engine // Store the learning engine for insights
 
-                // Update system status to Ready
+                // Phase 2: Set system status to "Ready" at the end of successful initialization
                 systemStatusState.value = "Ready"
 
-                // Set model architecture info from the learning engine
-                modelArchitecture = "MLP(${4}x${8}x${3})" // inputSize x hiddenSize x outputSize
+                // Phase 2: Get real model architecture name from the learning engine
+                if (engine is RealLearningEngine) {
+                    modelArchitectureFromEngine = engine.getModelArchitectureName()
+                } else {
+                    modelArchitectureFromEngine = "Unknown Architecture"
+                }
+
+                // Initialize learning insights data
+                updateLearningProgress()
 
                 println("App LaunchedEffect: KARL setup complete.")
 
@@ -1030,7 +1081,7 @@ fun main() =
                                                 )
 
                                                 Text(
-                                                    text = "Architecture: $modelArchitecture",
+                                                    text = "Architecture: $modelArchitectureFromEngine",
                                                     style = MaterialTheme.typography.body2,
                                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
                                                 )
@@ -1056,13 +1107,13 @@ fun main() =
                                                             color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
                                                         )
                                                         SparklineChart(
-                                                            data = confidenceHistory,
+                                                            data = confidenceHistoryData.ifEmpty { listOf(0.5f) }, // Use real confidence history
                                                             modifier = Modifier.size(width = 60.dp, height = 20.dp),
                                                             color = accentColor,
                                                             lineWidth = 1.5f,
                                                         )
                                                         Text(
-                                                            text = "${(confidenceHistory.lastOrNull() ?: 0.87f).times(100).toInt()}%",
+                                                            text = "${(confidenceHistoryData.lastOrNull() ?: 0.5f).times(100).toInt()}%",
                                                             style =
                                                                 MaterialTheme.typography.caption.copy(
                                                                     fontWeight = FontWeight.Bold,
