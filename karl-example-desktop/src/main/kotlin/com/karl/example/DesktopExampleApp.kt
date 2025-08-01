@@ -425,7 +425,10 @@ fun main() =
             actionDescription: String,
             emitToActionFlow: Boolean = true,
         ) {
-            // Update last action state
+            // Step 2.3: Set loading state to true at the start
+            isLoadingPrediction.value = true
+
+            // Update last action state for immediate UI feedback
             lastActionState.value = actionDescription
             systemStatusState.value = "Processing prediction..."
 
@@ -434,26 +437,31 @@ fun main() =
                 actionFlow.emit(actionType)
             }
 
-            // Measure prediction time
-            val startTime = System.currentTimeMillis()
-            val prediction = karlContainer?.getPrediction()
-            val endTime = System.currentTimeMillis()
-            val measuredProcessingTime = endTime - startTime
+            try {
+                // Measure prediction time
+                val startTime = System.currentTimeMillis()
+                val prediction = karlContainer?.getPrediction()
+                val endTime = System.currentTimeMillis()
+                val measuredProcessingTime = endTime - startTime
 
-            // Update states
-            processingTimeState.value = measuredProcessingTime
-            predictionState.value = prediction
+                // Update states atomically - all prediction-related state updates together
+                processingTimeState.value = measuredProcessingTime
+                predictionState.value = prediction
 
-            // Add to interaction log
-            prediction?.let { pred ->
-                addInteractionLogEntry(actionType, pred.suggestion, pred.confidence)
+                // Add to interaction log
+                prediction?.let { pred ->
+                    addInteractionLogEntry(actionType, pred.suggestion, pred.confidence)
+                }
+
+                // Update learning insights after interaction
+                updateLearningProgress()
+
+                systemStatusState.value = "Ready"
+                println("Prediction for '$actionType' completed in ${measuredProcessingTime}ms: $prediction")
+            } finally {
+                // Step 2.3: Always set loading state to false when done
+                isLoadingPrediction.value = false
             }
-
-            // Update learning insights after interaction
-            updateLearningProgress()
-
-            systemStatusState.value = "Ready"
-            println("Prediction for '$actionType' completed in ${measuredProcessingTime}ms: $prediction")
         }
 
         // --- Helper Functions for Dynamic Data ---
@@ -1053,7 +1061,7 @@ fun main() =
                                             // Dynamic AI Insights Content
                                             Column(
                                                 modifier = Modifier.fillMaxSize(),
-                                                verticalArrangement = Arrangement.spacedBy(8.dp), // Reduced from 12.dp
+                                                verticalArrangement = Arrangement.spacedBy(6.dp), // Reduced from 12.dp
                                             ) {
                                                 // System Status
                                                 Text(
@@ -1102,7 +1110,7 @@ fun main() =
                                                                 style = MaterialTheme.typography.caption,
                                                                 color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
                                                             )
-                                                            Spacer(modifier = Modifier.height(6.dp))
+                                                            Spacer(modifier = Modifier.height(8.dp))
                                                             SparklineChart(
                                                                 data = confidenceHistoryData,
                                                                 modifier =
@@ -1350,177 +1358,54 @@ fun main() =
 
                                             Spacer(modifier = Modifier.height(24.dp)) // More spacing
 
-                                            // Dynamic Prediction Content
+                                            // Dynamic Prediction Content with Loading States
                                             Column(
                                                 modifier = Modifier.fillMaxSize(),
                                                 verticalArrangement = Arrangement.spacedBy(12.dp),
                                             ) {
-                                                // Input Context
-                                                Text(
-                                                    text = "Input Context:",
-                                                    style =
-                                                        MaterialTheme.typography.body2.copy(
-                                                            fontWeight = FontWeight.Medium,
-                                                        ),
-                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
-                                                )
-                                                Text(
-                                                    text = "Last Action: \"$lastAction\"",
-                                                    style = MaterialTheme.typography.caption,
-                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                                )
+                                                // Step 2.3: Loading state check
+                                                val isLoading by isLoadingPrediction.collectAsState()
 
-                                                // Input Features with Tooltip
-                                                @OptIn(ExperimentalFoundationApi::class)
-                                                TooltipArea(
-                                                    tooltip = {
-                                                        // Tooltip content
-                                                        Box(
-                                                            modifier =
-                                                                Modifier
-                                                                    .background(
-                                                                        color = MaterialTheme.colors.surface,
-                                                                        shape = RoundedCornerShape(8.dp),
-                                                                    )
-                                                                    .border(
-                                                                        width = 1.dp,
-                                                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f),
-                                                                        shape = RoundedCornerShape(8.dp),
-                                                                    )
-                                                                    .padding(12.dp),
-                                                        ) {
-                                                            Column(
-                                                                verticalArrangement = Arrangement.spacedBy(4.dp),
-                                                            ) {
-                                                                Text(
-                                                                    text = "Input Features Explained",
-                                                                    style =
-                                                                        MaterialTheme.typography.caption.copy(
-                                                                            fontWeight = FontWeight.Bold,
-                                                                        ),
-                                                                    color = MaterialTheme.colors.onSurface,
-                                                                )
-                                                                Text(
-                                                                    text = "Number of numerical features derived from:",
-                                                                    style = MaterialTheme.typography.caption,
-                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
-                                                                )
-                                                                Text(
-                                                                    text = "• Action context and timing",
-                                                                    style = MaterialTheme.typography.caption,
-                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                                                )
-                                                                Text(
-                                                                    text = "• Historical interaction patterns",
-                                                                    style = MaterialTheme.typography.caption,
-                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                                                )
-                                                                Text(
-                                                                    text = "• Environmental state vectors",
-                                                                    style = MaterialTheme.typography.caption,
-                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                                                                )
-                                                            }
-                                                        }
-                                                    },
-                                                    delayMillis = 600, // Show tooltip after 600ms hover
-                                                    tooltipPlacement =
-                                                        TooltipPlacement.CursorPoint(
-                                                            offset = androidx.compose.ui.unit.DpOffset(0.dp, 16.dp),
-                                                        ),
-                                                ) {
-                                                    Row(
-                                                        verticalAlignment = Alignment.CenterVertically,
-                                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                                if (isLoading) {
+                                                    // Step 2.3: Loading state UI - Professional loading indicators
+                                                    Column(
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                                        verticalArrangement = Arrangement.spacedBy(12.dp),
                                                     ) {
-                                                        Text(
-                                                            text =
-                                                                "Input Features: ${
-                                                                    predictionValue?.metadata?.get("input_features") ?: "Not available"
-                                                                }",
-                                                            style = MaterialTheme.typography.caption,
-                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                        CircularProgressIndicator(
+                                                            modifier = Modifier.size(32.dp),
+                                                            color = accentColor,
+                                                            strokeWidth = 3.dp,
                                                         )
-                                                        Icon(
-                                                            imageVector = Icons.Default.Info,
-                                                            contentDescription = "Feature information",
-                                                            modifier = Modifier.size(14.dp),
-                                                            tint = MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
-                                                        )
-                                                    }
-                                                }
-
-                                                Spacer(modifier = Modifier.height(8.dp))
-
-                                                // Primary Prediction Output - Prominently styled
-                                                Text(
-                                                    text = "Primary Prediction:",
-                                                    style =
-                                                        MaterialTheme.typography.body2.copy(
-                                                            fontWeight = FontWeight.Medium,
-                                                        ),
-                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
-                                                )
-
-                                                // Primary prediction with enhanced styling
-                                                Box(
-                                                    modifier =
-                                                        Modifier
-                                                            .fillMaxWidth()
-                                                            .background(
-                                                                color = accentColor.copy(alpha = 0.1f),
-                                                                shape = RoundedCornerShape(8.dp),
-                                                            )
-                                                            .border(
-                                                                width = 1.dp,
-                                                                color = accentColor.copy(alpha = 0.3f),
-                                                                shape = RoundedCornerShape(8.dp),
-                                                            )
-                                                            .padding(12.dp),
-                                                ) {
-                                                    Column {
                                                         Text(
-                                                            text = predictionValue?.suggestion ?: "No prediction available",
+                                                            text = "Analyzing context and generating prediction...",
                                                             style =
-                                                                MaterialTheme.typography.body1.copy(
-                                                                    fontWeight = FontWeight.SemiBold,
-                                                                    fontSize = 16.sp,
+                                                                MaterialTheme.typography.body2.copy(
+                                                                    fontWeight = FontWeight.Medium,
                                                                 ),
-                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
+                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                                         )
-                                                        Spacer(modifier = Modifier.height(4.dp))
-                                                        Row(
-                                                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                                        ) {
-                                                            Text(
-                                                                text =
-                                                                    "Confidence: ${
-                                                                        ((predictionValue?.confidence ?: 0f) * 100).toInt()
-                                                                    }%",
-                                                                style =
-                                                                    MaterialTheme.typography.caption.copy(
-                                                                        fontWeight = FontWeight.Medium,
-                                                                    ),
-                                                                color = accentColor.copy(alpha = 0.9f),
-                                                            )
-                                                            Text(
-                                                                text = "Processing: ${processingTime}ms",
-                                                                style = MaterialTheme.typography.caption,
-                                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                                                        // Skeleton placeholder for prediction content
+                                                        repeat(3) { index ->
+                                                            Box(
+                                                                modifier =
+                                                                    Modifier
+                                                                        .fillMaxWidth()
+                                                                        .height(16.dp)
+                                                                        .background(
+                                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f),
+                                                                            shape = RoundedCornerShape(4.dp),
+                                                                        ),
                                                             )
                                                         }
                                                     }
-                                                }
-
-                                                Spacer(modifier = Modifier.height(8.dp))
-
-                                                // Alternative Predictions - Secondary styling
-                                                Row(
-                                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                ) {
+                                                } else {
+                                                    // Normal prediction content when not loading
+                                                    // Step 2.1: Input Context - Connected to lastActionState
                                                     Text(
-                                                        text = "Alternative Predictions:",
+                                                        text = "Input Context:",
                                                         style =
                                                             MaterialTheme.typography.body2.copy(
                                                                 fontWeight = FontWeight.Medium,
@@ -1528,49 +1413,213 @@ fun main() =
                                                         color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
                                                     )
                                                     Text(
-                                                        text = "(${predictionValue?.alternatives?.size ?: 0} options)",
+                                                        text = "Last Action: \"$lastAction\"",
                                                         style = MaterialTheme.typography.caption,
-                                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
+                                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
                                                     )
-                                                }
 
-                                                LazyColumn(
-                                                    modifier =
-                                                        Modifier
-                                                            .fillMaxWidth()
-                                                            .weight(1f)
-                                                            .background(
-                                                                color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
-                                                                shape = MaterialTheme.shapes.small,
-                                                            )
-                                                            .padding(8.dp),
-                                                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                                                ) {
-                                                    items(predictionValue?.alternatives ?: emptyList()) { alternative ->
-                                                        Row(
-                                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                                            verticalAlignment = Alignment.CenterVertically,
-                                                        ) {
+                                                    // Step 2.1: Enhanced Input Features with count from prediction metadata
+                                                    @OptIn(ExperimentalFoundationApi::class)
+                                                    TooltipArea(
+                                                        tooltip = {
+                                                            // Tooltip content
                                                             Box(
                                                                 modifier =
                                                                     Modifier
-                                                                        .size(4.dp)
                                                                         .background(
-                                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.4f),
-                                                                            shape = CircleShape,
-                                                                        ),
-                                                            )
+                                                                            color = MaterialTheme.colors.surface,
+                                                                            shape = RoundedCornerShape(8.dp),
+                                                                        )
+                                                                        .border(
+                                                                            width = 1.dp,
+                                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f),
+                                                                            shape = RoundedCornerShape(8.dp),
+                                                                        )
+                                                                        .padding(12.dp),
+                                                            ) {
+                                                                Column(
+                                                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                                                ) {
+                                                                    Text(
+                                                                        text = "Input Features Explained",
+                                                                        style =
+                                                                            MaterialTheme.typography.caption.copy(
+                                                                                fontWeight = FontWeight.Bold,
+                                                                            ),
+                                                                        color = MaterialTheme.colors.onSurface,
+                                                                    )
+                                                                    Text(
+                                                                        text = "Number of numerical features derived from:",
+                                                                        style = MaterialTheme.typography.caption,
+                                                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                                                    )
+                                                                    Text(
+                                                                        text = "• Action context and timing",
+                                                                        style = MaterialTheme.typography.caption,
+                                                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                                    )
+                                                                    Text(
+                                                                        text = "• Historical interaction patterns",
+                                                                        style = MaterialTheme.typography.caption,
+                                                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                                    )
+                                                                    Text(
+                                                                        text = "• Environmental state vectors",
+                                                                        style = MaterialTheme.typography.caption,
+                                                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                                    )
+                                                                }
+                                                            }
+                                                        },
+                                                        delayMillis = 600, // Show tooltip after 600ms hover
+                                                        tooltipPlacement =
+                                                            TooltipPlacement.CursorPoint(
+                                                                offset = androidx.compose.ui.unit.DpOffset(0.dp, 16.dp),
+                                                            ),
+                                                    ) {
+                                                        Row(
+                                                            verticalAlignment = Alignment.CenterVertically,
+                                                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                                        ) {
                                                             Text(
-                                                                text = alternative,
-                                                                style =
-                                                                    MaterialTheme.typography.caption.copy(
-                                                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
-                                                                    ),
+                                                                text =
+                                                                    "Input Features: ${
+                                                                        predictionValue?.metadata?.get("input_features_count") ?: "N/A"
+                                                                    } features",
+                                                                style = MaterialTheme.typography.caption,
                                                                 color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                            )
+                                                            Icon(
+                                                                imageVector = Icons.Default.Info,
+                                                                contentDescription = "Feature information",
+                                                                modifier = Modifier.size(14.dp),
+                                                                tint = MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
                                                             )
                                                         }
                                                     }
-                                                }
+
+                                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                                    // Step 2.2: Primary Prediction Output - Connected to predictionState
+                                                    Text(
+                                                        text = "Primary Prediction:",
+                                                        style =
+                                                            MaterialTheme.typography.body2.copy(
+                                                                fontWeight = FontWeight.Medium,
+                                                            ),
+                                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                                    )
+
+                                                    // Primary prediction with enhanced styling - Step 2.2: All fields connected to predictionState
+                                                    Box(
+                                                        modifier =
+                                                            Modifier
+                                                                .fillMaxWidth()
+                                                                .background(
+                                                                    color = accentColor.copy(alpha = 0.1f),
+                                                                    shape = RoundedCornerShape(8.dp),
+                                                                )
+                                                                .border(
+                                                                    width = 1.dp,
+                                                                    color = accentColor.copy(alpha = 0.3f),
+                                                                    shape = RoundedCornerShape(8.dp),
+                                                                )
+                                                                .padding(12.dp),
+                                                    ) {
+                                                        Column {
+                                                            Text(
+                                                                text = predictionValue?.suggestion ?: "No prediction available",
+                                                                style =
+                                                                    MaterialTheme.typography.body1.copy(
+                                                                        fontWeight = FontWeight.SemiBold,
+                                                                        fontSize = 16.sp,
+                                                                    ),
+                                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
+                                                            )
+                                                            Spacer(modifier = Modifier.height(4.dp))
+                                                            Row(
+                                                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                                            ) {
+                                                                Text(
+                                                                    text =
+                                                                        "Confidence: ${
+                                                                            ((predictionValue?.confidence ?: 0f) * 100).toInt()
+                                                                        }%",
+                                                                    style =
+                                                                        MaterialTheme.typography.caption.copy(
+                                                                            fontWeight = FontWeight.Medium,
+                                                                        ),
+                                                                    color = accentColor.copy(alpha = 0.9f),
+                                                                )
+                                                                Text(
+                                                                    text = "Processing: ${processingTime}ms",
+                                                                    style = MaterialTheme.typography.caption,
+                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+
+                                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                                    // Step 2.2: Alternative Predictions - Connected to predictionState
+                                                    Row(
+                                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                    ) {
+                                                        Text(
+                                                            text = "Alternative Predictions:",
+                                                            style =
+                                                                MaterialTheme.typography.body2.copy(
+                                                                    fontWeight = FontWeight.Medium,
+                                                                ),
+                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+                                                        )
+                                                        Text(
+                                                            text = "(${predictionValue?.alternatives?.size ?: 0} options)",
+                                                            style = MaterialTheme.typography.caption,
+                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
+                                                        )
+                                                    }
+
+                                                    LazyColumn(
+                                                        modifier =
+                                                            Modifier
+                                                                .fillMaxWidth()
+                                                                .weight(1f)
+                                                                .background(
+                                                                    color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
+                                                                    shape = MaterialTheme.shapes.small,
+                                                                )
+                                                                .padding(8.dp),
+                                                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                                                    ) {
+                                                        items(predictionValue?.alternatives ?: emptyList()) { alternative ->
+                                                            Row(
+                                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                                verticalAlignment = Alignment.CenterVertically,
+                                                            ) {
+                                                                Box(
+                                                                    modifier =
+                                                                        Modifier
+                                                                            .size(4.dp)
+                                                                            .background(
+                                                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.4f),
+                                                                                shape = CircleShape,
+                                                                            ),
+                                                                )
+                                                                Text(
+                                                                    text = alternative,
+                                                                    style =
+                                                                        MaterialTheme.typography.caption.copy(
+                                                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
+                                                                        ),
+                                                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                } // End of else block for loading state
                                             }
                                         }
                                     }
@@ -1889,17 +1938,12 @@ fun main() =
                                                             onClick = {
                                                                 if (!isLoading) {
                                                                     applicationScope.launch {
-                                                                        isLoadingPrediction.value = true
-                                                                        try {
-                                                                            println("Button Clicked: Get Prediction")
-                                                                            handlePredictionWithTiming(
-                                                                                "explicit_prediction",
-                                                                                "Clicked 'Get Prediction'",
-                                                                                emitToActionFlow = false,
-                                                                            )
-                                                                        } finally {
-                                                                            isLoadingPrediction.value = false
-                                                                        }
+                                                                        println("Button Clicked: Get Prediction")
+                                                                        handlePredictionWithTiming(
+                                                                            "explicit_prediction",
+                                                                            "Clicked 'Get Prediction'",
+                                                                            emitToActionFlow = false,
+                                                                        )
                                                                     }
                                                                 }
                                                             },
@@ -2288,17 +2332,12 @@ fun main() =
                                                         onClick = {
                                                             if (!isLoading) {
                                                                 applicationScope.launch {
-                                                                    isLoadingPrediction.value = true
-                                                                    try {
-                                                                        println("Button Clicked: Get Prediction")
-                                                                        handlePredictionWithTiming(
-                                                                            "explicit_prediction_request",
-                                                                            "Clicked 'Get Prediction'",
-                                                                            emitToActionFlow = false,
-                                                                        )
-                                                                    } finally {
-                                                                        isLoadingPrediction.value = false
-                                                                    }
+                                                                    println("Button Clicked: Get Prediction")
+                                                                    handlePredictionWithTiming(
+                                                                        "explicit_prediction_request",
+                                                                        "Clicked 'Get Prediction'",
+                                                                        emitToActionFlow = false,
+                                                                    )
                                                                 }
                                                             }
                                                         },
@@ -2706,15 +2745,12 @@ fun main() =
                                                         onClick = {
                                                             if (!isLoading) {
                                                                 applicationScope.launch {
-                                                                    isLoadingPrediction.value = true
-                                                                    try {
-                                                                        println("Button Clicked: Get Prediction")
-                                                                        val prediction = karlContainer?.getPrediction()
-                                                                        predictionState.value = prediction
-                                                                        println("Explicit Prediction Request: $prediction")
-                                                                    } finally {
-                                                                        isLoadingPrediction.value = false
-                                                                    }
+                                                                    println("Button Clicked: Get Prediction")
+                                                                    handlePredictionWithTiming(
+                                                                        "explicit_prediction_request",
+                                                                        "Clicked 'Get Prediction'",
+                                                                        emitToActionFlow = false,
+                                                                    )
                                                                 }
                                                             }
                                                         },

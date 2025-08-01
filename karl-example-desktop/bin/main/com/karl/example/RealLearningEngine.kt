@@ -349,6 +349,7 @@ class RealLearningEngine(
                                 "model_output" to output.contentToString(),
                                 "context_size" to contextData.size.toString(),
                                 "input_features" to input.contentToString(),
+                                "input_features_count" to inputSize.toString(), // Step 2.1: Add input features count
                                 "timing_prediction" to timingPrediction.toString(),
                                 "preference_score" to preferenceScore.toString(),
                                 "action_count" to actionSuggestions.size.toString(),
