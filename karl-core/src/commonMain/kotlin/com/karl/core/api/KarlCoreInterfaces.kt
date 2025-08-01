@@ -64,6 +64,16 @@ interface LearningEngine {
     suspend fun release()
 
     /**
+     * Gets a human-readable description of the model architecture.
+     * This can be used to display model information in the UI.
+     *
+     * @return A string describing the model architecture (e.g., "MLP(4x8x3)")
+     */
+    fun getModelArchitectureName(): String {
+        return "Unknown Architecture"
+    }
+
+    /**
      * (Optional but Recommended) Provides insights into the current learning progress.
      * This can be used to power an "AI Maturity Meter" in the UI.
      *

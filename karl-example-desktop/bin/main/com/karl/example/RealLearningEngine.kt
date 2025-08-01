@@ -44,6 +44,9 @@ class RealLearningEngine(
     private var trainingSteps = 0
     private var interactionCount = 0L
 
+    // Confidence history for sparkline visualization (keep last 100 predictions)
+    private val confidenceHistory = mutableListOf<Float>()
+
     data class TrainingExample(
         val input: FloatArray,
         val expectedOutput: FloatArray,
@@ -352,6 +355,12 @@ class RealLearningEngine(
                             ),
                     )
 
+                // Track confidence for sparkline visualization
+                confidenceHistory.add(primaryConfidence)
+                if (confidenceHistory.size > 100) {
+                    confidenceHistory.removeAt(0) // Keep only last 100 predictions
+                }
+
                 println("RealLearningEngine: Generated prediction -> $prediction")
                 prediction
             } catch (e: Exception) {
@@ -487,9 +496,14 @@ class RealLearningEngine(
                         "averageConfidence" to averageConfidence,
                         "trainingSteps" to trainingSteps,
                         "modelVersion" to "neural_network_v1",
+                        "confidenceHistory" to confidenceHistory.toList(), // Copy to avoid concurrent modification
                     ),
             )
         }
+    }
+
+    override fun getModelArchitectureName(): String {
+        return "MLP(${inputSize}x${hiddenSize}x$outputSize)"
     }
 
     override suspend fun release() {

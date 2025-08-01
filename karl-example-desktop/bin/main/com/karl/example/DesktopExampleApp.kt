@@ -62,6 +62,14 @@ data class StructuredInteraction(
     val confidence: Float,
 )
 
+// Data structure for real-time interaction log entries
+data class LogEntry(
+    val timestamp: String,
+    val action: String,
+    val prediction: String,
+    val confidence: Float,
+)
+
 // Custom GitHub Icon
 private var gitHubIconCache: ImageVector? = null
 
@@ -313,6 +321,15 @@ fun main() =
         val recentInteractionsState = remember { MutableStateFlow<List<String>>(emptyList()) }
         val recentInteractions by recentInteractionsState.collectAsState()
 
+        // Confidence history for sparkline chart - real-time StateFlow
+        val confidenceHistoryState =
+            remember { MutableStateFlow<List<Float>>(listOf(0.75f, 0.82f, 0.79f, 0.87f, 0.92f, 0.85f, 0.89f, 0.91f, 0.83f, 0.87f)) }
+        val confidenceHistoryData by confidenceHistoryState.collectAsState()
+
+        // Real-time structured interaction log - StateFlow for live updates
+        val structuredLogState = remember { MutableStateFlow<List<LogEntry>>(emptyList()) }
+        val realtimeStructuredLog by structuredLogState.collectAsState()
+
         // Panel 2: Prediction Details data - Real-time state flows
         val lastActionState = remember { MutableStateFlow("No action yet") }
         val lastAction by lastActionState.collectAsState()
@@ -332,11 +349,6 @@ fun main() =
                     StructuredInteraction("14:21:33", "open file", "edit code", 0.79f),
                 ),
             )
-        }
-
-        // Confidence history for sparkline chart (last 20 interactions)
-        var confidenceHistory by remember {
-            mutableStateOf(listOf(0.75f, 0.82f, 0.79f, 0.87f, 0.92f, 0.85f, 0.89f, 0.91f, 0.83f, 0.87f))
         }
 
         // Action feedback state for visual feedback
@@ -362,6 +374,12 @@ fun main() =
                         val averageConfidence = insights.customMetrics["averageConfidence"] as? Float ?: 0.5f
                         averageConfidenceState.value = averageConfidence
 
+                        // Update confidence history for sparkline
+                        val historyFromEngine = insights.customMetrics["confidenceHistory"] as? List<Float>
+                        if (historyFromEngine != null && historyFromEngine.isNotEmpty()) {
+                            confidenceHistoryState.value = historyFromEngine
+                        }
+
                         println(
                             "Progress: ${insights.interactionCount} interactions, " +
                                 "${(insights.progressEstimate * 100).toInt()}%, " +
@@ -383,9 +401,22 @@ fun main() =
             val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
             val logEntry = "[$timestamp] Action: '$action' -> Predicted: '$prediction' (${(confidence * 100).toInt()}%)"
 
+            // Update the string-based log for existing UI components
             val currentList = recentInteractionsState.value
             val newList = (listOf(logEntry) + currentList).take(10) // Keep only last 10 entries
             recentInteractionsState.value = newList
+
+            // Update the structured log for enhanced UI components
+            val structuredEntry =
+                LogEntry(
+                    timestamp = timestamp,
+                    action = action,
+                    prediction = prediction,
+                    confidence = confidence,
+                )
+            val currentStructuredList = structuredLogState.value
+            val newStructuredList = (listOf(structuredEntry) + currentStructuredList).take(8) // Keep last 8 entries for display
+            structuredLogState.value = newStructuredList
         }
 
         // Helper function to handle prediction with timing measurement
@@ -418,6 +449,9 @@ fun main() =
                 addInteractionLogEntry(actionType, pred.suggestion, pred.confidence)
             }
 
+            // Update learning insights after interaction
+            updateLearningProgress()
+
             systemStatusState.value = "Ready"
             println("Prediction for '$actionType' completed in ${measuredProcessingTime}ms: $prediction")
         }
@@ -449,9 +483,6 @@ fun main() =
             val currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
             val newStructuredInteraction = StructuredInteraction(currentTime, action, prediction, confidenceScore)
             structuredInteractionLog = (structuredInteractionLog + newStructuredInteraction).takeLast(8)
-
-            // Update confidence history for sparkline
-            confidenceHistory = (confidenceHistory + confidenceScore).takeLast(20)
 
             // Add to real-time interaction log
             addInteractionLogEntry(action, prediction, confidenceScore)
@@ -498,9 +529,6 @@ fun main() =
             val newStructuredInteraction = StructuredInteraction(currentTime, scenario.lowercase(), prediction, confidence)
             structuredInteractionLog = (structuredInteractionLog + newStructuredInteraction).takeLast(8)
 
-            // Update confidence history for sparkline
-            confidenceHistory = (confidenceHistory + confidence).takeLast(20)
-
             // Add to real-time interaction log
             addInteractionLogEntry(scenario.lowercase(), prediction, confidence)
 
@@ -526,6 +554,7 @@ fun main() =
         // --- Lifecycle Management ---
         // Use LaunchedEffect for one-time setup/initialization when the app starts
         LaunchedEffect(Unit) {
+            systemStatusState.value = "Initializing"
             println("App LaunchedEffect: Setting up KARL...")
             val userId = "example-user-01" // Static user for the example
 
@@ -564,7 +593,10 @@ fun main() =
                 systemStatusState.value = "Ready"
 
                 // Set model architecture info from the learning engine
-                modelArchitecture = "MLP(${4}x${8}x${3})" // inputSize x hiddenSize x outputSize
+                modelArchitecture = engine.getModelArchitectureName()
+
+                // Update learning insights after initialization
+                updateLearningProgress()
 
                 println("App LaunchedEffect: KARL setup complete.")
 
@@ -585,6 +617,7 @@ fun main() =
             } catch (e: Exception) {
                 println("App LaunchedEffect: ERROR setting up KARL: ${e.message}")
                 e.printStackTrace()
+                systemStatusState.value = "Error"
                 // Handle error (e.g., show error message in UI)
             }
         }
@@ -1046,29 +1079,52 @@ fun main() =
                                                         color = accentColor.copy(alpha = 0.9f),
                                                     )
 
-                                                    // AI Maturity Meter - Sparkline Chart
-                                                    Column(
-                                                        horizontalAlignment = Alignment.End,
+                                                    // AI Maturity Meter - Sparkline Chart in its own box
+                                                    Box(
+                                                        modifier =
+                                                            Modifier
+                                                                .background(
+                                                                    color = MaterialTheme.colors.surface.copy(alpha = 0.2f),
+                                                                    shape = RoundedCornerShape(8.dp),
+                                                                )
+                                                                .border(
+                                                                    width = 1.dp,
+                                                                    color = accentColor.copy(alpha = 0.2f),
+                                                                    shape = RoundedCornerShape(8.dp),
+                                                                )
+                                                                .padding(12.dp),
                                                     ) {
-                                                        Text(
-                                                            text = "Confidence Trend",
-                                                            style = MaterialTheme.typography.caption,
-                                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
-                                                        )
-                                                        SparklineChart(
-                                                            data = confidenceHistory,
-                                                            modifier = Modifier.size(width = 60.dp, height = 20.dp),
-                                                            color = accentColor,
-                                                            lineWidth = 1.5f,
-                                                        )
-                                                        Text(
-                                                            text = "${(confidenceHistory.lastOrNull() ?: 0.87f).times(100).toInt()}%",
-                                                            style =
-                                                                MaterialTheme.typography.caption.copy(
-                                                                    fontWeight = FontWeight.Bold,
-                                                                ),
-                                                            color = accentColor,
-                                                        )
+                                                        Column(
+                                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                                        ) {
+                                                            Text(
+                                                                text = "Confidence Trend",
+                                                                style = MaterialTheme.typography.caption,
+                                                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                                                            )
+                                                            Spacer(modifier = Modifier.height(6.dp))
+                                                            SparklineChart(
+                                                                data = confidenceHistoryData,
+                                                                modifier =
+                                                                    Modifier.size(
+                                                                        width = if (enlargedSection == "insights") 120.dp else 80.dp,
+                                                                        height = if (enlargedSection == "insights") 40.dp else 25.dp,
+                                                                    ),
+                                                                color = accentColor,
+                                                                lineWidth = if (enlargedSection == "insights") 2.5f else 2.0f,
+                                                            )
+                                                            Spacer(modifier = Modifier.height(4.dp))
+                                                            Text(
+                                                                text = "${(confidenceHistoryData.lastOrNull() ?: 0.87f).times(
+                                                                    100,
+                                                                ).toInt()}%",
+                                                                style =
+                                                                    MaterialTheme.typography.caption.copy(
+                                                                        fontWeight = FontWeight.Bold,
+                                                                    ),
+                                                                color = accentColor,
+                                                            )
+                                                        }
                                                     }
                                                 }
 
