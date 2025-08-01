@@ -6,6 +6,8 @@
 [![Platforms](https://img.shields.io/badge/Platform-JVM%20%7C%20Multiplatform%20Core-orange?style=flat-square)](#project-structure-)
 [![Version](https://img.shields.io/badge/Version-x.y.z%20(Alpha)-yellow?style=flat-square)](<!-- Link to Releases/Tags -->)
 
+![KARL-EXAMPLE-DESKTOP](https://github.com/theaniketraj/project-karl/blob/main/assets/karl-example-desktop.gif)
+
 ---
 
 ## Introduction
