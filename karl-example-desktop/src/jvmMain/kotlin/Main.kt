@@ -3,11 +3,16 @@
 package com.karl.example
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -302,6 +307,40 @@ class KarlContainerImpl(override val userId: String) : KarlContainer {
 
 // --- Composable UI Component (from karl-compose-ui, assumed) ---
 // A simple composable to display Karl's status and prediction
+// --- UI Components ---
+
+/**
+ * Custom styled button with hover and pressed states for the Controls panel
+ */
+@Composable
+fun InteractionButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    val isPressed by interactionSource.collectIsPressedAsState()
+    
+    val backgroundColor = when {
+        isPressed -> Color(0xFF1976D2) // Darker blue when pressed
+        isHovered -> Color(0xFF2196F3) // Light blue when hovered
+        else -> Color(0xFF03DAC6) // Default Material teal
+    }
+    
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        interactionSource = interactionSource,
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = backgroundColor,
+            contentColor = Color.White
+        )
+    ) {
+        Text(text)
+    }
+}
+
 @Composable
 fun KarlContainerUI(container: KarlContainerImpl, dataSource: MockDataSource) {
     val prediction by container.currentPrediction.collectAsState()
@@ -323,33 +362,98 @@ fun KarlContainerUI(container: KarlContainerImpl, dataSource: MockDataSource) {
             Text("Confidence: ${prediction?.confidence?.let { "%.2f".format(it) } ?: "N/A"}")
             Spacer(Modifier.height(16.dp))
 
-            // Simulate user interactions that generate data for KARL
-            Button(onClick = {
-                dataSource.simulateInteraction(
-                    InteractionData(
-                        type = "simulated_button_click",
-                        details = mapOf("button" to "action_A"),
-                        timestamp = System.currentTimeMillis(),
-                        userId = container.userId
+            // Controls Panel - 6 Interaction Buttons for Learning Engine Data
+            InteractionButton(
+                text = "Simulate Action A",
+                onClick = {
+                    dataSource.simulateInteraction(
+                        InteractionData(
+                            type = "simulated_button_click",
+                            details = mapOf("button" to "action_A"),
+                            timestamp = System.currentTimeMillis(),
+                            userId = container.userId
+                        )
                     )
-                )
-            }) {
-                Text("Simulate Action A")
-            }
+                }
+            )
             Spacer(Modifier.height(8.dp))
-            Button(onClick = {
-                dataSource.simulateInteraction(
-                    InteractionData(
-                        type = "simulated_button_click",
-                        details = mapOf("button" to "action_B"),
-                        timestamp = System.currentTimeMillis(),
-                        userId = container.userId
+            
+            InteractionButton(
+                text = "Simulate Action B",
+                onClick = {
+                    dataSource.simulateInteraction(
+                        InteractionData(
+                            type = "simulated_button_click",
+                            details = mapOf("button" to "action_B"),
+                            timestamp = System.currentTimeMillis(),
+                            userId = container.userId
+                        )
                     )
-                )
-            }) {
-                Text("Simulate Action B")
-            }
+                }
+            )
             Spacer(Modifier.height(8.dp))
+            
+            InteractionButton(
+                text = "Simulate Commit",
+                onClick = {
+                    dataSource.simulateInteraction(
+                        InteractionData(
+                            type = "simulated_button_click",
+                            details = mapOf("button" to "simulate_commit"),
+                            timestamp = System.currentTimeMillis(),
+                            userId = container.userId
+                        )
+                    )
+                }
+            )
+            Spacer(Modifier.height(8.dp))
+            
+            InteractionButton(
+                text = "Simulate Test",
+                onClick = {
+                    dataSource.simulateInteraction(
+                        InteractionData(
+                            type = "simulated_button_click",
+                            details = mapOf("button" to "simulate_test"),
+                            timestamp = System.currentTimeMillis(),
+                            userId = container.userId
+                        )
+                    )
+                }
+            )
+            Spacer(Modifier.height(8.dp))
+            
+            InteractionButton(
+                text = "Simulate Refactor",
+                onClick = {
+                    dataSource.simulateInteraction(
+                        InteractionData(
+                            type = "simulated_button_click",
+                            details = mapOf("button" to "simulate_refactor"),
+                            timestamp = System.currentTimeMillis(),
+                            userId = container.userId
+                        )
+                    )
+                }
+            )
+            Spacer(Modifier.height(8.dp))
+            
+            InteractionButton(
+                text = "Simulate Debug",
+                onClick = {
+                    dataSource.simulateInteraction(
+                        InteractionData(
+                            type = "simulated_button_click",
+                            details = mapOf("button" to "simulate_debug"),
+                            timestamp = System.currentTimeMillis(),
+                            userId = container.userId
+                        )
+                    )
+                }
+            )
+            Spacer(Modifier.height(16.dp))
+            
+            // Reset button (separate from interaction buttons, uses default styling)
             val containerScope = rememberCoroutineScope() // Need a scope for reset/save
             Button(onClick = {
                 containerScope.launch {
