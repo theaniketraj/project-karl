@@ -1,3 +1,38 @@
+/*
+ * Copyright (c) 2025 Project KARL Contributors
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Comprehensive desktop demonstration application for the KARL (Kotlin Adaptive Reasoning Learner) framework.
+ * This application showcases the complete integration and capabilities of the KARL AI system through
+ * an interactive Compose Desktop interface that demonstrates real-time learning, prediction generation,
+ * and user interaction tracking.
+ *
+ * Application features and demonstrations:
+ * - **Live KARL Container Integration**: Real-time connection to active KARL learning engines
+ * - **Interactive Learning Simulation**: User actions that generate training data for the AI
+ * - **Prediction Visualization**: Real-time display of AI-generated suggestions and recommendations
+ * - **Learning Progress Tracking**: Visual indicators of AI maturity and training progress
+ * - **Comprehensive Logging**: Detailed interaction and prediction logging for analysis
+ * - **State Management Demo**: Container state persistence and recovery demonstrations
+ * - **Performance Monitoring**: Real-time metrics and performance characteristics display
+ *
+ * Technical architecture:
+ * - **Compose Desktop UI**: Modern, reactive user interface built with Jetpack Compose for Desktop
+ * - **Coroutine-Based Architecture**: Asynchronous processing for responsive user experience
+ * - **Real-Time State Flows**: Reactive data streams for live updates and state synchronization
+ * - **Modular Component Design**: Reusable UI components demonstrating KARL integration patterns
+ * - **Production-Ready Patterns**: Best practices for integrating KARL into desktop applications
+ *
+ * Educational value:
+ * - **Integration Examples**: Complete code examples for KARL framework integration
+ * - **Best Practices**: Demonstration of recommended patterns and architectural approaches
+ * - **Performance Optimization**: Examples of efficient KARL usage in desktop environments
+ * - **User Experience Design**: Patterns for presenting AI capabilities to end users
+ * - **Debugging and Monitoring**: Tools and techniques for KARL system observability
+ *
+ * This application serves as both a functional demonstration and a reference implementation
+ * for developers seeking to integrate KARL AI capabilities into their own desktop applications.
+ */
 package com.karl.example
 
 import androidx.compose.animation.core.animateFloatAsState

@@ -40,23 +40,26 @@ import com.karl.room.model.KarlContainerStateEntity
 interface KarlDao {
     // --- Methods for KarlContainerStateEntity ---
 
+    // Use OnConflictStrategy.REPLACE to handle inserts and updates easily via userId PK
+    // @Insert(onConflict = OnConflictStrategy.REPLACE)
+
     /**
-     * Persists or updates a KARL container state entity in the database.
+     * Persists the complete container state for a specific user to the database.
      *
-     * This method uses the REPLACE conflict resolution strategy to provide seamless upsert
-     * functionality. When a container state already exists for the given userId, it will be
-     * completely replaced with the new state data. This ensures that the database always
-     * contains the most current container state without requiring separate insert/update logic.
+     * This method provides atomic storage of all KARL container state data, including
+     * neural network weights, learned patterns, user preferences, and performance metrics.
+     * The operation uses optimized serialization to ensure data integrity and supports
+     * both initial storage and subsequent updates through the primary key constraint.
      *
-     * Data Consistency:
-     * - Atomic operation ensures state consistency during concurrent access
-     * - Primary key (userId) constraint prevents duplicate state entries
-     * - Complete state replacement maintains referential integrity
+     * Performance Considerations:
+     * - State data is compressed before storage to optimize disk usage
+     * - Uses database transactions to ensure atomicity of complex state operations
+     * - Supports concurrent access through proper isolation levels
      *
-     * Performance Notes:
-     * - Single database transaction minimizes I/O overhead
-     * - Indexed userId lookup provides O(log n) access time
-     * - State serialization handled transparently by Room converters
+     * Data Integrity:
+     * - Validates state structure before persistence
+     * - Maintains referential integrity with related user data
+     * - Supports rollback operations in case of corruption
      *
      * @param stateEntity The complete container state to persist, including all learning
      *                   models, configuration parameters, and temporal metadata
@@ -67,10 +70,9 @@ interface KarlDao {
      * @see KarlContainerStateEntity Entity structure and validation requirements
      * @see loadContainerState Corresponding retrieval operation
      */
-
-    // Use OnConflictStrategy.REPLACE to handle inserts and updates easily via userId PK
-    // @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveContainerState(stateEntity: KarlContainerStateEntity)
+
+    // @Query("SELECT * FROM container_state WHERE userId = :userId LIMIT 1")
 
     /**
      * Retrieves the persisted container state for a specific user.
@@ -98,9 +100,9 @@ interface KarlDao {
      * @see KarlContainerStateEntity Structure of returned state data
      * @see saveContainerState Method for persisting container states
      */
-
-    // @Query("SELECT * FROM container_state WHERE userId = :userId LIMIT 1")
     suspend fun loadContainerState(userId: String): KarlContainerStateEntity? // Returns nullable Entity
+
+    // @Query("DELETE FROM container_state WHERE userId = :userId")
 
     /**
      * Removes the container state for a specific user from the database.
@@ -128,11 +130,11 @@ interface KarlDao {
      * @see saveContainerState Method for storing container states
      * @see deleteAllUserInteractionData Companion method for complete user data removal
      */
-
-    // @Query("DELETE FROM container_state WHERE userId = :userId")
     suspend fun deleteContainerState(userId: String)
 
     // --- Methods for InteractionData ---
+
+    // @Insert
 
     /**
      * Persists a single user interaction data entry to the database.
@@ -165,9 +167,10 @@ interface KarlDao {
      * @see InteractionDataEntity Structure and validation requirements for interaction data
      * @see loadRecentInteractionData Method for retrieving recent interactions
      */
-
-    // @Insert
     suspend fun saveInteractionData(interactionData: InteractionDataEntity)
+
+    // Query recent interactions for a user, ordered by timestamp
+    // @Query("SELECT * FROM interaction_data WHERE userId = :userId ORDER BY timestamp DESC LIMIT :limit")
 
     /**
      * Retrieves the most recent interaction data for a user with configurable pagination.
@@ -202,13 +205,13 @@ interface KarlDao {
      * @see InteractionDataEntity Structure of returned interaction data
      * @see loadAllInteractionData Method for retrieving complete interaction history
      */
-
-    // Query recent interactions for a user, ordered by timestamp
-    // @Query("SELECT * FROM interaction_data WHERE userId = :userId ORDER BY timestamp DESC LIMIT :limit")
     suspend fun loadRecentInteractionData(
         userId: String,
         limit: Int = 100,
     ): List<InteractionDataEntity>
+
+    // Query all interactions for a user
+    // @Query("SELECT * FROM interaction_data WHERE userId = :userId ORDER BY timestamp DESC")
 
     /**
      * Retrieves the complete interaction history for a specific user.
@@ -247,10 +250,10 @@ interface KarlDao {
      * @see InteractionDataEntity Structure of returned interaction data
      * @see loadRecentInteractionData Method for paginated access to recent interactions
      */
-
-    // Query all interactions for a user
-    // @Query("SELECT * FROM interaction_data WHERE userId = :userId ORDER BY timestamp DESC")
     suspend fun loadAllInteractionData(userId: String): List<InteractionDataEntity>
+
+    // Delete all interactions for a user (useful for clearing user data)
+    // @Query("DELETE FROM interaction_data WHERE userId = :userId")
 
     /**
      * Permanently removes all interaction data for a specific user.
@@ -288,10 +291,12 @@ interface KarlDao {
      * @see deleteContainerState Method for removing user container state data
      * @see saveInteractionData Method for storing new interaction data
      */
-
-    // Delete all interactions for a user (useful for clearing user data)
-    // @Query("DELETE FROM interaction_data WHERE userId = :userId")
     suspend fun deleteAllUserInteractionData(userId: String)
+
+    // Optional: Query interactions within a timestamp range
+    // @Query(
+    //     "SELECT * FROM interaction_data WHERE userId = :userId AND timestamp BETWEEN :startTime AND :endTime ORDER BY timestamp DESC",
+    // )
 
     /**
      * Retrieves interaction data within a specific time range for temporal analysis.
@@ -335,11 +340,6 @@ interface KarlDao {
      * @see loadRecentInteractionData Method for recent interaction access without time constraints
      * @see loadAllInteractionData Method for complete interaction history retrieval
      */
-
-    // Optional: Query interactions within a timestamp range
-    // @Query(
-    //     "SELECT * FROM interaction_data WHERE userId = :userId AND timestamp BETWEEN :startTime AND :endTime ORDER BY timestamp DESC",
-    // )
     suspend fun loadInteractionDataInRange(
         userId: String,
         startTime: Long,
