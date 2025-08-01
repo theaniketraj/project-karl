@@ -1,9 +1,11 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.net.URL
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinSerialization)
+    id("org.jetbrains.dokka")
 }
 
 kotlin {
@@ -47,4 +49,30 @@ dependencies {
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
     arg("room.incremental", "true")
+}
+
+// Dokka configuration for karl-room module
+tasks.withType<org.jetbrains.dokka.gradle.DokkaTaskPartial>().configureEach {
+    dokkaSourceSets {
+        configureEach {
+            moduleName.set("KARL Room Storage")
+            moduleVersion.set(project.version.toString())
+
+            includes.from("Module.md")
+
+            sourceLink {
+                localDirectory.set(projectDir.resolve("src"))
+                remoteUrl.set(URL("https://github.com/theaniketraj/project-karl/tree/main/karl-room/src"))
+                remoteLineSuffix.set("#L")
+            }
+
+            externalDocumentationLink {
+                url.set(URL("https://kotlinlang.org/api/kotlinx.coroutines/"))
+            }
+
+            externalDocumentationLink {
+                url.set(URL("https://developer.android.com/reference/androidx/room/package-summary"))
+            }
+        }
+    }
 }
