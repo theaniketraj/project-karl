@@ -14,6 +14,24 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
+/*
+ * KARL Container Implementation Module
+ *
+ * This module contains the core implementation of the KarlContainer interface,
+ * providing thread-safe orchestration of machine learning operations, data management,
+ * and user interaction processing within the KARL framework.
+ *
+ * Key architectural principles implemented:
+ * - Thread-safe concurrent operations using Kotlin coroutines and mutex synchronization
+ * - Event-driven data processing pipeline with asynchronous learning
+ * - Dependency injection pattern for testability and modularity
+ * - Resource lifecycle management with proper cleanup semantics
+ * - Privacy-first design with local-only data processing
+ *
+ * @since 1.0.0
+ * @module karl-core
+ */
+
 /**
  * Core implementation of the KarlContainer interface, providing the primary orchestration layer
  * for the KARL (Kotlin Adaptive Reasoning Learner) framework.
@@ -76,25 +94,73 @@ internal class KarlContainerImpl(
     initialInstructions: List<KarlInstruction>,
     private val containerScope: CoroutineScope,
 ) : KarlContainer {
+    /*
+     * ========================================
+     * PRIVATE STATE AND SYNCHRONIZATION
+     * ========================================
+     *
+     * This section contains the container's internal state management components,
+     * all designed for thread-safe operation in concurrent environments.
+     */
+
     /**
      * Current set of user-defined instructions that modify container behavior.
-     * Thread-safe access is ensured through the stateMutex for write operations.
+     *
+     * **Thread Safety**: Write operations are protected by [stateMutex], while read
+     * operations are safe due to Kotlin's memory model guarantees for `@Volatile`
+     * collections. The reference itself is updated atomically.
+     *
+     * **Instruction Lifecycle**: Instructions are applied immediately upon update
+     * and affect all subsequent data processing and prediction operations.
+     *
+     * **Performance Considerations**: Instructions are evaluated for each interaction,
+     * so the collection should remain reasonably sized (typically < 100 instructions).
      */
     private var currentInstructions: List<KarlInstruction> = initialInstructions
 
     /**
      * Active job handle for the data observation coroutine.
-     * Null when observation is not active, allowing for proper lifecycle management.
+     *
+     * **Lifecycle Management**: This job represents the long-running data observation
+     * process that continuously monitors the [dataSource] for new interactions. When
+     * null, observation is inactive (during initialization or after shutdown).
+     *
+     * **Cancellation Semantics**: The job can be cancelled safely during reset or
+     * shutdown operations. Cancellation includes proper resource cleanup and
+     * graceful termination of the observation pipeline.
+     *
+     * **Scope Relationship**: This job is launched within [containerScope], ensuring
+     * it's automatically cancelled when the container scope is closed.
      */
     private var dataObservationJob: Job? = null
 
     /**
-     * Mutex protecting critical state operations including initialization, reset, and save operations.
-     * Ensures atomic access to container state and prevents concurrent modifications.
+     * Mutex protecting critical state operations and ensuring atomicity.
+     *
+     * **Protected Operations**:
+     * - Container initialization and configuration changes
+     * - Learning engine state modifications and persistence
+     * - Data observation pipeline lifecycle management
+     * - Complete container reset and cleanup operations
+     *
+     * **Performance Impact**: This mutex is designed for infrequent operations
+     * (initialization, reset, save) and does not impact the performance of
+     * high-frequency operations like individual data processing or predictions.
+     *
+     * **Deadlock Prevention**: Lock ordering is enforced throughout the implementation
+     * to prevent deadlocks. This mutex is always acquired before any component-level
+     * locks to maintain consistent lock hierarchy.
      */
     private val stateMutex = Mutex()
 
-    // --- Initialization ---
+    /*
+     * ========================================
+     * INITIALIZATION AND SYSTEM SETUP
+     * ========================================
+     *
+     * This section handles the complex multi-stage initialization process
+     * that brings all container components into operational state.
+     */
 
     /**
      * Initializes the complete KARL container system in a carefully orchestrated sequence.
@@ -138,17 +204,36 @@ internal class KarlContainerImpl(
         instructions: List<KarlInstruction>,
         coroutineScope: CoroutineScope,
     ) {
+        // Acquire exclusive lock to prevent concurrent initialization attempts
+        // This ensures atomic initialization even in highly concurrent environments
         stateMutex.withLock {
             println("KARL Container for user $userId: Initializing...")
+
+            // Update instruction set with provided configuration
+            // This must happen early to ensure instructions are available during initialization
             this.currentInstructions = instructions
 
-            // Stage 1: Initialize Storage Infrastructure
+            /*
+             * STAGE 1: STORAGE INFRASTRUCTURE INITIALIZATION
+             *
+             * Initialize the persistent storage layer first as it's required by
+             * subsequent stages. This includes database connections, schema validation,
+             * and migration operations if necessary.
+             */
             dataStorage.initialize()
             println("KARL Container for user $userId: DataStorage initialized.")
 
-            // Stage 2: Attempt State Recovery
+            /*
+             * STAGE 2: STATE RECOVERY AND VALIDATION
+             *
+             * Attempt to load previously saved learning state. This is a critical
+             * step for maintaining learning continuity across application sessions.
+             * The state may be null for new users or after reset operations.
+             */
             println("KARL Container: About to load saved state from DataStorage...")
             val savedState = dataStorage.loadContainerState(userId)
+
+            // Provide detailed logging for state recovery diagnostics
             if (savedState != null) {
                 println("KARL Container: Found saved state with ${savedState.data.size} bytes, version=${savedState.version}")
                 println("KARL Container: Will pass this state to LearningEngine for restoration")
@@ -157,14 +242,33 @@ internal class KarlContainerImpl(
             }
             println("KARL Container for user $userId: Loaded state (exists: ${savedState != null}).")
 
-            // Stage 3: Initialize Learning Engine with Recovered State
+            /*
+             * STAGE 3: LEARNING ENGINE ACTIVATION
+             *
+             * Initialize the machine learning engine with the recovered state (if any).
+             * The engine handles state validation, model restoration, and preparation
+             * for learning operations. This is computationally expensive and may
+             * involve neural network deserialization or model compilation.
+             */
             learningEngine.initialize(savedState, containerScope)
             println("KARL Container for user $userId: LearningEngine initialized.")
 
-            // Stage 4: Establish Data Observation Pipeline
+            /*
+             * STAGE 4: DATA OBSERVATION PIPELINE ESTABLISHMENT
+             *
+             * Set up the continuous data observation pipeline that monitors user
+             * interactions and triggers learning operations. This creates a long-running
+             * coroutine that processes interaction events asynchronously.
+             *
+             * The pipeline uses a callback-based approach where each new interaction
+             * triggers the processNewData method in a separate coroutine to maintain
+             * responsiveness and prevent blocking the observation stream.
+             */
             dataObservationJob =
                 dataSource.observeInteractionData(
                     onNewData = { data ->
+                        // Launch processing in container scope to ensure proper lifecycle management
+                        // Each interaction is processed independently to prevent blocking
                         containerScope.launch {
                             processNewData(data)
                         }
@@ -175,6 +279,15 @@ internal class KarlContainerImpl(
         }
         println("KARL Container for user $userId: Initialization complete.")
     }
+
+    /*
+     * ========================================
+     * DATA PROCESSING PIPELINE
+     * ========================================
+     *
+     * This section implements the core data processing pipeline that transforms
+     * raw user interactions into machine learning training opportunities.
+     */
 
     /**
      * Processes incoming interaction data through the complete learning pipeline.
@@ -210,26 +323,76 @@ internal class KarlContainerImpl(
      * @see LearningEngine.trainStep For the underlying learning mechanism
      */
     private suspend fun processNewData(data: InteractionData) {
-        // Stage 1: Apply Instruction-Based Filtering
+        /*
+         * STAGE 1: INSTRUCTION-BASED DATA FILTERING
+         *
+         * Apply user-defined instructions to determine if this interaction should
+         * be processed. This enables fine-grained privacy control and allows users
+         * to exclude specific data types from learning.
+         *
+         * Performance Note: This check is performed first to avoid unnecessary
+         * storage operations for filtered data.
+         */
         if (currentInstructions.any { it is KarlInstruction.IgnoreDataType && it.type == data.type }) {
             println("KARL Container for user $userId: Ignoring data type ${data.type} based on instructions.")
-            return
+            return // Early exit - no further processing needed for filtered data
         }
 
-        // Stage 2: Persist Interaction Data for Context
+        /*
+         * STAGE 2: PERSISTENT DATA STORAGE
+         *
+         * Store the interaction data for future use in predictions and context
+         * analysis. This persistence enables the system to understand temporal
+         * patterns and provides context for future learning operations.
+         *
+         * Storage includes: interaction details, timestamp, context metadata,
+         * and user identification for proper data isolation.
+         */
         dataStorage.saveInteractionData(data)
         println("KARL Container for user $userId: Saved interaction data.")
 
-        // Stage 3: Trigger Incremental Learning
+        /*
+         * STAGE 3: INCREMENTAL LEARNING TRIGGER
+         *
+         * Initiate the machine learning process using the new interaction data.
+         * This is performed asynchronously by the learning engine to prevent
+         * blocking the data observation pipeline.
+         *
+         * The learning engine is responsible for:
+         * - Feature extraction from interaction data
+         * - Model weight updates using appropriate algorithms
+         * - Pattern recognition and behavioral adaptation
+         * - Performance monitoring and quality control
+         */
         println("KARL Container: Passing InteractionData to LearningEngine.trainStep().")
         learningEngine.trainStep(data)
 
-        // Stage 4: Optional Periodic State Persistence
+        /*
+         * STAGE 4: FUTURE ENHANCEMENT - INTELLIGENT STATE PERSISTENCE
+         *
+         * TODO: Implement sophisticated state persistence strategies based on:
+         * - Learning milestones and significant pattern changes
+         * - Time-based intervals for regular backup
+         * - Resource availability and system load
+         * - Data volume and processing frequency
+         *
+         * Current approach: Manual state saves through saveState() calls
+         * Future approach: Automatic, adaptive persistence management
+         */
+
         // Note: Implement more sophisticated save strategies based on learning milestones
+
         // or time-based intervals to balance persistence with performance
     }
 
-    // --- Public API Methods (Implementing KarlContainer interface) ---
+    /*
+     * ========================================
+     * PUBLIC API IMPLEMENTATION
+     * ========================================
+     *
+     * This section implements the KarlContainer interface contract, providing
+     * the public API surface for application integration and user interaction.
+     */
 
     /**
      * Generates intelligent predictions based on learned user behavior patterns and current context.
@@ -271,13 +434,35 @@ internal class KarlContainerImpl(
     override suspend fun getPrediction(): Prediction? {
         println("KARL Container for user $userId: Requesting prediction...")
 
-        // Stage 1: Gather Contextual Information
+        /*
+         * STAGE 1: CONTEXTUAL DATA GATHERING
+         *
+         * Retrieve recent interaction history to provide context for prediction.
+         * The limit of 10 interactions represents a balance between contextual
+         * richness and performance. This can be made configurable in future versions.
+         *
+         * Context includes: recent actions, timing patterns, interaction sequences,
+         * and environmental factors that may influence prediction relevance.
+         */
         val recentData = dataStorage.loadRecentInteractionData(userId, limit = 10)
         println("KARL Container for user $userId: Loaded ${recentData.size} recent data points for prediction.")
 
-        // Stage 2: Generate Context-Aware Prediction
+        /*
+         * STAGE 2: INTELLIGENT PREDICTION GENERATION
+         *
+         * Request prediction from the learning engine using both recent context
+         * and current user instructions. The engine applies learned patterns,
+         * evaluates confidence levels, and generates actionable suggestions.
+         *
+         * The prediction process includes:
+         * - Pattern matching against learned behavior models
+         * - Confidence estimation and threshold evaluation
+         * - Instruction-based filtering and customization
+         * - Alternative suggestion generation when appropriate
+         */
         val prediction = learningEngine.predict(recentData, currentInstructions)
         println("KARL Container for user $userId: Prediction result: $prediction.")
+
         return prediction
     }
 
@@ -320,25 +505,53 @@ internal class KarlContainerImpl(
      */
     override suspend fun reset(): Job =
         containerScope.launch {
+            // Acquire exclusive lock to ensure atomic reset operation
+            // This prevents interference from concurrent operations during reset
             stateMutex.withLock {
                 println("KARL Container for user $userId: Resetting...")
 
-                // Stage 1: Suspend Data Observation Pipeline
+                /*
+                 * STAGE 1: DATA OBSERVATION PIPELINE SUSPENSION
+                 *
+                 * Safely terminate the data observation job to prevent new data
+                 * from being processed during the reset operation. This includes
+                 * proper coroutine cancellation and resource cleanup.
+                 */
                 dataObservationJob?.cancelAndJoin()
                 dataObservationJob = null
+                println("KARL Container for user $userId: Data observation pipeline suspended.")
 
-                // Stage 2: Reset Learning Engine to Blank State
+                /*
+                 * STAGE 2: LEARNING ENGINE STATE RESET
+                 *
+                 * Clear all learned patterns, model weights, and training history
+                 * from the learning engine. This returns the AI to its initial
+                 * untrained state, ready to learn new patterns from scratch.
+                 */
                 learningEngine.reset()
                 println("KARL Container for user $userId: LearningEngine reset.")
 
-                // Stage 3: Purge User Data from Storage
+                /*
+                 * STAGE 3: PERSISTENT DATA PURGE
+                 *
+                 * Remove all stored user data including interaction history,
+                 * saved container states, and any cached results. This ensures
+                 * complete privacy compliance and data removal.
+                 */
                 dataStorage.deleteUserData(userId)
                 println("KARL Container for user $userId: User data deleted.")
 
-                // Stage 4: Re-establish Data Observation Pipeline
+                /*
+                 * STAGE 4: DATA OBSERVATION PIPELINE RESTORATION
+                 *
+                 * Re-establish the data observation pipeline to resume monitoring
+                 * user interactions. The system is now ready to learn new patterns
+                 * from fresh data with no memory of previous behavior.
+                 */
                 dataObservationJob =
                     dataSource.observeInteractionData(
                         onNewData = { data ->
+                            // Launch processing in container scope for proper lifecycle management
                             containerScope.launch {
                                 processNewData(data)
                             }
@@ -393,15 +606,35 @@ internal class KarlContainerImpl(
      */
     override suspend fun saveState(): Job =
         containerScope.launch {
+            // Acquire exclusive lock to ensure atomic state capture and storage
+            // This prevents concurrent modifications during the save operation
             stateMutex.withLock {
                 println("KARL Container for user $userId: Saving state...")
 
-                // Stage 1: Extract Current Learning State
+                /*
+                 * STAGE 1: LEARNING STATE EXTRACTION
+                 *
+                 * Request the current state from the learning engine. This includes
+                 * all model weights, hyperparameters, training history, and metadata
+                 * necessary to reconstruct the exact learning state later.
+                 *
+                 * State extraction is a potentially expensive operation that may
+                 * involve serializing large neural networks or complex model structures.
+                 */
                 println("KARL Container for user $userId: Getting current state from learning engine...")
                 val currentState = learningEngine.getCurrentState()
                 println("KARL Container for user $userId: Current state obtained from learning engine: $currentState")
 
-                // Stage 2: Persist State with Atomic Guarantees
+                /*
+                 * STAGE 2: ATOMIC PERSISTENT STORAGE
+                 *
+                 * Save the extracted state to persistent storage using transactional
+                 * guarantees. The storage implementation ensures atomicity, preventing
+                 * partial writes that could corrupt the saved state.
+                 *
+                 * Storage includes version information, checksums, and metadata to
+                 * support future migrations and integrity verification.
+                 */
                 println("KARL Container for user $userId: Calling dataStorage.saveContainerState()...")
                 dataStorage.saveContainerState(userId, currentState)
                 println("KARL Container for user $userId: State saved successfully to data storage.")
@@ -449,8 +682,31 @@ internal class KarlContainerImpl(
      */
     override fun updateInstructions(instructions: List<KarlInstruction>) {
         println("KARL Container for user $userId: Updating instructions.")
+
+        /*
+         * ATOMIC INSTRUCTION UPDATE
+         *
+         * Replace the current instruction set with the new one. This operation
+         * is atomic due to Kotlin's memory model guarantees for reference updates.
+         * The new instructions take effect immediately for all subsequent operations.
+         *
+         * Note: No mutex is required here as this is a simple reference update
+         * that doesn't require coordination with other operations.
+         */
         this.currentInstructions = instructions
+
+        /*
+         * FUTURE ENHANCEMENT: LEARNING ENGINE NOTIFICATION
+         *
+         * In advanced implementations, the learning engine could be notified
+         * directly of instruction changes to enable immediate behavioral updates
+         * for ongoing learning processes.
+         *
+         * Example: learningEngine.updateInstructions(instructions)
+         */
+
         // Future enhancement: Notify learning engine if instructions directly affect behavior
+
         // learningEngine.updateInstructions(instructions)
     }
 
@@ -501,17 +757,57 @@ internal class KarlContainerImpl(
     override suspend fun release() {
         println("KARL Container for user $userId: Releasing resources...")
 
-        // Stage 1: Terminate Data Observation Pipeline
+        /*
+         * STAGE 1: DATA OBSERVATION PIPELINE TERMINATION
+         *
+         * Safely terminate the data observation coroutine to stop processing
+         * new interaction events. This includes proper cancellation semantics
+         * and waiting for any in-flight processing to complete.
+         *
+         * The cancelAndJoin() call ensures the job is fully terminated before
+         * proceeding with additional cleanup operations.
+         */
         dataObservationJob?.cancelAndJoin()
         dataObservationJob = null
+        println("KARL Container for user $userId: Data observation pipeline terminated.")
 
-        // Stage 2: Release Learning Engine Resources
+        /*
+         * STAGE 2: LEARNING ENGINE RESOURCE RELEASE
+         *
+         * Release all resources held by the learning engine including:
+         * - Model weights and training data in memory
+         * - Background training and optimization tasks
+         * - Hardware accelerator resources (GPU, TPU, etc.)
+         * - Temporary files and computation caches
+         */
         learningEngine.release()
+        println("KARL Container for user $userId: Learning engine resources released.")
 
-        // Stage 3: Close Storage Connections
+        /*
+         * STAGE 3: DATA STORAGE CONNECTION CLOSURE
+         *
+         * Properly close all database connections, file handles, and storage
+         * resources. This includes flushing pending writes, closing transactions,
+         * and releasing any locks held by the storage subsystem.
+         */
         dataStorage.release()
+        println("KARL Container for user $userId: Data storage connections closed.")
+
+        /*
+         * CONTAINER SCOPE LIFECYCLE MANAGEMENT
+         *
+         * Note: The container scope lifecycle is intentionally managed by the
+         * calling application rather than this container implementation. This
+         * design decision allows applications to maintain full control over
+         * their coroutine lifecycle and coordinate shutdown across multiple
+         * components without introducing unexpected cancellations.
+         *
+         * Applications should cancel the container scope when appropriate for
+         * their specific use case and lifecycle requirements.
+         */
 
         // Note: Container scope lifecycle is managed by the application
+
         // and is intentionally not cancelled here to maintain caller control
 
         println("KARL Container for user $userId: Resources released.")

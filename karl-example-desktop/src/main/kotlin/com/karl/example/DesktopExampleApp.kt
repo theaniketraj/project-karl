@@ -410,7 +410,8 @@ fun main() =
                         averageConfidenceState.value = averageConfidence
 
                         // Update confidence history for sparkline
-                        val historyFromEngine = insights.customMetrics["confidenceHistory"] as? List<Float>
+                        val historyFromEngineRaw = insights.customMetrics["confidenceHistory"]
+                        val historyFromEngine = (historyFromEngineRaw as? List<*>)?.mapNotNull { it as? Float }
                         if (historyFromEngine != null && historyFromEngine.isNotEmpty()) {
                             confidenceHistoryState.value = historyFromEngine
                         }
