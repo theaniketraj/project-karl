@@ -6,26 +6,27 @@
 
 ## Core Philosophy
 
-- 🧠 **Local & Adaptive Learning**: KARL learns directly from individual user actions within your application
-- 🔒 **Privacy-First by Design**: Zero data egress - all learning happens exclusively on the user's device
-- 🧩 **Composable Container Architecture**: Clear boundaries for AI scope enhance user trust and control
-- 🤝 **Open-Source Core**: Transparent, community-driven development under Apache License 2.0
-- 🚀 **Kotlin Native**: Built with Kotlin Multiplatform for seamless integration
+- **Local & Adaptive Learning**: KARL learns directly from individual user actions within your application
+- **Privacy-First by Design**: Zero data egress - all learning happens exclusively on the user's device
+- **Composable Container Architecture**: Clear boundaries for AI scope enhance user trust and control
+- **Open-Source Core**: Transparent, community-driven development under Apache License 2.0
+- **Kotlin Native**: Built with Kotlin Multiplatform for seamless integration
 
 ## Project Modules
 
 ### Core Framework
 
-- **[karl-core](karl-core/index.html)** - Core interfaces, data models, and API layer
-- **[karl-kldl](karl-kldl/index.html)** - KotlinDL-based machine learning engine implementation
+- **[`:karl-core`](https://github.com/theaniketraj/project-karl/tree/main/karl-core)** - Core interfaces, data models, and API layer
+
+- **[`:karl-kldl`](https://github.com/theaniketraj/project-karl/tree/main/karl-kldl)** - KotlinDL-based machine learning engine implementation
 
 ### Storage & Persistence
 
-- **[karl-room](karl-room/index.html)** - Room database implementation for data persistence
+- **[`:karl-room`](https://github.com/theaniketraj/project-karl/tree/main/karl-room)** - Room database implementation for data persistence
 
 ### User Interface
 
-- **[karl-compose-ui](karl-compose-ui/index.html)** - Jetpack Compose UI components for KARL visualization
+- **[`:karl-compose-ui`](https://github.com/theaniketraj/project-karl/tree/main/karl-compose-ui)** - Jetpack Compose UI components for KARL visualization
 
 ## Getting Started
 
@@ -57,12 +58,12 @@ val predictions = container.getPredictions().collect { prediction ->
 
 ## Key Features
 
-- 🧠 **Local & Adaptive Learning**: Learns directly from individual user behavior on-device
-- 🔒 **Privacy-First**: Zero data egress by default - all processing and storage are local
-- 🧩 **Composable Container**: Manages AI state and logic within defined boundaries
-- 🔧 **Pluggable Architecture**: Swap implementations for learning engines and data storage
-- 📜 **User Instructions**: Define rules guiding AI behavior
-- 🚀 **Kotlin Native**: Multiplatform core with excellent JVM/Compose integration
+- **Local & Adaptive Learning**: Learns directly from individual user behavior on-device
+- **Privacy-First**: Zero data egress by default - all processing and storage are local
+- **Composable Container**: Manages AI state and logic within defined boundaries
+- **Pluggable Architecture**: Swap implementations for learning engines and data storage
+- **User Instructions**: Define rules guiding AI behavior
+- **Kotlin Native**: Multiplatform core with excellent JVM/Compose integration
 
 ## Architecture
 
