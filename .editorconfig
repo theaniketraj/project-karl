@@ -14,6 +14,8 @@ indent_size = 4
 
 # Allow Composable function names to start with an uppercase letter
 ktlint_standard_function-naming = disabled
+# Disable consecutive comments rule for professional documentation blocks
+ktlint_standard_no-consecutive-comments = disabled
 ktlint_compose_compositionlocal-naming = enabled
 ktlint_compose_content-trailing-lambda = enabled
 ktlint_compose_modifier-order = enabled

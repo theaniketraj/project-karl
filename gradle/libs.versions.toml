@@ -1,64 +1,379 @@
+#
+# KARL Framework - Centralized Dependency Version Management
+#
+# This TOML configuration file provides centralized version management for all dependencies
+# across the KARL (Kotlin Adaptive Reasoning Learner) framework ecosystem. This approach
+# ensures consistent library versions, prevents dependency conflicts, and facilitates
+# coordinated upgrades across the sophisticated multi-module architecture.
+#
+# **Version Management Philosophy:**
+# The KARL framework employs a strategic approach to dependency management that balances
+# cutting-edge capabilities with production stability. Version selections prioritize:
+# - Compatibility with privacy-first, local-only processing requirements
+# - Performance optimization for machine learning and reactive UI workloads
+# - Enterprise-grade stability and security for production deployment
+# - Seamless integration between different technology stack components
+# - Future-proofing through careful adoption of emerging technologies
+#
+# **Dependency Strategy:**
+# All versions are carefully selected and tested together to ensure optimal compatibility,
+# performance, and reliability across the entire framework ecosystem. Special attention
+# is paid to maintaining alignment between Kotlin compiler versions, coroutines integration,
+# machine learning libraries, and UI framework components.
+#
+# **Enterprise Considerations:**
+# Version selections consider enterprise requirements including security patches,
+# long-term support commitments, migration paths, and compliance with corporate
+# technology standards while maintaining access to advanced features essential
+# for sophisticated adaptive learning system development.
+#
+# @project karl-framework
+# @version 1.0.0
+# @author KARL Development Team
+# @since 2025-08-02
+#
+
+# ========================================
+# VERSION DECLARATIONS
+# ========================================
+#
+# Comprehensive version management for all framework dependencies, organized by
+# technology category and strategic importance to the KARL ecosystem architecture.
+
 [versions]
+
+# ----------------------------------------
+# CORE KOTLIN ECOSYSTEM VERSIONS
+# ----------------------------------------
+#
+# Fundamental Kotlin language and tooling versions providing the foundation for
+# the entire KARL framework. These versions are carefully coordinated to ensure
+# optimal performance, language feature access, and tooling compatibility.
+
+# Kotlin Language Version
+# Latest stable Kotlin release providing cutting-edge language features, performance
+# optimizations, and compiler improvements essential for sophisticated adaptive learning
+# system development. Version 2.0.21 includes advanced coroutines support, improved
+# type inference, and enhanced multiplatform capabilities critical for the framework.
 kotlin = "2.0.21"
+
+# Kotlin Symbol Processing Version
+# KSP version carefully aligned with Kotlin compiler version to ensure optimal
+# annotation processing performance for Room database code generation, serialization
+# utilities, and other compile-time code generation essential for framework architecture.
+# Provides significant performance improvements over traditional annotation processors.
 ksp = "2.0.21-1.0.25" # KSP version aligned with Kotlin 1.9.23
+
+# Kotlin Coroutines Version
+# Latest stable coroutines library providing reactive programming foundations essential
+# for responsive user interfaces, asynchronous machine learning operations, and
+# efficient resource management in adaptive learning systems. Critical for framework's
+# reactive architecture and StateFlow integration patterns.
 coroutines = "1.8.1"
+
+# Kotlin Serialization Plugin Version
+# Serialization plugin version matching Kotlin compiler version to ensure optimal
+# compile-time code generation for type-safe JSON handling, configuration management,
+# and data export/import operations throughout the KARL ecosystem.
 serialization = "2.0.0" # Serialization plugin version matches Kotlin
+
+# Jetpack Compose Plugin Version
+# Latest stable Compose compiler providing cutting-edge declarative UI capabilities
+# with performance optimizations, accessibility improvements, and multiplatform
+# support essential for modern adaptive learning interfaces.
 composePlugin = "1.8.2"
 
-# Libraries
+# ----------------------------------------
+# FRAMEWORK LIBRARY VERSIONS
+# ----------------------------------------
+#
+# Specialized library versions for core framework functionality including data
+# persistence, machine learning capabilities, and development tooling.
+
+# Android Room Database Version
+# Production-ready Room version providing mature database capabilities with
+# comprehensive Kotlin coroutines integration, advanced query optimization,
+# and robust schema migration support essential for privacy-first local data storage.
 room = "2.6.1"
+
+# SQLite Framework Version
+# Android SQLite framework version providing low-level database access capabilities,
+# performance optimization features, and enterprise-grade reliability for the
+# framework's local-only data processing requirements.
 sqliteFramework = "2.4.0"
+
+# KotlinDL Machine Learning Version
+# KotlinDL version compatible with current Kotlin ecosystem providing sophisticated
+# deep learning capabilities, TensorFlow integration, and privacy-preserving ML
+# algorithms essential for the framework's adaptive learning core functionality.
 kotlinDL = "0.5.2" # Compatible with Kotlin 1.9.2x
+
+# SQLite JDBC Driver Version
+# Latest stable SQLite JDBC driver providing reliable database connectivity,
+# transaction management, and performance optimization for desktop applications
+# and development tooling requiring direct database access capabilities.
 sqliteJdbc = "3.46.0.0"
+
+# Kotlin Serialization JSON Version
+# Specialized JSON serialization library version providing efficient data
+# serialization, configuration management, and API-compatible data formats
+# for potential future integrations while maintaining local-only processing.
 serializationJson = "1.7.1"
+
+# KtLint Gradle Plugin Version
+# Latest KtLint Gradle plugin providing automated code formatting and style
+# enforcement capabilities essential for maintaining enterprise-grade code
+# quality standards across the multi-module framework architecture.
 ktlintGradle = "12.1.0"
+
+# KtLint Core Version
+# Core KtLint engine version providing comprehensive Kotlin code style enforcement,
+# automated formatting capabilities, and integration with development workflows
+# to ensure consistent code quality across all framework components.
 ktlint = "1.3.1"
+
+# SQLDelight Version
+# SQLDelight version providing type-safe database operations, multiplatform
+# database support, and advanced query compilation for scenarios requiring
+# sophisticated database integration beyond standard Room capabilities.
 sqldelight = "2.0.2"
 
+# ========================================
+# LIBRARY DEPENDENCY DECLARATIONS
+# ========================================
+#
+# Comprehensive library dependency definitions organized by functional category
+# and architectural layer within the KARL framework ecosystem. Each dependency
+# is carefully selected to support the framework's privacy-first, local-only
+# adaptive learning architecture while maintaining enterprise-grade reliability.
+
 [libraries]
-# Kotlin
+
+# ----------------------------------------
+# KOTLIN LANGUAGE FOUNDATION LIBRARIES
+# ----------------------------------------
+#
+# Core Kotlin standard library components providing essential language features,
+# collections, and utilities that form the foundation for all framework modules.
+
+# Kotlin Common Standard Library
+# Cross-platform Kotlin standard library providing essential language features,
+# collection operations, and utility functions that work across all target platforms.
+# Critical foundation for multiplatform framework architecture and shared business logic.
 kotlin-stdlib-common = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-common", version.ref = "kotlin" }
+
+# Kotlin JDK8 Enhanced Standard Library
+# JVM-specific Kotlin standard library with JDK8+ extensions providing enhanced
+# collection operations, stream processing, and advanced language features essential
+# for sophisticated data processing and machine learning algorithm implementations.
 kotlin-stdlib-jdk8 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version.ref = "kotlin" }
+
+# Kotlin Testing Framework
+# Comprehensive testing framework providing multiplatform testing capabilities,
+# assertion libraries, and test execution utilities essential for maintaining
+# framework quality, reliability, and correctness across all modules.
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 
-# Coroutines & Serialization
+# ----------------------------------------
+# REACTIVE PROGRAMMING AND SERIALIZATION
+# ----------------------------------------
+#
+# Advanced concurrency and data serialization libraries enabling reactive
+# programming patterns and efficient data management throughout the framework.
+
+# Kotlin Coroutines Core Library
+# Fundamental coroutines library providing asynchronous programming capabilities,
+# StateFlow integration, and reactive programming patterns essential for responsive
+# user interfaces, efficient machine learning operations, and scalable system architecture.
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+
+# Kotlin JSON Serialization Library
+# Type-safe JSON serialization library providing efficient data serialization,
+# configuration management, and structured data handling capabilities essential
+# for complex data structures and potential future integration scenarios.
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serializationJson" }
 
-# Room
+# ----------------------------------------
+# DATA PERSISTENCE ECOSYSTEM
+# ----------------------------------------
+#
+# Comprehensive data persistence libraries providing privacy-first local storage
+# capabilities with enterprise-grade reliability and performance optimization.
+
+# Android Room Runtime Library
+# Core Room database runtime providing type-safe database operations, automatic
+# schema management, and efficient query execution essential for the framework's
+# privacy-first local data storage architecture with zero external dependencies.
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+
+# Android Room Kotlin Extensions
+# Room Kotlin extensions providing coroutines integration, Flow support, and
+# reactive data access patterns essential for seamless integration with the
+# framework's reactive architecture and StateFlow-based state management.
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+
+# Android Room Annotation Processor
+# Room annotation processor generating DAO implementations, database builders,
+# and schema validation code at compile time, ensuring type safety and optimal
+# performance for database operations while maintaining zero runtime overhead.
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+
+# Android Room Common Library
+# Cross-platform Room annotations and core functionality enabling shared database
+# schema definitions and entity models across different target platforms while
+# maintaining consistent data access patterns throughout the framework ecosystem.
 androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "room" }
+# Android Room Testing Library
+# Specialized Room testing utilities providing database testing frameworks,
+# migration testing capabilities, and data integrity validation tools essential
+# for maintaining database reliability and correctness throughout development cycles.
 androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 
-# SQLite
+# ----------------------------------------
+# DATABASE CONNECTIVITY AND DRIVERS
+# ----------------------------------------
+#
+# Low-level database connectivity libraries providing direct access to SQLite
+# capabilities and advanced database features for performance optimization.
+
+# Android SQLite Framework
+# Low-level SQLite framework providing direct database access, advanced SQL features,
+# and fine-grained transaction control essential for performance optimization and
+# specialized database operations beyond standard Room abstractions.
 androidx-sqlite-framework = { group = "androidx.sqlite", name = "sqlite-framework", version.ref = "sqliteFramework" }
+
+# SQLite JDBC Driver
+# Cross-platform SQLite JDBC driver providing reliable database connectivity,
+# transaction management, and administrative capabilities essential for desktop
+# applications, development tooling, and database maintenance operations.
 sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version.ref = "sqliteJdbc" }
 
-# SQLDelight
+# ----------------------------------------
+# ADVANCED DATABASE TOOLING
+# ----------------------------------------
+#
+# Specialized database libraries providing type-safe operations and multiplatform
+# database support for advanced use cases requiring sophisticated data management.
+
+# SQLDelight SQLite Driver
+# SQLDelight's native SQLite driver providing type-safe database operations with
+# compile-time query verification and multiplatform support for scenarios requiring
+# advanced database capabilities beyond standard Room functionality.
 sqldelight-driver-sqlite = { group = "app.cash.sqldelight", name = "sqlite-driver", version.ref = "sqldelight" }
+
+# SQLDelight JDBC Driver
+# SQLDelight's JDBC driver providing type-safe database operations with enterprise
+# database connectivity, advanced transaction management, and integration capabilities
+# for complex database scenarios and administrative tooling requirements.
 sqldelight-driver-jdbc = { group = "app.cash.sqldelight", name = "jdbc-driver", version.ref = "sqldelight" }
 
-# KotlinDL
+# ----------------------------------------
+# MACHINE LEARNING ECOSYSTEM
+# ----------------------------------------
+#
+# Sophisticated machine learning libraries providing privacy-first adaptive learning
+# capabilities with local-only processing and enterprise-grade performance optimization.
+
+# KotlinDL Core API Library
+# Core KotlinDL library providing Kotlin-native deep learning capabilities, neural
+# network construction utilities, and machine learning algorithm implementations
+# essential for the framework's sophisticated adaptive learning and reasoning capabilities.
 kotlindl-api = { group = "org.jetbrains.kotlinx", name = "kotlin-deeplearning-api", version.ref = "kotlinDL" }
+
+# KotlinDL Dataset Management Library
+# Specialized KotlinDL library providing comprehensive dataset management, data
+# preprocessing pipelines, and feature engineering utilities essential for machine
+# learning workflow optimization and privacy-preserving data processing operations.
 kotlindl-dataset = { group = "org.jetbrains.kotlinx", name = "kotlin-deeplearning-dataset", version.ref = "kotlinDL" }
 
+# ========================================
+# GRADLE PLUGIN DECLARATIONS
+# ========================================
+#
+# Comprehensive Gradle plugin definitions providing build system capabilities,
+# code generation tools, and development utilities essential for sophisticated
+# multi-module framework development with enterprise-grade quality standards.
+
 [plugins]
-# Kotlin & KSP
+
+# ----------------------------------------
+# KOTLIN LANGUAGE AND TOOLING PLUGINS
+# ----------------------------------------
+#
+# Core Kotlin ecosystem plugins providing multiplatform capabilities, advanced
+# language features, and sophisticated development tooling integration.
+
+# Kotlin Multiplatform Plugin
+# Essential plugin enabling cross-platform Kotlin development with shared business
+# logic, platform-specific implementations, and seamless integration between
+# different target platforms critical for the framework's architectural flexibility.
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-# compose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
+# Kotlin JVM Plugin
+# Specialized plugin for JVM-specific Kotlin development providing access to
+# full Java ecosystem integration, enterprise library compatibility, and
+# performance optimizations essential for desktop and server applications.
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+
+# Kotlin Serialization Plugin
+# Advanced plugin enabling compile-time code generation for type-safe serialization,
+# JSON handling, and structured data management essential for configuration
+# management and potential future integration scenarios.
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+# Kotlin Symbol Processing Plugin
+# High-performance annotation processing plugin providing efficient compile-time
+# code generation for Room databases, serialization utilities, and other
+# framework components requiring sophisticated build-time code generation.
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
-# Jetpack Compose
+# ----------------------------------------
+# JETPACK COMPOSE UI DEVELOPMENT PLUGINS
+# ----------------------------------------
+#
+# Modern declarative UI development plugins providing cutting-edge user interface
+# capabilities with performance optimization and accessibility compliance.
+
+# JetBrains Compose Plugin
+# Core Compose plugin providing declarative UI development capabilities, multiplatform
+# UI support, and modern design system integration essential for building responsive,
+# accessible user interfaces that demonstrate framework capabilities effectively.
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "composePlugin" }
+
+# Kotlin Compose Compiler Plugin
+# Specialized Compose compiler plugin providing optimized compilation of declarative
+# UI code, performance optimization, and advanced Compose language features essential
+# for sophisticated adaptive learning interface development.
 kotlinComposeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
-# Ktlint
+# Legacy Compose Compiler Plugin (Alternative Configuration)
+# Alternative Compose compiler configuration for compatibility with different
+# build system configurations and specialized deployment scenarios requiring
+# specific compiler optimization strategies.
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
+# ----------------------------------------
+# CODE QUALITY AND DEVELOPMENT TOOLING
+# ----------------------------------------
+#
+# Professional development tooling plugins ensuring enterprise-grade code quality,
+# formatting standards, and development workflow optimization.
+
+# KtLint Code Quality Plugin
+# Automated code formatting and style enforcement plugin providing consistent
+# Kotlin code standards, automated formatting capabilities, and integration
+# with development workflows essential for maintaining professional code quality.
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
 
-# SQLDelight
+# ----------------------------------------
+# SPECIALIZED DATABASE TOOLING PLUGINS
+# ----------------------------------------
+#
+# Advanced database development plugins providing type-safe operations and
+# sophisticated database management capabilities for complex data scenarios.
+
+# SQLDelight Database Plugin
+# Type-safe database plugin providing compile-time SQL query verification,
+# multiplatform database support, and advanced database code generation for
+# scenarios requiring sophisticated database integration beyond standard capabilities.
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
