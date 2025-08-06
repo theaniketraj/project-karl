@@ -73,3 +73,4 @@ secrets.json
 /karl-compose-ui/build/
 /karl-kldl/build/
 /karl-room/build/
+karl-example-desktop/karl_database.db
