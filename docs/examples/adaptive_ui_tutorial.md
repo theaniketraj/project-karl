@@ -42,18 +42,19 @@ class AppViewModel(private val karlContainer: KarlContainer) {
         }
     }
 }
+```
 
 ### 3. Implementing the LearningEngine Strategy
 
 For this scenario, the LearningEngine's role is to rank actions by usage frequency, not to predict the next action. Here’s how it works:
 
-- **trainStep(data: InteractionData):**  
+* **trainStep(data: InteractionData):**  
     When the engine receives an `InteractionData` event of type `action_used`, it updates an internal frequency map (such as `Map<String, Int>`). This map serves as the simple "learned model."
 
-- **predict(...):**  
+* **predict(...):**  
     The engine sorts the frequency map in descending order by count, selects the top three action IDs, and returns them as a comma-separated string in the `Prediction` object's `suggestion` field.
 
-- **State Management:**  
+* **State Management:**  
     The `getCurrentState()` method serializes the frequency map (for example, to JSON) into a `ByteArray`. The `initialize()` method deserializes it to restore state.
 
 ### 4. Building the Jetpack Compose UI
