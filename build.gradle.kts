@@ -73,6 +73,8 @@
 
 // karl-project/build.gradle.kts
 
+import java.net.URL
+
 /*
  * ========================================
  * GRADLE PLUGIN MANAGEMENT CONFIGURATION
@@ -197,12 +199,18 @@ subprojects {
 
     // Configure the dokka task for each submodule
     tasks.withType<org.jetbrains.dokka.gradle.DokkaTask>().configureEach {
-        dokkaSourceSets.configureEach {
-            // This is the crucial setting to prevent network calls
-            offlineMode.set(true)
-
-            // Suppress some noisy, less useful generated functions
-            suppressObviousFunctions.set(true)
+        dokkaSourceSets {
+            configureEach {
+                suppressGeneratedFiles.set(false)
+                externalDocumentationLink {
+                    url.set(URL("https://developer.android.com/reference/androidx/room/"))
+                    packageListUrl.set(URL("https://developer.android.com/reference/androidx/room/package-list"))
+                }
+                externalDocumentationLink {
+                    url.set(URL("https://developer.android.com/reference/kotlin/androidx/compose/"))
+                    packageListUrl.set(URL("https://developer.android.com/reference/kotlin/androidx/compose/package-list"))
+                }
+            }
         }
     }
 }
