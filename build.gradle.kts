@@ -145,21 +145,6 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
 }
 
-tasks.withType<org.jetbrains.dokka.gradle.DokkaTask>().configureEach {
-    dokkaSourceSets.configureEach {
-        // This is the crucial setting. It tells Dokka not to try to resolve
-        // external documentation links online during the build.
-        // This makes the build faster and more reliable in CI environments.
-        suppressObviousFunctions.set(true)
-        noAndroidSdkLink.set(true) // Deprecated, but can help with older AndroidX links
-        
-        // Disable online mode to prevent Dokka from trying to resolve links
-        // This is particularly useful in CI environments or when offline development
-        // is preferred, ensuring that the build does not fail due to network issues.
-        offlineMode.set(true)
-    }
-}
-
 /*
  * ========================================
  * SUBPROJECT CONFIGURATION MANAGEMENT
@@ -205,6 +190,20 @@ subprojects {
 
         // Verbose output for detailed formatting feedback during development
         verbose.set(true)
+    }
+
+    // Apply the dokka plugin to each submodule
+    apply(plugin = "org.jetbrains.dokka")
+
+    // Configure the dokka task for each submodule
+    tasks.withType<org.jetbrains.dokka.gradle.DokkaTask>().configureEach {
+        dokkaSourceSets.configureEach {
+            // This is the crucial setting to prevent network calls
+            offlineMode.set(true)
+
+            // Suppress some noisy, less useful generated functions
+            suppressObviousFunctions.set(true)
+        }
     }
 }
 
