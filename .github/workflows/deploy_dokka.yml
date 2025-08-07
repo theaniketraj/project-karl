@@ -51,6 +51,13 @@ jobs:
             - name: Build Dokka Documentation
               run: ./gradlew dokkaHtmlMultiModule --no-daemon
 
+            # --- NEW DEBUGGING STEP ---
+            # Step 4.1: Verify Dokka Output
+            # This step will list the contents of the build directory to help debug.
+            # If the dokka/html directory is missing, the previous step failed.
+            - name: List Dokka output directory
+              run: ls -R build/dokka
+
             # Step 5: Setup GitHub Pages
             # This action configures the Pages environment for the artifact upload
             - name: Setup Pages
