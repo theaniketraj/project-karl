@@ -1,0 +1,71 @@
+# Name of the workflow
+name: Deploy Dokka Documentation to GitHub Pages
+
+# Controls when the workflow will run
+on:
+    # Triggers the workflow on push events but only for the "main" branch
+    push:
+        branches: ["main"]
+
+    # Allows this workflow to run manually from the Actions tab
+    workflow_dispatch:
+
+# Sets permissions for the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+    group: "pages"
+    cancel-in-progress: false
+
+jobs:
+    # Single job called deploy
+    deploy:
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        runs-on: ubuntu-latest
+        steps:
+            # Step 1: Check out your repository code
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            # Step 2: Set up JDK
+            - name: Set up JDK 21
+              uses: actions/setup-java@v4
+              with:
+                  java-version: "21"
+                  distribution: "temurin"
+                  cache: "gradle"
+
+            # Step 3: Make Gradle wrapper executable
+            - name: Grant execute permission for gradlew
+              run: chmod +x gradlew
+
+            # Step 4: Build Dokka HTML Documentation
+            # This runs the dokkaHtmlMultiModule task, which generates a unified site for all modules
+            - name: Build Dokka Documentation
+              run: ./gradlew dokkaHtmlMultiModule --no-daemon
+
+            # Step 5: Setup GitHub Pages
+            # This action configures the Pages environment for the artifact upload
+            - name: Setup Pages
+              uses: actions/configure-pages@v5
+
+            # Step 6: Upload Dokka output as a Pages artifact
+            # The 'build/dokka/html' directory is the default output for dokkaHtmlMultiModule
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  # Upload the entire Dokka HTML output directory
+                  path: "./build/dokka/html"
+
+            # Step 7: Deploy to GitHub Pages
+            # This action takes the uploaded artifact and deploys it
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
