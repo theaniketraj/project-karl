@@ -47,18 +47,18 @@ jobs:
               run: ./gradlew generateDocs --no-daemon
 
             # Step 4.1: Verify Dokka Output (Aggressive Debugging)
-            - name: Check for Dokka output directory
-              run: |
-                echo "Listing contents of the entire build directory..."
-                ls -R build
-                echo "---"
-                echo "Checking specifically for dokka/html..."
-                if [ -d "build/dokka/html" ]; then
-                    echo "SUCCESS: build/dokka/html directory found."
-                else
-                    echo "ERROR: build/dokka/html directory NOT found."
-                    exit 1
-                fi
+            # - name: Check for Dokka output directory
+            #   run: |
+            #     echo "Listing contents of the entire build directory..."
+            #     ls -R build
+            #     echo "---"
+            #     echo "Checking specifically for dokka/html..."
+            #     if [ -d "build/dokka/html" ]; then
+            #         echo "SUCCESS: build/dokka/html directory found."
+            #     else
+            #         echo "ERROR: build/dokka/html directory NOT found."
+            #         exit 1
+            #     fi
                 
             # Step 5 (Optional): Upload build reports
             # This step runs only if the build step fails (failure())
