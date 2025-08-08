@@ -44,7 +44,7 @@ jobs:
             # Step 4: Build Dokka HTML Documentation
             - name: Build Dokka Documentation
               # Use --info for more detailed logs from Gradle
-              run: ./gradlew dokkaHtmlMultiModule --no-daemon --info
+              run: ./gradlew generateDocs --no-daemon
 
             # Step 4.1: Verify Dokka Output (Aggressive Debugging)
             - name: Check for Dokka output directory
