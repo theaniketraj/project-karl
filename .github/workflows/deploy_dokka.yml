@@ -47,16 +47,23 @@ jobs:
               run: chmod +x gradlew
 
             # Step 4: Build Dokka HTML Documentation
-            # This runs the dokkaHtmlMultiModule task, which generates a unified site for all modules
+            # This runs the generateDocs task, which internally calls dokkaHtmlMultiModule
+            # and provides professional feedback about the documentation generation
             - name: Build Dokka Documentation
-              run: ./gradlew dokkaHtmlMultiModule --no-daemon
+              run: ./gradlew generateDocs --no-daemon
 
             # --- NEW DEBUGGING STEP ---
             # Step 4.1: Verify Dokka Output
             # This step will list the contents of the build directory to help debug.
-            # If the dokka/html directory is missing, the previous step failed.
+            # The dokkaHtmlMultiModule task generates output in build/dokka/htmlMultiModule
             - name: List Dokka output directory
-              run: ls -R build/dokka
+              run: |
+                  echo "Listing all dokka output directories:"
+                  ls -la build/dokka/
+                  echo "Checking for htmlMultiModule directory:"
+                  ls -la build/dokka/htmlMultiModule/
+                  echo "Verifying index.html exists:"
+                  test -f build/dokka/htmlMultiModule/index.html && echo "✅ index.html found" || echo "❌ index.html missing"
 
             # Step 5: Setup GitHub Pages
             # This action configures the Pages environment for the artifact upload
@@ -64,12 +71,12 @@ jobs:
               uses: actions/configure-pages@v5
 
             # Step 6: Upload Dokka output as a Pages artifact
-            # The 'build/dokka/html' directory is the default output for dokkaHtmlMultiModule
+            # The 'build/dokka/htmlMultiModule' directory is the actual output for dokkaHtmlMultiModule
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v3
               with:
                   # Upload the entire Dokka HTML output directory
-                  path: "./build/dokka/html"
+                  path: "./build/dokka/htmlMultiModule"
 
             # Step 7: Deploy to GitHub Pages
             # This action takes the uploaded artifact and deploys it
