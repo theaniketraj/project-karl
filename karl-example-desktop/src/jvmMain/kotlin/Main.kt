@@ -1839,17 +1839,10 @@ fun main() = application {
         /*
          * COMPLETE SYSTEM INITIALIZATION
          * 
-         * Initialize the KARL container with all required dependencies,
-         * demonstrating the proper initialization sequence and component
-         * coordination required for production applications.
+         * Initialize the KARL container using its pre-configured dependencies,
+         * demonstrating the simplified initialization process for production applications.
          */
-        karlContainer.initialize(
-            learningEngine = learningEngine,
-            dataStorage = dataStorage,
-            dataSource = dataSource,
-            instructions = emptyList(), // Start with no behavioral instructions
-            coroutineScope = applicationScope
-        )
+        karlContainer.initialize()
         
         println("App: KARL Initialized.")
     }
