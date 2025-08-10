@@ -39,6 +39,7 @@ import com.karl.core.models.KarlInstruction
 import com.karl.core.models.Prediction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Defines the contract for AI/ML learning engines that power KARL's adaptive capabilities.
@@ -879,6 +880,77 @@ interface KarlContainer {
      * @see Prediction for detailed prediction format documentation
      */
     suspend fun getPrediction(): Prediction?
+
+    /**
+     * Creates a reactive stream of predictions that continuously emits suggestions as context changes.
+     *
+     * This method provides a **reactive programming interface** to the KARL prediction system,
+     * enabling applications to respond to predictions in real-time as they become available.
+     * Unlike the synchronous [getPrediction] method, this returns a Flow that emits predictions
+     * continuously as the system learns and context evolves.
+     *
+     * **Reactive benefits**:
+     * - **Real-time responsiveness**: Predictions are delivered immediately as context changes
+     * - **Efficient resource usage**: Only active when collectors are present
+     * - **Backpressure handling**: Built-in flow control prevents overwhelming consumers
+     * - **Composable streams**: Can be combined with other reactive operations
+     * - **Automatic lifecycle management**: Stream automatically manages subscription lifecycle
+     *
+     * **Usage patterns**:
+     * ```kotlin
+     * // Basic prediction collection
+     * container.getPredictions().collect { prediction ->
+     *     prediction?.let { updateUI(it) }
+     * }
+     *
+     * // Advanced stream processing
+     * container.getPredictions()
+     *     .filterNotNull()
+     *     .debounce(300.milliseconds)
+     *     .distinctUntilChanged()
+     *     .collect { prediction ->
+     *         displaySuggestion(prediction)
+     *     }
+     * ```
+     *
+     * **Emission triggers**:
+     * The Flow emits new predictions when:
+     * - **Context changes**: User interactions, state transitions, environmental changes
+     * - **Learning updates**: New patterns discovered, model improvements
+     * - **Data availability**: New interaction data processed and incorporated
+     * - **Instruction updates**: KARL instructions modified via [updateInstructions]
+     * - **Periodic refresh**: Configurable intervals for re-evaluation
+     *
+     * **Stream characteristics**:
+     * - **Cold Flow**: Each collector gets its own prediction stream
+     * - **Infinite stream**: Continues emitting until container is released
+     * - **Null-safe**: Emits null when no prediction is available
+     * - **Thread-safe**: Safe for collection from multiple coroutines
+     * - **Cancellation-aware**: Properly handles coroutine cancellation
+     *
+     * **Performance considerations**:
+     * - Predictions are computed on-demand for active collectors
+     * - Debouncing recommended for rapid context changes
+     * - Memory usage scales with number of active collectors
+     * - CPU usage proportional to prediction computation frequency
+     *
+     * **Error handling**:
+     * - Flow completes normally when container is released
+     * - Emits null during transient error states
+     * - Critical errors may terminate the flow with an exception
+     * - Use `catch` operator for custom error handling
+     *
+     * @return A [Flow] of [Prediction] objects that emits continuously as predictions
+     *         become available. Emits null when no meaningful prediction can be generated
+     *         for the current context.
+     *
+     * @see getPrediction For synchronous, one-time prediction retrieval
+     * @see processInteraction For providing feedback that improves prediction quality
+     * @see updateInstructions For customizing prediction behavior
+     *
+     * @since 1.1.0
+     */
+    fun getPredictions(): Flow<Prediction?>
 
     /**
      * Resets the container to a fresh state, clearing all learned patterns and user data.
