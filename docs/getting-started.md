@@ -77,7 +77,7 @@ val karlContainer = Karl.forUser("user-123")
     .build()
 
 applicationScope.launch {
-    karlContainer.initialize(...)
+    karlContainer.initialize()
 }
 ```
 

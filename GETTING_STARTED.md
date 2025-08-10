@@ -6,22 +6,24 @@ KARL empowers you to build intelligent features that learn from individual user 
 
 ## Table of Contents
 
-1.  [Introduction](#introduction)
-2.  [Prerequisites](#prerequisites)
-3.  [Installation](#installation)
-    *   [Adding Repositories](#adding-repositories)
-    *   [Adding Dependencies](#adding-dependencies)
-    *   [Syncing Gradle](#syncing-gradle)
-4.  [Core Concepts Recap](#core-concepts-recap)
-5. [Modules-Overview](#modules-overview)
-6. [Basic Usage Example](#basic-usage-example)
-    *   [Step 1: Implement DataSource](#step-1-implement-datasource)
-    *   [Step 2: Obtain a CoroutineScope](#step-2-obtain-a-coroutinescope)
-    *   [Step 3: Instantiate Dependencies](#step-3-instantiate-dependencies)
-    *   [Step 4: Build and Initialize KarlContainer](#step-4-build-and-initialize-karlcontainer)
-    *   [Step 5: Get Predictions](#step-5-get-predictions)
-    *   [Step 6: Manage Lifecycle (Save & Release)](#step-6-manage-lifecycle-save--release)
-7. [Next Steps](#next-step)
+- [Getting Started with Project KARL](#getting-started-with-project-karl)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+    - [Adding Repositories](#adding-repositories)
+    - [Adding Dependencies](#adding-dependencies)
+    - [Syncing Gradle](#syncing-gradle)
+  - [Core Concepts Recap](#core-concepts-recap)
+  - [Modules Overview](#modules-overview)
+  - [Basic Usage Example](#basic-usage-example)
+    - [Step 1: Implement DataSource](#step-1-implement-datasource)
+    - [Step 2: Obtain a CoroutineScope](#step-2-obtain-a-coroutinescope)
+    - [Step 3: Instantiate Dependencies](#step-3-instantiate-dependencies)
+    - [Step 4: Build and Initialize KarlContainer](#step-4-build-and-initialize-karlcontainer)
+    - [Step 5: Get Predictions](#step-5-get-predictions)
+    - [Step 6: Manage Lifecycle (Save \& Release)](#step-6-manage-lifecycle-save--release)
+  - [Next Step](#next-step)
 
 ---
 
@@ -250,14 +252,8 @@ val karlContainer: KarlContainer = Karl.forUser(userId)
 val initializationJob = applicationScope.launch {
 try {
 println("MainApp: Initializing KARL container...")
-// Pass dependencies again (interface design might evolve)
-karlContainer.initialize(
-learningEngine = learningEngine,
-dataStorage = dataStorage,
-dataSource = dataSource,
-coroutineScope = applicationScope
-// instructions = listOf(...)
-)
+// Simple initialization - dependencies already provided during container creation
+karlContainer.initialize()
 println("MainApp: KARL container initialized successfully!")
 // Now KARL is observing data from your DataSource and learning in the background
 
