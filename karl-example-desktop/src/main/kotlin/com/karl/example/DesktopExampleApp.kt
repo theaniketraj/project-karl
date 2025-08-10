@@ -486,7 +486,7 @@ fun main() =
 
                 // Add to interaction log
                 prediction?.let { pred ->
-                    addInteractionLogEntry(actionType, pred.suggestion, pred.confidence)
+                    addInteractionLogEntry(actionType, pred.content, pred.confidence)
                 }
 
                 // Update learning insights after interaction
@@ -1558,7 +1558,7 @@ fun main() =
                                                     ) {
                                                         Column {
                                                             Text(
-                                                                text = predictionValue?.suggestion ?: "No prediction available",
+                                                                text = predictionValue?.content ?: "No prediction available",
                                                                 style =
                                                                     MaterialTheme.typography.body1.copy(
                                                                         fontWeight = FontWeight.SemiBold,
@@ -2448,7 +2448,7 @@ fun main() =
 
                                                                     // Add to interaction log with prediction details
                                                                     prediction?.let { pred ->
-                                                                        addInteractionLogEntry(actionType, pred.suggestion, pred.confidence)
+                                                                        addInteractionLogEntry(actionType, pred.content, pred.confidence)
                                                                     } ?: addInteractionLogEntry(actionType, "no prediction", 0.0f)
 
                                                                     updateLearningProgress()
@@ -2493,7 +2493,7 @@ fun main() =
 
                                                                     // Add to interaction log with prediction details
                                                                     prediction?.let { pred ->
-                                                                        addInteractionLogEntry(actionType, pred.suggestion, pred.confidence)
+                                                                        addInteractionLogEntry(actionType, pred.content, pred.confidence)
                                                                     } ?: addInteractionLogEntry(actionType, "no prediction", 0.0f)
 
                                                                     updateLearningProgress()
