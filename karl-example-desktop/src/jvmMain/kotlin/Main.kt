@@ -720,7 +720,7 @@ class MockDataStorage : DataStorage {
  * Mock implementation of the DataSource interface for user interaction simulation.
  * 
  * This implementation provides a reactive data source that enables UI components
- * to trigger interaction events and demonstrates the event-driven architecture
+ * to record interaction events and demonstrates the event-driven architecture
  * used throughout the KARL framework for real-time user behavior monitoring.
  * 
  * **Event-Driven Architecture:**
@@ -729,10 +729,10 @@ class MockDataStorage : DataStorage {
  * - Provides backpressure handling for high-frequency interaction scenarios
  * - Enables decoupled communication between UI and learning components
  * 
- * **Interaction Simulation Features:**
- * - Programmatic event generation from UI components
+ * **Simplified Interaction Model:**
+ * - Provides `recordInteraction()` method for easy application integration
+ * - Internal MutableSharedFlow handles event broadcasting automatically
  * - Rich interaction metadata including timestamps and context
- * - Support for various interaction types and categories
  * - Real-time event broadcasting to all registered observers
  * 
  * **Production Replacement:**
@@ -770,57 +770,91 @@ class MockDataSource(private val coroutineScope: CoroutineScope) : DataSource {
      * - Concurrent observer support without synchronization overhead
      * - Proper lifecycle management for observer registration/cleanup
      */
-    private val _interactionDataFlow = MutableSharedFlow<InteractionData>()
-    
-    /**
-     * Public read-only view of the interaction event stream.
-     * 
-     * **Observer Pattern Implementation:**
-     * - Exposes events to external observers without modification capability
-     * - Supports multiple concurrent observers for different system components
-     * - Provides strong typing for interaction data consistency
-     * - Enables reactive programming patterns for UI updates
-     */
-    val interactionDataFlow = _interactionDataFlow.asSharedFlow()
+    private val interactionDataFlow = MutableSharedFlow<InteractionData>(
+        replay = 0,
+        extraBufferCapacity = Int.MAX_VALUE
+    )
 
     /**
-     * Simulates a user interaction event for demonstration and testing purposes.
+     * Records a user interaction event into the KARL learning system.
      * 
-     * This method enables UI components to programmatically generate interaction
-     * events that trigger the complete KARL learning pipeline, demonstrating
-     * how real user interactions would be processed by the framework.
+     * This method provides a simplified interface for applications to send interaction
+     * data to KARL. It replaces the previous `simulateInteraction` method with a more
+     * intuitive API that emphasizes the recording aspect rather than simulation.
+     * 
+     * **Simplified Integration:**
+     * - Single method call to record any type of interaction
+     * - Automatic event broadcasting to all active observers
+     * - Built-in error handling and logging for debugging
+     * - Asynchronous processing to prevent UI blocking
      * 
      * **Event Broadcasting:**
-     * - Asynchronous emission to prevent UI blocking
-     * - Automatic delivery to all registered observers
+     * - Immediate delivery to all registered KARL observers
+     * - Thread-safe emission with automatic backpressure handling
      * - Comprehensive logging for debugging and monitoring
-     * - Error handling for emission failures
-     * 
-     * **Interaction Metadata:**
-     * - Complete interaction context including timestamps
-     * - Structured data format for consistent processing
-     * - Type classification for filtering and analysis
-     * - User identification for data isolation
+     * - Graceful error handling for robust operation
      * 
      * **Usage Patterns:**
-     * - Button click simulation for user interface testing
-     * - Programmatic event generation for automated scenarios
-     * - Manual interaction triggering for demonstration purposes
-     * - Integration testing for learning pipeline validation
+     * ```kotlin
+     * // Record button clicks
+     * dataSource.recordInteraction(
+     *     InteractionData(
+     *         type = "button_click",
+     *         details = mapOf("button_id" to "submit"),
+     *         timestamp = System.currentTimeMillis(),
+     *         userId = "user123"
+     *     )
+     * )
+     * 
+     * // Record navigation events
+     * dataSource.recordInteraction(
+     *     InteractionData(
+     *         type = "navigation",
+     *         details = mapOf("from" to "home", "to" to "settings"),
+     *         timestamp = System.currentTimeMillis(),
+     *         userId = "user123"
+     *     )
+     * )
+     * ```
+     * 
+     * **Production Integration:**
+     * In production applications, this method would be called from:
+     * - UI event handlers (onClick, onTextChange, etc.)
+     * - Navigation callbacks (screen transitions, deep links)
+     * - Application lifecycle events (foreground/background)
+     * - Custom business logic events (purchases, achievements)
      * 
      * @param data Complete interaction data with metadata and context
      */
-    fun simulateInteraction(data: InteractionData) {
+    fun recordInteraction(data: InteractionData) {
         coroutineScope.launch {
             /*
              * ASYNCHRONOUS EVENT EMISSION
              * 
-             * Events are emitted asynchronously to prevent blocking the UI thread
+             * Events are emitted asynchronously to prevent blocking the calling thread
              * and enable smooth user experience during high-frequency interactions.
              */
-            _interactionDataFlow.emit(data)
-            println("MockDataSource: Emitted interaction data: ${data.type}")
+            val emitted = interactionDataFlow.tryEmit(data)
+            
+            if (emitted) {
+                println("MockDataSource: Recorded interaction: ${data.type}")
+            } else {
+                println("MockDataSource: Warning - Failed to emit interaction: ${data.type}")
+            }
         }
+    }
+
+    /**
+     * Legacy method for backward compatibility.
+     * 
+     * @deprecated Use [recordInteraction] instead for better API clarity
+     */
+    @Deprecated(
+        message = "Use recordInteraction() instead for clearer API semantics",
+        replaceWith = ReplaceWith("recordInteraction(data)")
+    )
+    fun simulateInteraction(data: InteractionData) {
+        recordInteraction(data)
     }
 
     /**
@@ -1614,17 +1648,17 @@ fun KarlContainerUI(container: KarlContainerImpl, dataSource: MockDataSource) {
             
             // Primary Action Simulation - General user actions
             InteractionButton(
-                text = "Simulate Action A",
+                text = "Record Action A",
                 onClick = {
                     /*
-                     * GENERIC ACTION SIMULATION
+                     * GENERIC ACTION RECORDING
                      * 
-                     * Simulates a general user action type for demonstrating
+                     * Records a general user action type for demonstrating
                      * basic learning pattern recognition and adaptation.
                      */
-                    dataSource.simulateInteraction(
+                    dataSource.recordInteraction(
                         InteractionData(
-                            type = "simulated_button_click",
+                            type = "button_click",
                             details = mapOf("button" to "action_A"),
                             timestamp = System.currentTimeMillis(),
                             userId = container.userId
@@ -1634,19 +1668,19 @@ fun KarlContainerUI(container: KarlContainerImpl, dataSource: MockDataSource) {
             )
             Spacer(Modifier.height(8.dp))
             
-            // Secondary Action Simulation - Alternative user behavior
+            // Secondary Action Recording - Alternative user behavior
             InteractionButton(
-                text = "Simulate Action B",
+                text = "Record Action B",
                 onClick = {
                     /*
-                     * ALTERNATIVE ACTION SIMULATION
+                     * ALTERNATIVE ACTION RECORDING
                      * 
-                     * Provides a different action type to demonstrate KARL's
+                     * Records a different action type to demonstrate KARL's
                      * ability to distinguish between different user behaviors.
                      */
-                    dataSource.simulateInteraction(
+                    dataSource.recordInteraction(
                         InteractionData(
-                            type = "simulated_button_click",
+                            type = "button_click",
                             details = mapOf("button" to "action_B"),
                             timestamp = System.currentTimeMillis(),
                             userId = container.userId
@@ -1656,20 +1690,20 @@ fun KarlContainerUI(container: KarlContainerImpl, dataSource: MockDataSource) {
             )
             Spacer(Modifier.height(8.dp))
             
-            // Development Workflow Simulation - Code commit action
+            // Development Workflow Recording - Code commit action
             InteractionButton(
-                text = "Simulate Commit",
+                text = "Record Commit",
                 onClick = {
                     /*
-                     * COMMIT ACTION SIMULATION
+                     * COMMIT ACTION RECORDING
                      * 
-                     * Simulates development workflow actions like code commits
+                     * Records development workflow actions like code commits
                      * to demonstrate KARL's applicability in developer tools.
                      */
-                    dataSource.simulateInteraction(
+                    dataSource.recordInteraction(
                         InteractionData(
-                            type = "simulated_button_click",
-                            details = mapOf("button" to "simulate_commit"),
+                            type = "workflow_action",
+                            details = mapOf("button" to "commit", "workflow" to "development"),
                             timestamp = System.currentTimeMillis(),
                             userId = container.userId
                         )
@@ -1678,20 +1712,20 @@ fun KarlContainerUI(container: KarlContainerImpl, dataSource: MockDataSource) {
             )
             Spacer(Modifier.height(8.dp))
             
-            // Quality Assurance Simulation - Testing workflow
+            // Quality Assurance Recording - Testing workflow
             InteractionButton(
-                text = "Simulate Test",
+                text = "Record Test",
                 onClick = {
                     /*
-                     * TEST ACTION SIMULATION
+                     * TEST ACTION RECORDING
                      * 
-                     * Simulates testing and quality assurance workflows
+                     * Records testing and quality assurance workflows
                      * to demonstrate KARL's understanding of development cycles.
                      */
-                    dataSource.simulateInteraction(
+                    dataSource.recordInteraction(
                         InteractionData(
-                            type = "simulated_button_click",
-                            details = mapOf("button" to "simulate_test"),
+                            type = "workflow_action",
+                            details = mapOf("button" to "test", "workflow" to "qa"),
                             timestamp = System.currentTimeMillis(),
                             userId = container.userId
                         )
@@ -1700,20 +1734,20 @@ fun KarlContainerUI(container: KarlContainerImpl, dataSource: MockDataSource) {
             )
             Spacer(Modifier.height(8.dp))
             
-            // Code Improvement Simulation - Refactoring action
+            // Code Improvement Recording - Refactoring action
             InteractionButton(
-                text = "Simulate Refactor",
+                text = "Record Refactor",
                 onClick = {
                     /*
-                     * REFACTORING ACTION SIMULATION
+                     * REFACTORING ACTION RECORDING
                      * 
-                     * Simulates code refactoring and improvement activities
+                     * Records code refactoring and improvement activities
                      * demonstrating KARL's learning from maintenance workflows.
                      */
-                    dataSource.simulateInteraction(
+                    dataSource.recordInteraction(
                         InteractionData(
-                            type = "simulated_button_click",
-                            details = mapOf("button" to "simulate_refactor"),
+                            type = "workflow_action",
+                            details = mapOf("button" to "refactor", "workflow" to "maintenance"),
                             timestamp = System.currentTimeMillis(),
                             userId = container.userId
                         )
@@ -1722,20 +1756,20 @@ fun KarlContainerUI(container: KarlContainerImpl, dataSource: MockDataSource) {
             )
             Spacer(Modifier.height(8.dp))
             
-            // Problem Resolution Simulation - Debugging workflow
+            // Problem Resolution Recording - Debugging workflow
             InteractionButton(
-                text = "Simulate Debug",
+                text = "Record Debug",
                 onClick = {
                     /*
-                     * DEBUGGING ACTION SIMULATION
+                     * DEBUGGING ACTION RECORDING
                      * 
-                     * Simulates debugging and problem-solving activities
+                     * Records debugging and problem-solving activities
                      * to demonstrate KARL's pattern recognition in troubleshooting.
                      */
-                    dataSource.simulateInteraction(
+                    dataSource.recordInteraction(
                         InteractionData(
-                            type = "simulated_button_click",
-                            details = mapOf("button" to "simulate_debug"),
+                            type = "workflow_action",
+                            details = mapOf("button" to "debug", "workflow" to "troubleshooting"),
                             timestamp = System.currentTimeMillis(),
                             userId = container.userId
                         )
