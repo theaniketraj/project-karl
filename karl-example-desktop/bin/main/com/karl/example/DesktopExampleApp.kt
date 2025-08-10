@@ -622,13 +622,7 @@ fun main() =
                         .build()
 
                 // Initialize (must be called!)
-                container.initialize(
-                    engine,
-                    dataStorage,
-                    dataSource,
-                    emptyList(),
-                    applicationScope,
-                )
+                container.initialize()
 
                 karlContainer = container // Store the initialized container
                 learningEngine = engine // Store the learning engine for insights
