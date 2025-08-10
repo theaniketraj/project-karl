@@ -163,11 +163,12 @@ internal class KarlContainerImpl(
      */
 
     /**
-     * Initializes the complete KARL container system in a carefully orchestrated sequence.
+     * Initializes the complete KARL container system using its pre-configured dependencies.
      *
      * This method performs a multi-stage initialization process that ensures all components
      * are properly configured and connected before the container becomes operational.
      * The initialization is designed to be idempotent and safe to call multiple times.
+     * All dependencies are already available through constructor injection.
      *
      * **Initialization Sequence:**
      * 1. **State Protection**: Acquires exclusive lock to prevent concurrent initialization attempts
@@ -186,32 +187,16 @@ internal class KarlContainerImpl(
      * This method is fully thread-safe through mutex protection and can be safely called
      * from any coroutine context. However, multiple concurrent calls will be serialized.
      *
-     * @param learningEngine Engine instance (ignored - uses constructor-injected dependency)
-     * @param dataStorage Storage instance (ignored - uses constructor-injected dependency)
-     * @param dataSource Data source instance (ignored - uses constructor-injected dependency)
-     * @param instructions Updated instruction set to apply during initialization
-     * @param coroutineScope Scope for operations (ignored - uses constructor-injected scope)
-     *
      * @throws Exception If storage initialization or engine initialization fails
      *
      * @see reset For reinitializing an already-initialized container
      * @see release For proper cleanup when the container is no longer needed
      */
-    override suspend fun initialize(
-        learningEngine: LearningEngine,
-        dataStorage: DataStorage,
-        dataSource: DataSource,
-        instructions: List<KarlInstruction>,
-        coroutineScope: CoroutineScope,
-    ) {
+    override suspend fun initialize() {
         // Acquire exclusive lock to prevent concurrent initialization attempts
         // This ensures atomic initialization even in highly concurrent environments
         stateMutex.withLock {
             println("KARL Container for user $userId: Initializing...")
-
-            // Update instruction set with provided configuration
-            // This must happen early to ensure instructions are available during initialization
-            this.currentInstructions = instructions
 
             /*
              * STAGE 1: STORAGE INFRASTRUCTURE INITIALIZATION
