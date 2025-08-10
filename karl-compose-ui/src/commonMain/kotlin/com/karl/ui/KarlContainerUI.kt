@@ -249,7 +249,7 @@ fun KarlContainerUI(
             color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
         )
         Text(
-            text = currentPrediction?.suggestion ?: "No suggestion yet...",
+            text = currentPrediction?.content ?: "No suggestion yet...",
             fontWeight = FontWeight.SemiBold,
             fontSize = 18.sp,
             color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
