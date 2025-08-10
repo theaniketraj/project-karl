@@ -35,8 +35,8 @@ class AppViewModel(private val karlContainer: KarlContainer) {
 
             // After the action is processed, we ask KARL for an updated list.
             val prediction = karlContainer.getPrediction()
-            // Assume the prediction.suggestion is a comma-separated list of top actions
-            prediction?.suggestion?.let { newOrder ->
+            // Assume the prediction.content is a comma-separated list of top actions
+            prediction?.content?.let { newOrder ->
                 _quickActions.value = newOrder.split(",")
             }
         }

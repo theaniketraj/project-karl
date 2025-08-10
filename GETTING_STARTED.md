@@ -293,7 +293,7 @@ initializationJob.join() // Ensure initialization is complete
     val prediction = karlContainer.getPrediction()
 
     if (prediction != null) {
-        println("MainApp: KARL Suggestion Received: ${prediction.suggestion} (Confidence: ${prediction.confidence})")
+        println("MainApp: KARL Suggestion Received: ${prediction.content} (Confidence: ${prediction.confidence})")
         // TODO: Update your application's UI or behavior based on the prediction
     } else {
         println("MainApp: KARL provided no suggestion yet.")
