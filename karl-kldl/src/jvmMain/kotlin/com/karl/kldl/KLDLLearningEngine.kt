@@ -321,7 +321,7 @@ class KLDLLearningEngine(
     ): Prediction? {
         println("KLDLLearningEngine: Predicting for context of ${contextData.size} items")
         return Prediction(
-            suggestion = "mock_action",
+            content = "mock_action",
             confidence = 0.7f,
             type = "stub_prediction",
             metadata = mapOf("stub" to "prediction"),
