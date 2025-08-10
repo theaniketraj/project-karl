@@ -323,14 +323,14 @@ class MockLearningEngine(private val coroutineScope: CoroutineScope) : LearningE
         return if (interactionCount > 5) {
             // High-confidence prediction after sufficient learning
             Prediction(
-                suggestion = "Simulated Suggestion (Learned!)",
+                content = "Simulated Suggestion (Learned!)",
                 confidence = 0.8f,
                 type = "mock_suggestion"
             )
         } else {
             // Low-confidence prediction during initial learning phase
             Prediction(
-                suggestion = "Simulated Suggestion (Not yet learned)",
+                content = "Simulated Suggestion (Not yet learned)",
                 confidence = 0.3f,
                 type = "mock_suggestion"
             )
@@ -1250,7 +1250,7 @@ class KarlContainerImpl(
                     
                     // Emit the prediction (may be null)
                     emit(prediction)
-                    println("KarlContainer[$userId]: Emitted prediction: ${prediction?.suggestion}")
+                    println("KarlContainer[$userId]: Emitted prediction: ${prediction?.content}")
                     
                     // Wait before next prediction (demo interval)
                     // Production would be event-driven based on context changes
@@ -1633,7 +1633,7 @@ fun KarlContainerUI(container: KarlContainerImpl, dataSource: MockDataSource) {
              * Shows current AI-generated predictions with formatted confidence
              * levels and graceful handling of null prediction states.
              */
-            Text("KARL Suggestion: ${prediction?.suggestion ?: "No suggestion yet"}")
+            Text("KARL Suggestion: ${prediction?.content ?: "No suggestion yet"}")
             Spacer(Modifier.height(8.dp))
             Text("Confidence: ${prediction?.confidence?.let { "%.2f".format(it) } ?: "N/A"}")
             Spacer(Modifier.height(16.dp))
@@ -1796,7 +1796,7 @@ fun KarlContainerUI(container: KarlContainerImpl, dataSource: MockDataSource) {
                 containerScope.launch {
                     println("Starting reactive prediction collection...")
                     container.getPredictions().collect { prediction ->
-                        println("Reactive stream prediction: ${prediction?.suggestion ?: "null"}")
+                        println("Reactive stream prediction: ${prediction?.content ?: "null"}")
                         // In a real UI, this would update reactive state
                         // For demo, we just log the received predictions
                     }
