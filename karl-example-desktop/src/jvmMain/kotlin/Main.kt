@@ -84,10 +84,12 @@ import com.karl.core.models.Prediction      // AI-generated suggestions
 
 // Kotlin Coroutines for Asynchronous Operations
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.flow
 
 /*
  * ========================================
@@ -1176,6 +1178,60 @@ class KarlContainerImpl(
     }
 
     /**
+     * Creates a reactive stream of predictions for real-time UI updates.
+     * 
+     * This implementation provides a demonstration of the reactive prediction API
+     * that enables applications to receive continuous prediction updates as the
+     * learning state evolves and context changes.
+     * 
+     * **Reactive Features:**
+     * - Real-time prediction updates as learning progresses
+     * - Efficient resource usage through Flow-based streaming
+     * - Automatic lifecycle management tied to container scope
+     * - Graceful error handling with continued operation
+     * 
+     * **Desktop Demo Implementation:**
+     * - Periodic prediction generation for demonstration purposes
+     * - Simple interval-based updates (production would be event-driven)
+     * - Comprehensive logging for demonstration visibility
+     * - Error recovery with continued stream operation
+     * 
+     * **Production Differences:**
+     * Real implementations would trigger predictions based on:
+     * - Context changes and user interaction events
+     * - Learning milestone completion
+     * - External data availability
+     * - User-defined refresh intervals
+     * 
+     * @return Flow of predictions that emits continuously during container lifetime
+     */
+    override fun getPredictions(): Flow<Prediction?> =
+        flow {
+            println("KarlContainer[$userId]: Starting reactive prediction stream...")
+            
+            while (true) {
+                try {
+                    // Generate prediction using the existing method
+                    val prediction = getPrediction()
+                    
+                    // Emit the prediction (may be null)
+                    emit(prediction)
+                    println("KarlContainer[$userId]: Emitted prediction: ${prediction?.suggestion}")
+                    
+                    // Wait before next prediction (demo interval)
+                    // Production would be event-driven based on context changes
+                    delay(2000) // 2 seconds for demo purposes
+                    
+                } catch (e: Exception) {
+                    println("KarlContainer[$userId]: Error in prediction stream: ${e.message}")
+                    // Emit null on error to maintain stream continuity
+                    emit(null)
+                    delay(5000) // Longer delay on error
+                }
+            }
+        }
+
+    /**
      * Performs complete system reset with reactive UI state management.
      * 
      * This method provides comprehensive reset functionality with enhanced
@@ -1695,6 +1751,26 @@ fun KarlContainerUI(container: KarlContainerImpl, dataSource: MockDataSource) {
              * complete system reset for clean demonstration cycles.
              */
             val containerScope = rememberCoroutineScope()
+            
+            Button(onClick = {
+                /*
+                 * REACTIVE PREDICTION STREAM DEMONSTRATION
+                 * 
+                 * Demonstrates how to collect from the reactive prediction stream
+                 * that was added in Part 2. This shows the new API in action.
+                 */
+                containerScope.launch {
+                    println("Starting reactive prediction collection...")
+                    container.getPredictions().collect { prediction ->
+                        println("Reactive stream prediction: ${prediction?.suggestion ?: "null"}")
+                        // In a real UI, this would update reactive state
+                        // For demo, we just log the received predictions
+                    }
+                }
+            }) {
+                Text("Start Reactive Predictions")
+            }
+            Spacer(Modifier.height(8.dp))
             
             Button(onClick = {
                 /*
