@@ -756,21 +756,19 @@ interface KarlContainer {
     val userId: String
 
     /**
-     * Initializes the container with all required dependencies and starts background operations.
+     * Initializes the container using its pre-configured dependencies and starts background operations.
      *
      * This method performs the complete initialization sequence for the KARL container,
-     * setting up all component dependencies, loading persistent state, and starting
-     * background processes for learning and data collection. It represents the transition
-     * from configuration to active operation for the container instance.
+     * utilizing the dependencies that were already provided during container creation.
+     * The container instance holds references to all required components from when it was built,
+     * making parameter passing redundant for the initialization process.
      *
      * Initialization sequence and coordination:
-     * 1. **Dependency validation**: Verify all provided components are properly configured
-     * 2. **Storage initialization**: Set up data storage and load existing container state
-     * 3. **Engine initialization**: Initialize learning engine with loaded state
-     * 4. **Data source setup**: Begin observing interaction events from the data source
-     * 5. **Background services**: Start periodic tasks, monitoring, and maintenance operations
-     * 6. **Instruction processing**: Apply user-defined instructions to all components
-     * 7. **Health verification**: Confirm all components are operational and properly coordinated
+     * 1. **Storage initialization**: Set up data storage and load existing container state
+     * 2. **Engine initialization**: Initialize learning engine with loaded state
+     * 3. **Data source setup**: Begin observing interaction events from the data source
+     * 4. **Background services**: Start periodic tasks, monitoring, and maintenance operations
+     * 5. **Health verification**: Confirm all components are operational and properly coordinated
      *
      * Component integration and data flow:
      *
@@ -792,16 +790,10 @@ interface KarlContainer {
      * - Set up backpressure handling and load balancing
      * - Establish error handling and recovery mechanisms
      *
-     * **Instruction processing**:
-     * - Parse and validate user-defined instructions for syntax and compatibility
-     * - Apply learning preferences, prediction filters, and customization settings
-     * - Configure privacy controls and data usage restrictions
-     * - Set up dynamic instruction update handling
-     *
      * Asynchronous operations and lifecycle management:
      *
      * **Background task coordination**:
-     * - Launch learning processes within the provided coroutine scope
+     * - Launch learning processes within the container's coroutine scope
      * - Set up periodic state persistence and health monitoring
      * - Configure resource cleanup and graceful shutdown procedures
      * - Establish error recovery and fallback mechanisms
@@ -830,29 +822,7 @@ interface KarlContainer {
      * - Monitor resource usage during initialization
      * - Provide progress indicators for long-running initialization tasks
      *
-     * @param learningEngine The configured LearningEngine implementation that will handle
-     *                      AI model training and prediction generation. Must be properly
-     *                      configured with appropriate algorithms and parameters.
-     *
-     * @param dataStorage The configured DataStorage implementation that provides persistent
-     *                   storage for container state, interaction data, and user preferences.
-     *                   Must support encryption and proper data isolation.
-     *
-     * @param dataSource The application-provided DataSource implementation that captures
-     *                  and standardizes user interaction events. Must be configured to
-     *                  observe relevant application events and convert them to InteractionData.
-     *
-     * @param instructions Optional list of user-defined instructions that customize learning
-     *                    behavior, prediction generation, and privacy controls. Instructions
-     *                    are applied across all components during initialization.
-     *
-     * @param coroutineScope The coroutine scope that will manage all asynchronous operations
-     *                      for this container. The scope should be tied to appropriate
-     *                      application lifecycle and will be used for background learning,
-     *                      data processing, and maintenance tasks.
-     *
      * @throws IllegalStateException if container is already initialized or in invalid state
-     * @throws IllegalArgumentException if any provided dependency is invalid or incompatible
      * @throws InitializationException if the initialization process cannot be completed
      * @throws StorageException if data storage operations fail during initialization
      * @throws ResourceException if required resources cannot be allocated
@@ -862,13 +832,7 @@ interface KarlContainer {
      * @see DataSource for data source implementation patterns
      * @see KarlInstruction for instruction format and usage
      */
-    suspend fun initialize(
-        learningEngine: LearningEngine,
-        dataStorage: DataStorage,
-        dataSource: DataSource,
-        instructions: List<KarlInstruction> = emptyList(),
-        coroutineScope: CoroutineScope,
-    )
+    suspend fun initialize()
 
     /**
      * Generates a prediction based on current learned patterns and recent context.
