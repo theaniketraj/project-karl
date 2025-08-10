@@ -62,10 +62,10 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 
 // KARL Framework Core Interfaces and Models
-import com.karl.core.api.KarlContainer      // Primary orchestration interface
-import com.karl.core.api.LearningEngine     // Machine learning abstraction
-import com.karl.core.api.DataStorage        // Persistent storage interface
-import com.karl.core.api.DataSource         // Real-time data observation
+import api.KarlContainer                    // Primary orchestration interface
+import api.LearningEngine                   // Machine learning abstraction
+import com.karl.core.models.DataStorage     // Persistent storage interface
+import com.karl.core.models.DataSource      // Real-time data observation
 import com.karl.core.models.InteractionData // User interaction representation
 import com.karl.core.models.KarlContainerState // Serializable learning state
 import com.karl.core.models.KarlInstruction // Behavioral modification instructions
@@ -85,6 +85,8 @@ import com.karl.core.models.Prediction      // AI-generated suggestions
 // Kotlin Coroutines for Asynchronous Operations
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
 /*
@@ -922,37 +924,31 @@ class MockDataSource(private val coroutineScope: CoroutineScope) : DataSource {
  * - Manual prediction triggering for demonstration purposes
  * 
  * @param userId Unique identifier for user data isolation and personalization
+ * @param learningEngine AI/ML engine for training and inference operations
+ * @param dataStorage Persistent storage for state and interaction data
+ * @param dataSource Real-time interaction event source
+ * @param initialInstructions Initial set of user-defined behavioral rules
+ * @param containerScope Execution context for all container operations
  * 
  * @see KarlContainer For the complete interface specification
  */
-class KarlContainerImpl(override val userId: String) : KarlContainer {
+class KarlContainerImpl(
+    override val userId: String,
+    private val learningEngine: LearningEngine,
+    private val dataStorage: DataStorage,
+    private val dataSource: DataSource,
+    initialInstructions: List<KarlInstruction>,
+    private val containerScope: CoroutineScope,
+) : KarlContainer {
     
     /*
      * ========================================
      * COMPONENT DEPENDENCY MANAGEMENT
      * ========================================
      * 
-     * These properties manage the core KARL components and their lifecycle,
-     * ensuring proper initialization order and resource coordination.
+     * Dependencies are injected through constructor parameters for proper
+     * lifecycle management and dependency isolation.
      */
-    
-    /**
-     * Learning engine instance for AI/ML operations.
-     * 
-     * **Lifecycle**: Initialized during container setup, released during shutdown
-     * **Thread Safety**: All operations coordinated through container scope
-     * **State Management**: Handles model training, prediction, and persistence
-     */
-    private var learningEngine: LearningEngine? = null
-    
-    /**
-     * Data storage instance for persistent state and interaction logging.
-     * 
-     * **Capabilities**: State persistence, interaction history, user data management
-     * **Privacy**: Ensures complete user data isolation and secure deletion
-     * **Performance**: Optimized for frequent read/write operations
-     */
-    private var dataStorage: DataStorage? = null
     
     /**
      * Background job handle for data source observation.
@@ -970,16 +966,7 @@ class KarlContainerImpl(override val userId: String) : KarlContainer {
      * **Thread Safety**: Updates are atomic and immediately effective
      * **Flexibility**: Can be updated dynamically without container restart
      */
-    private var currentInstructions: List<KarlInstruction> = emptyList()
-    
-    /**
-     * Container's coroutine scope for lifecycle management.
-     * 
-     * **Scope**: Provided by application for proper lifecycle coordination
-     * **Usage**: All container operations launched within this scope
-     * **Cleanup**: Managed by application, not cancelled by container
-     */
-    private var containerScope: CoroutineScope? = null
+    private var currentInstructions: List<KarlInstruction> = initialInstructions
 
     /*
      * ========================================
@@ -1048,32 +1035,12 @@ class KarlContainerImpl(override val userId: String) : KarlContainer {
      * Provides comprehensive error handling with graceful degradation and
      * user-friendly status messages for debugging and user experience.
      * 
-     * @param learningEngine AI/ML engine for training and inference operations
-     * @param dataStorage Persistent storage for state and interaction data
-     * @param dataSource Real-time interaction event source
-     * @param instructions Initial set of user-defined behavioral rules
-     * @param coroutineScope Execution context for all container operations
+     * Note: This example implementation expects dependencies to be set through
+     * separate method calls before calling this simplified initialize method.
      */
-    override suspend fun initialize(
-        learningEngine: LearningEngine,
-        dataStorage: DataStorage,
-        dataSource: DataSource,
-        instructions: List<KarlInstruction>,
-        coroutineScope: CoroutineScope
-    ) {
+    override suspend fun initialize() {
         // Begin initialization with UI state updates
         _isInitializing.value = true
-        
-        /*
-         * COMPONENT DEPENDENCY ASSIGNMENT
-         * 
-         * Assign all provided components to container properties for
-         * lifecycle management and operation coordination.
-         */
-        this.learningEngine = learningEngine
-        this.dataStorage = dataStorage
-        this.currentInstructions = instructions
-        this.containerScope = coroutineScope
 
         println("KarlContainer[$userId]: Initializing...")
 
@@ -1101,7 +1068,7 @@ class KarlContainerImpl(override val userId: String) : KarlContainer {
          * Initialize the machine learning engine with recovered state,
          * preparing it for training and prediction operations.
          */
-        learningEngine.initialize(savedState, coroutineScope)
+        learningEngine.initialize(savedState, containerScope)
         _learningStatus.value = "Engine initialized."
 
         /*
@@ -1120,7 +1087,7 @@ class KarlContainerImpl(override val userId: String) : KarlContainer {
                  * Process each interaction through the complete learning pipeline
                  * with proper error handling and UI state updates.
                  */
-                containerScope?.launch {
+                containerScope.launch {
                     // Optional: Persist raw interaction data for analysis
                     // dataStorage.saveInteractionData(data)
                     
@@ -1136,7 +1103,7 @@ class KarlContainerImpl(override val userId: String) : KarlContainer {
                     trainJob.invokeOnCompletion { cause ->
                         if (cause == null) {
                             println("KarlContainer[$userId]: Train step completed.")
-                            containerScope?.launch {
+                            containerScope.launch {
                                 _learningStatus.value = "Learned from ${data.type}."
                                 
                                 // Trigger immediate prediction update for responsive UX
@@ -1144,14 +1111,14 @@ class KarlContainerImpl(override val userId: String) : KarlContainer {
                             }
                         } else {
                             println("KarlContainer[$userId]: Train step failed: $cause")
-                            containerScope?.launch {
+                            containerScope.launch {
                                 _learningStatus.value = "Learning failed."
                             }
                         }
                     }
                 }
             },
-            coroutineScope = coroutineScope
+            coroutineScope = containerScope
         )
         _learningStatus.value = "Observing data..."
 
@@ -1197,7 +1164,7 @@ class KarlContainerImpl(override val userId: String) : KarlContainer {
          * Load recent interaction history to provide temporal context
          * for more accurate and relevant prediction generation.
          */
-        val recentData = dataStorage?.loadRecentInteractionData(userId, limit = 10) ?: emptyList()
+        val recentData = dataStorage.loadRecentInteractionData(userId, limit = 10)
         
         /*
          * LEARNING ENGINE CONSULTATION
@@ -1205,7 +1172,7 @@ class KarlContainerImpl(override val userId: String) : KarlContainer {
          * Request prediction from the learning engine using gathered context
          * and current user instructions for personalized suggestions.
          */
-        return learningEngine?.predict(recentData, currentInstructions)
+        return learningEngine.predict(recentData, currentInstructions)
     }
 
     /**
@@ -1230,14 +1197,14 @@ class KarlContainerImpl(override val userId: String) : KarlContainer {
     override suspend fun reset(): Job {
         println("KarlContainer[$userId]: Resetting...")
         
-        return containerScope?.launch {
+        return containerScope.launch {
             /*
              * LEARNING ENGINE RESET
              * 
              * Clear all learned patterns and return engine to initial state
              * while maintaining readiness for new learning experiences.
              */
-            learningEngine?.reset()
+            learningEngine.reset()
             
             /*
              * DATA STORAGE CLEANUP
@@ -1245,7 +1212,7 @@ class KarlContainerImpl(override val userId: String) : KarlContainer {
              * Remove all stored user data for complete privacy compliance
              * and clean demonstration reset cycles.
              */
-            dataStorage?.deleteUserData(userId)
+            dataStorage.deleteUserData(userId)
             
             /*
              * UI STATE RESET
@@ -1282,14 +1249,14 @@ class KarlContainerImpl(override val userId: String) : KarlContainer {
     override suspend fun saveState(): Job {
         println("KarlContainer[$userId]: Saving state...")
         
-        return containerScope?.launch {
+        return containerScope.launch {
             /*
              * STATE EXTRACTION AND VALIDATION
              * 
              * Extract current learning state from engine and validate
              * for successful persistence operations.
              */
-            val state = learningEngine?.getCurrentState()
+            val state = learningEngine.getCurrentState()
             
             if (state != null) {
                 /*
@@ -1298,7 +1265,7 @@ class KarlContainerImpl(override val userId: String) : KarlContainer {
                  * Save validated state to persistent storage with
                  * proper error handling and logging.
                  */
-                dataStorage?.saveContainerState(userId, state)
+                dataStorage.saveContainerState(userId, state)
                 println("KarlContainer[$userId]: State saved.")
             } else {
                 println("KarlContainer[$userId]: No state to save.")
@@ -1336,7 +1303,7 @@ class KarlContainerImpl(override val userId: String) : KarlContainer {
          * Commented implementation for immediate prediction refresh
          * to demonstrate instruction effects in real-time.
          */
-        // containerScope?.launch { _currentPrediction.value = getPrediction() }
+        // containerScope.launch { _currentPrediction.value = getPrediction() }
     }
 
     /**
@@ -1377,8 +1344,8 @@ class KarlContainerImpl(override val userId: String) : KarlContainer {
          * Release all resources held by learning engine and storage
          * components for complete cleanup and resource management.
          */
-        learningEngine?.release()
-        dataStorage?.release()
+        learningEngine.release()
+        dataStorage.release()
         
         /*
          * APPLICATION SCOPE PRESERVATION
@@ -1824,7 +1791,16 @@ fun main() = application {
     val userId = "user_123"
     
     // KARL container instance for complete framework coordination
-    val karlContainer = remember { KarlContainerImpl(userId) }
+    val karlContainer = remember { 
+        KarlContainerImpl(
+            userId = userId,
+            learningEngine = learningEngine,
+            dataStorage = dataStorage,
+            dataSource = dataSource,
+            initialInstructions = emptyList(),
+            containerScope = applicationScope
+        )
+    }
 
     /*
      * KARL FRAMEWORK INITIALIZATION
