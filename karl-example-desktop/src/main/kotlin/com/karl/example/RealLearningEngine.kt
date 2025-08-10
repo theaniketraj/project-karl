@@ -95,7 +95,7 @@ import kotlin.random.Random
  *
  * // Generate predictions
  * val prediction = engine.predict(contextData, instructions)
- * println("Suggested action: ${prediction?.suggestion} (${prediction?.confidence})")
+ * println("Suggested action: ${prediction?.content} (${prediction?.confidence})")
  *
  * // Monitor learning progress
  * val insights = engine.getLearningInsights()
@@ -1060,7 +1060,7 @@ class RealLearningEngine(
 
                 val prediction =
                     Prediction(
-                        suggestion = suggestion,
+                        content = suggestion,
                         confidence = primaryConfidence,
                         type = "neural_network_prediction",
                         alternatives = alternatives,
