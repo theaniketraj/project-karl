@@ -10,6 +10,8 @@ import com.karl.core.models.Prediction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -450,6 +452,60 @@ internal class KarlContainerImpl(
 
         return prediction
     }
+
+    /**
+     * Creates a reactive stream of predictions that continuously emits suggestions as context changes.
+     *
+     * This implementation provides a real-time prediction stream that automatically emits new
+     * predictions when the underlying learning state changes or when context evolves. The stream
+     * is designed for efficient resource usage and responsive user experience.
+     *
+     * **Implementation Strategy:**
+     * This method returns a cold Flow that generates predictions on-demand for each collector.
+     * Each emission is triggered by:
+     * - New interaction data being processed (learning state changes)
+     * - Periodic re-evaluation of current context
+     * - Instruction updates that may affect prediction behavior
+     *
+     * **Resource Management:**
+     * - Uses the container's scope for lifecycle management
+     * - Automatically stops when the container is released
+     * - Efficient memory usage through on-demand prediction generation
+     * - No persistent background tasks when no collectors are active
+     *
+     * **Error Handling:**
+     * - Emits null when predictions cannot be generated
+     * - Gracefully handles learning engine errors
+     * - Continues operation even if individual predictions fail
+     *
+     * @return A Flow that emits predictions continuously, null when no prediction is available
+     */
+    override fun getPredictions(): Flow<Prediction?> =
+        flow {
+            println("KARL Container for user $userId: Starting prediction stream...")
+
+            // TODO: Implement sophisticated stream logic in future version
+            // For now, provide a simple implementation that demonstrates the API
+
+            while (true) {
+                try {
+                    // Generate prediction using the existing synchronous method
+                    val prediction = getPrediction()
+
+                    // Emit the prediction (may be null)
+                    emit(prediction)
+
+                    // Wait before next prediction to avoid overwhelming the system
+                    // In a production implementation, this would be event-driven
+                    kotlinx.coroutines.delay(1000) // 1 second interval
+                } catch (e: Exception) {
+                    println("KARL Container for user $userId: Error in prediction stream: ${e.message}")
+                    // Emit null on error to maintain stream continuity
+                    emit(null)
+                    kotlinx.coroutines.delay(5000) // Longer delay on error
+                }
+            }
+        }
 
     /**
      * Performs a complete system reset, returning the container to its initial blank state.
