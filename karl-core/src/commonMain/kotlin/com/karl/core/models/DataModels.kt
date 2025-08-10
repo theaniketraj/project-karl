@@ -388,10 +388,10 @@ data class KarlContainerState(
  * - Fallback suggestions when primary predictions are not applicable
  * - Error recovery assistance when predictions lead to undesired outcomes
  *
- * @property suggestion The primary recommendation or suggestion text that should be
- *                     presented to the user. Should be clear, actionable, and
- *                     appropriate for the current context. May include structured
- *                     data or markup for rich presentation.
+ * @property content The primary recommendation or suggestion text that should be
+ *                  presented to the user. Should be clear, actionable, and
+ *                  appropriate for the current context. May include structured
+ *                  data or markup for rich presentation.
  *
  * @property confidence A floating-point value between 0.0 and 1.0 indicating the
  *                     system's confidence in the prediction accuracy. Higher values
@@ -414,7 +414,7 @@ data class KarlContainerState(
  *                       to achieving the user's inferred goals.
  */
 data class Prediction(
-    val suggestion: String,
+    val content: String,
     val confidence: Float,
     val type: String,
     val metadata: Map<String, Any>? = emptyMap(),
