@@ -37,9 +37,9 @@ We will set up the necessary dependencies and walk through creating, initializin
 
 Before you begin, ensure you have the following installed and configured:
 
-*   **JDK (Java Development Kit):** Version 11 or later is recommended.
-*   **Gradle:** Version 7.x or later. Your project should already be using Gradle.
-*   **IDE:** IntelliJ IDEA (Community or Ultimate) with the Kotlin plugin is highly recommended for the best development experience.
+- **JDK (Java Development Kit):** Version 11 or later is recommended.
+- **Gradle:** Version 7.x or later. Your project should already be using Gradle.
+- **IDE:** IntelliJ IDEA (Community or Ultimate) with the Kotlin plugin is highly recommended for the best development experience.
 
 ## Installation
 
@@ -62,6 +62,7 @@ allprojects {
 ```
 
 ### Adding Dependencies
+
 In the build.gradle.kts file of the specific application module where you want to use KARL, add the following dependencies:
 
 ```kotlin
@@ -107,7 +108,9 @@ Important:
 After adding the dependencies, sync your Gradle project in IntelliJ IDEA (usually prompted automatically, or via File > Sync Project with Gradle Files, or the Gradle tool window).
 
 ## Core Concepts Recap
+
 Before diving into the code, remember the key players:
+
 - `KarlContainer`: The main object you interact with for a specific user. It orchestrates everything.
 - `LearningEngine`: The "brain" doing the learning and predicting. You provide an implementation (e.g., KLDLLearningEngine).
 - `DataStorage`: Handles saving/loading the AI's learned state. You provide an implementation (e.g., SQLDelightDataStorage).
@@ -124,9 +127,11 @@ Before diving into the code, remember the key players:
 - `/docs`: Contains detailed documentation for the project.
 
 ## Basic Usage Example
+
 Let's create a minimal setup to initialize KARL and get a prediction.
 
 ### Step 1: Implement DataSource
+
 First, you need to implement the DataSource interface in your application code. This class will be responsible for observing relevant user actions and sending InteractionData to KARL.
 
 ```kotlin
@@ -190,6 +195,7 @@ private val actionFlow: Flow<String> // Flow emitting simple action types from y
     }
 }
 ```
+
 ### Step 2: Obtain a CoroutineScope
 
 KARL needs a CoroutineScope to manage its background tasks (like learning, saving). This scope must be managed by your application's lifecycle. If you cancel this scope, KARL's operations will be cancelled.
@@ -300,7 +306,7 @@ initializationJob.join() // Ensure initialization is complete
 It's crucial to manage the container's lifecycle:
 
 - *Save State*: Call `karlContainer.saveState()` periodically and/or when your application is closing to persist the AI's learned knowledge.
-- *Release Resources*: Call `karlContainer.release()` when the container is no longer needed (e.g., user logs out, application closes) to stop observation and clean up resources held by the engine and storage. Cancel the  ` applicationScope` when appropriate.
+- *Release Resources*: Call `karlContainer.release()` when the container is no longer needed (e.g., user logs out, application closes) to stop observation and clean up resources held by the engine and storage. Cancel the  `applicationScope` when appropriate.
 
 ```kotlin
 // Example: Cleanup logic when your app/component is closing

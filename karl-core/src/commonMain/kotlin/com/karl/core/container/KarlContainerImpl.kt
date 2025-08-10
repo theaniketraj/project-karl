@@ -11,7 +11,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -119,6 +120,26 @@ internal class KarlContainerImpl(
      * so the collection should remain reasonably sized (typically < 100 instructions).
      */
     private var currentInstructions: List<KarlInstruction> = initialInstructions
+
+    /**
+     * Shared flow for broadcasting predictions to all active collectors.
+     *
+     * **Reactive Architecture**: Uses MutableSharedFlow to implement the reactive prediction stream
+     * that enables real-time prediction updates as learning progresses and context changes.
+     *
+     * **Flow Configuration**:
+     * - No replay buffer to prevent memory accumulation
+     * - Unlimited subscriber capacity for flexible observer registration
+     * - Thread-safe emission and collection operations
+     *
+     * **Usage Pattern**: Internally used to emit predictions that are then exposed
+     * through the public [getPredictions] method as a read-only Flow.
+     */
+    private val predictionsFlow =
+        MutableSharedFlow<Prediction?>(
+            replay = 0,
+            extraBufferCapacity = Int.MAX_VALUE,
+        )
 
     /**
      * Active job handle for the data observation coroutine.
@@ -355,7 +376,28 @@ internal class KarlContainerImpl(
         learningEngine.trainStep(data)
 
         /*
-         * STAGE 4: FUTURE ENHANCEMENT - INTELLIGENT STATE PERSISTENCE
+         * STAGE 4: REACTIVE PREDICTION GENERATION
+         *
+         * After learning from new interaction data, generate an updated prediction
+         * and emit it to the reactive stream for any active collectors. This enables
+         * real-time adaptation where UI components receive immediate updates as the
+         * system learns from user interactions.
+         */
+        try {
+            val recentData = dataStorage.loadRecentInteractionData(userId, limit = 10)
+            val updatedPrediction = learningEngine.predict(recentData, currentInstructions)
+            println("KARL Container for user $userId: Generated prediction after learning: $updatedPrediction.")
+
+            // Emit the updated prediction to reactive stream
+            predictionsFlow.tryEmit(updatedPrediction)
+        } catch (e: Exception) {
+            println("KARL Container for user $userId: Error generating prediction after learning: ${e.message}")
+            // Emit null to maintain stream continuity on error
+            predictionsFlow.tryEmit(null)
+        }
+
+        /*
+         * STAGE 5: FUTURE ENHANCEMENT - INTELLIGENT STATE PERSISTENCE
          *
          * TODO: Implement sophisticated state persistence strategies based on:
          * - Learning milestones and significant pattern changes
@@ -450,6 +492,15 @@ internal class KarlContainerImpl(
         val prediction = learningEngine.predict(recentData, currentInstructions)
         println("KARL Container for user $userId: Prediction result: $prediction.")
 
+        /*
+         * STAGE 3: REACTIVE PREDICTION EMISSION
+         *
+         * Emit the prediction to the reactive stream for any active collectors.
+         * This enables real-time updates for UI components and other observers
+         * that are collecting from the getPredictions() flow.
+         */
+        predictionsFlow.tryEmit(prediction)
+
         return prediction
     }
 
@@ -461,16 +512,16 @@ internal class KarlContainerImpl(
      * is designed for efficient resource usage and responsive user experience.
      *
      * **Implementation Strategy:**
-     * This method returns a cold Flow that generates predictions on-demand for each collector.
-     * Each emission is triggered by:
-     * - New interaction data being processed (learning state changes)
-     * - Periodic re-evaluation of current context
-     * - Instruction updates that may affect prediction behavior
+     * This method returns a SharedFlow that receives predictions from internal processes.
+     * Predictions are emitted when:
+     * - New interaction data is processed (learning state changes)
+     * - Manual prediction requests are made via getPrediction()
+     * - Context changes that warrant new predictions
      *
      * **Resource Management:**
      * - Uses the container's scope for lifecycle management
      * - Automatically stops when the container is released
-     * - Efficient memory usage through on-demand prediction generation
+     * - Efficient memory usage through SharedFlow with no replay buffer
      * - No persistent background tasks when no collectors are active
      *
      * **Error Handling:**
@@ -480,32 +531,7 @@ internal class KarlContainerImpl(
      *
      * @return A Flow that emits predictions continuously, null when no prediction is available
      */
-    override fun getPredictions(): Flow<Prediction?> =
-        flow {
-            println("KARL Container for user $userId: Starting prediction stream...")
-
-            // TODO: Implement sophisticated stream logic in future version
-            // For now, provide a simple implementation that demonstrates the API
-
-            while (true) {
-                try {
-                    // Generate prediction using the existing synchronous method
-                    val prediction = getPrediction()
-
-                    // Emit the prediction (may be null)
-                    emit(prediction)
-
-                    // Wait before next prediction to avoid overwhelming the system
-                    // In a production implementation, this would be event-driven
-                    kotlinx.coroutines.delay(1000) // 1 second interval
-                } catch (e: Exception) {
-                    println("KARL Container for user $userId: Error in prediction stream: ${e.message}")
-                    // Emit null on error to maintain stream continuity
-                    emit(null)
-                    kotlinx.coroutines.delay(5000) // Longer delay on error
-                }
-            }
-        }
+    override fun getPredictions(): Flow<Prediction?> = predictionsFlow.asSharedFlow()
 
     /**
      * Performs a complete system reset, returning the container to its initial blank state.
