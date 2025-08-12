@@ -74,6 +74,8 @@
 // karl-project/build.gradle.kts
 
 import java.net.URL
+import java.util.Properties
+import java.io.ByteArrayOutputStream
 
 /*
  * ========================================
@@ -145,6 +147,22 @@ plugins {
 
     // KtLint for automated code formatting and style enforcement
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
+}
+
+// ========================================
+// VERSION MANAGEMENT
+// ========================================
+// Single source of truth for framework version stored in VERSION file at repo root.
+// This enables external tooling (scripts, CI) to bump version without editing build scripts.
+val versionFile = rootProject.layout.projectDirectory.file("VERSION").asFile
+if (!versionFile.exists()) {
+    versionFile.writeText("0.1.0")
+}
+val frameworkVersion: String = versionFile.readText().trim()
+allprojects {
+    // Propagate unified version to every subproject.
+    version = frameworkVersion
+    group = "com.karl" // root coordinate; individual modules may override if needed
 }
 
 /*
@@ -239,6 +257,68 @@ subprojects {
  */
 tasks.register("clean", Delete::class) {
     delete(rootProject.layout.buildDirectory)
+}
+
+// ========================================
+// RELEASE AUTOMATION TASKS
+// ========================================
+// Provide Gradle-native helpers used by CI and local automation scripts.
+
+// Task: printVersion - echoes current framework version for scripting convenience
+tasks.register("printVersion") {
+    group = "release"
+    description = "Prints current framework version"
+    doLast { println(frameworkVersion) }
+}
+
+// Task: assembleDistributions - builds all publishable artifacts (libraries + desktop installers)
+tasks.register("assembleDistributions") {
+    group = "release"
+    description = "Builds all module artifacts and desktop native distributions"
+    // Compose desktop distributions live in example module
+    dependsOn(":karl-example-desktop:packageDistributionForCurrentOS")
+    // Build all module jars / metadata
+    dependsOn(subprojects.map { sp -> sp.tasks.matching { t -> t.name == "build" } })
+}
+
+// Task: verifyRelease - placeholder for future test / lint gates
+tasks.register("verifyRelease") {
+    group = "release"
+    description = "Runs quality gates (build + tests) before tagging a release"
+    dependsOn("clean")
+    dependsOn(subprojects.map { it.tasks.matching { t -> t.name == "build" } })
+    doLast { println("All modules built successfully for version $frameworkVersion") }
+}
+
+// Task: prepareRelease - convenience aggregation performing verification & distribution assembly
+tasks.register("prepareRelease") {
+    group = "release"
+    description = "Verifies and assembles artifacts ready for publishing"
+    dependsOn("verifyRelease")
+    dependsOn("assembleDistributions")
+    doLast {
+        println("✅ Release artifacts prepared for version $frameworkVersion")
+    }
+}
+
+// Task: bumpVersion - increments patch (or specified) version & updates VERSION file
+tasks.register("bumpVersion") {
+    group = "release"
+    description = "Bumps the VERSION file. Use -PnewVersion=X.Y.Z to set explicitly."
+    doLast {
+        val newVersion = (project.findProperty("newVersion") as String?) ?: run {
+            // simple semantic patch bump
+            val parts = frameworkVersion.split('.')
+            if (parts.size == 3) {
+                val (maj, min, patch) = parts
+                listOf(maj, min, (patch.toInt() + 1).toString()).joinToString(".")
+            } else {
+                throw GradleException("Current version '$frameworkVersion' not semantic (x.y.z); supply -PnewVersion=")
+            }
+        }
+        versionFile.writeText(newVersion + "\n")
+        println("Version bumped: $frameworkVersion -> $newVersion")
+    }
 }
 
 /*
