@@ -10,7 +10,16 @@ on:
     tags:
       - 'v*'
 
+# Explicit permissions so the action can create releases (403 without contents: write)
+permissions:
+  contents: write
+  actions: read
+  checks: read
+  packages: read
+  statuses: read
+
 jobs:
+
   build-matrix:
     name: Build (Desktop) / ${{ matrix.os }}
     strategy:
@@ -39,6 +48,8 @@ jobs:
       - name: Validate version consistency
         run: |
           echo "VERSION file:" && cat VERSION
+          if grep -q '^0\.' VERSION; then echo 'Version major must be > 0 for native distributions' >&2; exit 1; fi
+          if ! grep -Eq '^[0-9]+(\.[0-9]+){0,2}$' VERSION; then echo 'Version must be MAJOR[.MINOR][.PATCH]' >&2; exit 1; fi
 
       - name: Grant execute permission for Gradle (Unix)
         if: runner.os != 'Windows'
@@ -101,6 +112,7 @@ jobs:
         with:
           tag_name: ${{ steps.ver.outputs.tag }}
           name: "Project KARL ${{ steps.ver.outputs.version }}"
+          generate_release_notes: true
           draft: false
           prerelease: false
           files: |
