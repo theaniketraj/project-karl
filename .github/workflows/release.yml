@@ -56,17 +56,38 @@ jobs:
         run: ./gradlew --no-daemon prepareRelease
 
       - name: Archive desktop distributions
-        run: |
-          mkdir -p artifacts
-          # Compose native distributions output path (pattern may vary per OS/format)
-          ls -R karl-example-desktop/build/compose/binaries || true
-          cp -r karl-example-desktop/build/compose/binaries/* artifacts/ || true
         shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          BASE_DIR="karl-example-desktop/build/compose/binaries"
+          echo "Listing binaries tree (truncated):"
+          find "$BASE_DIR" -maxdepth 4 -type f | head -100
+          case "${{ matrix.os }}" in
+            windows-latest)
+              FILE=$(find "$BASE_DIR" -type f -name '*.msi' | head -1 || true)
+              ;;
+            macos-latest)
+              FILE=$(find "$BASE_DIR" -type f -name '*.dmg' | head -1 || true)
+              ;;
+            ubuntu-latest)
+              # Prefer RPM per user requirement; ignore DEB
+              FILE=$(find "$BASE_DIR" -type f -name '*.rpm' | head -1 || true)
+              ;;
+            *) echo "Unknown OS matrix entry" >&2; exit 1;;
+          esac
+          if [[ -z "${FILE:-}" ]]; then
+            echo "No expected installer file found" >&2
+            find "$BASE_DIR" -type f -maxdepth 4 -print >&2
+            exit 1
+          fi
+          cp "$FILE" artifacts/
+          echo "Copied $(basename "$FILE")"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: desktop-${{ matrix.os }}
+          name: installer-${{ matrix.os }}
           path: artifacts
           if-no-files-found: warn
 
@@ -113,9 +134,17 @@ jobs:
           echo "Resolved version: $VERSION (tag: $TAG)"
 
       - name: Generate checksums
+        shell: bash
         run: |
           cd dist
-          find . -type f -exec sha256sum {} \; > SHA256SUMS.txt
+          # Keep only installer artifacts (safety if other artifacts slip in)
+          find . -type f \( -name '*.msi' -o -name '*.dmg' -o -name '*.rpm' \) -print > installer_list.txt
+          mkdir filtered
+          while read -r f; do cp "$f" filtered/; done < installer_list.txt
+          mv filtered/* .
+          rmdir filtered || true
+          rm -f installer_list.txt
+          sha256sum *.msi *.dmg *.rpm > SHA256SUMS.txt || true
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
