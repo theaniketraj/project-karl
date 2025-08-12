@@ -156,9 +156,13 @@ plugins {
 // This enables external tooling (scripts, CI) to bump version without editing build scripts.
 val versionFile = rootProject.layout.projectDirectory.file("VERSION").asFile
 if (!versionFile.exists()) {
-    versionFile.writeText("0.1.0")
+    // Initialize repository with a valid native distribution version (MAJOR must be > 0 for DMG packaging)
+    versionFile.writeText("1.0.0")
 }
 val frameworkVersion: String = versionFile.readText().trim()
+require(!frameworkVersion.startsWith("0.")) {
+    "Invalid version '$frameworkVersion' for native distributions (MAJOR must be > 0). Update VERSION file (e.g. 1.0.0)."
+}
 allprojects {
     // Propagate unified version to every subproject.
     version = frameworkVersion
