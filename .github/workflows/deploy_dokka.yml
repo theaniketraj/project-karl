@@ -1,5 +1,5 @@
 # Name of the workflow
-name: Deploy Dokka Documentation to GitHub Pages
+name: Dokka
 
 # Controls when the workflow will run
 on:
