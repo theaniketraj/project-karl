@@ -82,8 +82,8 @@ plugins {
 // Maven group identifier for the example application
 group = "com.karl.example"
 
-// Semantic version for release management and compatibility tracking
-version = "1.0.0"
+// Inherit unified version from root (VERSION file)
+// version set in root build (frameworkVersion)
 
 /*
  * ========================================
@@ -304,8 +304,8 @@ compose.desktop {
             // User-friendly application name displayed in system menus and installers
             packageName = "KarlExampleApp"
 
-            // Package version for update management and compatibility tracking
-            packageVersion = "1.0.0"
+            // Package version follows unified framework version
+            packageVersion = project.version.toString()
         }
     }
 }
