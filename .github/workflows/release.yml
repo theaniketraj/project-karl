@@ -1,0 +1,112 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (semver, e.g. 0.1.0)'
+        required: true
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-matrix:
+    name: Build (Desktop) / ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+            distribution: temurin
+            java-version: '21'
+            cache: gradle
+
+      - name: Configure version
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "${{ inputs.version }}" > VERSION
+
+      - name: Validate version consistency
+        run: |
+          echo "VERSION file:" && cat VERSION
+
+      - name: Grant execute permission for Gradle (Unix)
+        if: runner.os != 'Windows'
+        run: chmod +x gradlew
+
+      - name: Build & package
+        run: ./gradlew --no-daemon prepareRelease
+
+      - name: Archive desktop distributions
+        run: |
+          mkdir -p artifacts
+          # Compose native distributions output path (pattern may vary per OS/format)
+          ls -R karl-example-desktop/build/compose/binaries || true
+          cp -r karl-example-desktop/build/compose/binaries/* artifacts/ || true
+        shell: bash
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.os }}
+          path: artifacts
+          if-no-files-found: warn
+
+  create-release:
+    name: Create GitHub Release
+    needs: build-matrix
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Determine version
+        id: ver
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            TAG="${GITHUB_REF_NAME}"   # e.g. v0.1.0
+            VERSION="${TAG#v}"
+          else
+            VERSION=$(cat VERSION)
+            TAG="v${VERSION}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Resolved version: $VERSION (tag: $TAG)"
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          find . -type f -exec sha256sum {} \; > SHA256SUMS.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: "Project KARL ${{ steps.ver.outputs.version }}"
+          draft: false
+          prerelease: false
+          files: |
+            dist/**
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: echo "Release ${{ steps.ver.outputs.version }} published."
