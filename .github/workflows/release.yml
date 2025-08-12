@@ -42,6 +42,7 @@ jobs:
           echo "${{ inputs.version }}" > VERSION
 
       - name: Validate version consistency
+        shell: bash
         run: |
           echo "VERSION file:" && cat VERSION
           if grep -q '^0\.' VERSION; then echo 'Version major must be > 0 for native distributions' >&2; exit 1; fi
