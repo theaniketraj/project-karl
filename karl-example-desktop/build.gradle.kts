@@ -306,6 +306,47 @@ compose.desktop {
 
             // Package version follows unified framework version
             packageVersion = project.version.toString()
+            
+            /*
+             * JVM Runtime Configuration
+             *
+             * Configure the runtime to include all necessary modules.
+             * Note: Native commands are stripped by default in Compose Desktop
+             * which may cause JVM launch issues in some environments.
+             */
+            modules("java.base", "java.desktop", "java.logging", "java.naming", "java.sql", "jdk.crypto.ec")
+            includeAllModules = true
+            
+            /*
+             * JPackage Options for Better Compatibility
+             *
+             * Configure JPackage with additional options that may help
+             * with JVM launch issues in packaged applications.
+             */
+            description = "KARL (Kotlin Adaptive Reasoning Learner) Desktop Example Application"
+            vendor = "KARL Development Team"
+            
+            /*
+             * Additional JVM Arguments for Improved Compatibility
+             * 
+             * These arguments help ensure proper JVM startup in packaged applications
+             * and may resolve "Failed to launch JVM" errors.
+             */
+            jvmArgs += listOf(
+                "-Djava.system.class.loader=null",
+                "-Dfile.encoding=UTF-8",
+                "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
+                "--add-opens=java.desktop/java.awt.peer=ALL-UNNAMED"
+            )
+        }
+        
+        /*
+         * Build Types Configuration
+         *
+         * Configure different build variants for the desktop application.
+         */
+        buildTypes.release.proguard {
+            isEnabled = false
         }
     }
 }

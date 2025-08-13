@@ -140,7 +140,7 @@ flowchart LR
 ## Original ASCII Diagram (Legacy Reference)
 
 ```pgsql
----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
 |                                                                                 |
 |   YOUR APPLICATION (e.g., :karl-example-desktop)                                |
 |   (Manages UI, User Events, and CoroutineScope)                                 |
