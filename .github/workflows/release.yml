@@ -154,12 +154,66 @@ jobs:
                   sha256sum KarlExampleApp-$VERSION.* > SHA256SUMS.txt 2>/dev/null || true
                   echo "Checksum file contents:" && cat SHA256SUMS.txt || true
 
+            - name: Generate release notes
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  TAG='${{ steps.ver.outputs.tag }}'
+                  VERSION='${{ steps.ver.outputs.version }}'
+                  # Find previous tag (excluding current)
+                  PREV_TAG=$(git tag --sort=-creatordate | grep '^v' | grep -v "^${TAG}$" | head -1 || true)
+                  if [ -z "$PREV_TAG" ]; then
+                    RANGE="$TAG"
+                    BASE_HEADING="Initial release"
+                  else
+                    RANGE="$PREV_TAG..$TAG"
+                    BASE_HEADING="Changes since $PREV_TAG"
+                  fi
+                  echo "Using range: $RANGE (prev=$PREV_TAG)"
+                  git log --oneline $RANGE > /tmp/commit_list.txt || true
+                  git log --pretty=format:'%s|%h|%an' $RANGE > /tmp/commits_raw.txt || true
+                  cat >/tmp/gen_notes.sh <<'EOS'
+                  #!/usr/bin/env bash
+                  declare -A groups
+                  declare -A titles=( [feat]=Features [fix]=Fixes [perf]=Performance [refactor]=Refactoring [docs]=Documentation [test]=Tests [build]=Build [ci]=CI [chore]=Chores [deps]=Dependencies [revert]=Reverts )
+                  while IFS='|' read -r subject sha author; do
+                    [[ -z "$subject" ]] && continue
+                    key=other
+                    if [[ $subject =~ ^(feat|fix|perf|refactor|docs|test|build|ci|chore|deps|revert)(\(|: ) ]]; then
+                      key=${BASH_REMATCH[1]}
+                    fi
+                    groups[$key]+="- ${subject%%|*} (${sha})\n"
+                  done < /tmp/commits_raw.txt
+                  echo "## $BASE_HEADING" > release-notes.md
+                  echo "" >> release-notes.md
+                  for k in feat fix perf refactor docs test build ci chore deps revert other; do
+                    val=${groups[$k]:-}
+                    [[ -z $val ]] && continue
+                    title=${titles[$k]:-$k}
+                    if [[ $k == other ]]; then title=Other; fi
+                    echo "### $title" >> release-notes.md
+                    echo -e "$val" >> release-notes.md
+                  done
+                  # If empty fallback
+                  if ! grep -q '^### ' release-notes.md; then
+                    echo "No categorized commits. Listing raw commits:" >> release-notes.md
+                    echo '```' >> release-notes.md
+                    cat /tmp/commit_list.txt >> release-notes.md
+                    echo '```' >> release-notes.md
+                  fi
+                  echo >> release-notes.md
+                  echo "_Generated from commits range: $RANGE_" >> release-notes.md
+                  echo "Generated notes:"; cat release-notes.md
+                  EOS
+                  bash /tmp/gen_notes.sh
+
             - name: Create Release
               uses: softprops/action-gh-release@v2
               with:
                   tag_name: ${{ steps.ver.outputs.tag }}
                   name: "Project KARL ${{ steps.ver.outputs.version }}"
-                  generate_release_notes: true
+                  generate_release_notes: false
+                  body_path: release-notes.md
                   draft: false
                   prerelease: false
                   files: |
