@@ -6,31 +6,32 @@ This document provides a multi‑view representation of the Project KARL archite
 
 ```mermaid
 flowchart LR
+       %% Simplified for GitHub Mermaid compatibility (no \n in labels)
        subgraph APP[Your Application / Example Desktop]
               UI[Compose UI / ViewModel]
               DSImpl[DataSource Impl]
        end
 
-       subgraph CORE[:karl-core]
+       subgraph CORE[karl-core]
               API[KarlAPI]
-              KC[KarlContainer\n(Orchestrator)]
+              KC[KarlContainer / Orchestrator]
               LEI[[LearningEngine Interface]]
               DSI[[DataStorage Interface]]
        end
 
        subgraph IMPLS[Pluggable Implementations]
-              KLDL[:karl-kldl\n(KotlinDL Engine)]
-              ROOM[:karl-room\n(Room / SQLite)]
-              UIKIT[:karl-compose-ui\n(UI Components)]
+              KLDL[karl-kldl / KotlinDL]
+              ROOM[karl-room / Room DB]
+              UIKIT[karl-compose-ui / UI Kit]
        end
 
        UI -->|User Interaction| DSImpl -->|InteractionData| API --> KC
        KC -->|processNewData()| LEI
        KC -->|save/load| DSI
-       LEI -->|predict()| KC -->|Prediction Flow| UI
+       LEI -->|predict()| KC -->|Prediction| UI
        LEI <-->|trainStep()| KC
-       LEI === KLDL
-       DSI === ROOM
+       KLDL --- LEI
+       ROOM --- DSI
        UIKIT -. consumes APIs .- UI
 ```
 
@@ -75,27 +76,11 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-       subgraph EventCapture[Event Capture]
-              Evt[Raw UI Event]
-              Filter[Filter / Anonymize]
-              Data[InteractionData]
-       end
-       subgraph Learning[Learning Pipeline]
-              Queue[(In-Memory Buffer)]
-              Train[trainStep]
-              ModelState[(Model State)]
-       end
-       subgraph Persistence[Persistence]
-              Serialize[serializeState]
-              DB[(Room / SQLite)]
-       end
-       subgraph Inference[Inference]
-              Context[Prediction Context]
-              Predict[predict()]
-              Result[(Prediction Result)]
-       end
-       Evt --> Filter --> Data --> Queue --> Train --> ModelState --> Serialize --> DB
-       Context --> Predict --> Result
+       %% Simplified linear flow & labels for compatibility
+       Evt[Raw UI Event] --> Filter[Filter / Anonymize] --> Data[InteractionData]
+       Data --> Queue[(In-Memory Buffer)] --> Train[trainStep] --> ModelState[(Model State)]
+       ModelState --> Serialize[serializeState] --> DB[(Room / SQLite)]
+       Context[Prediction Context] --> Predict[predict()] --> Result[(Prediction Result)]
        ModelState --> Predict
        DB -->|loadState| ModelState
 ```
