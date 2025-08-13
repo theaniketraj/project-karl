@@ -139,11 +139,10 @@ flowchart LR
 
 ## Original ASCII Diagram (Legacy Reference)
 
-```text
-<legacy-diagram>
+```pgsql
 ---------------------------------------------------------------------------------
 |                                                                                 |
-|   YOUR APPLICATION (e.g., :karl-example-desktop / Your SaaS)                    |
+|   YOUR APPLICATION (e.g., :karl-example-desktop)                                |
 |   (Manages UI, User Events, and CoroutineScope)                                 |
 |                                                                                 |
 |   +-------------------------------------------------------------------------+   |
@@ -155,52 +154,57 @@ flowchart LR
 |   +--------------------------------|----------------------------------------+   |
 |                                    |                                            |
 -------------------------------------|---------------------------------------------
-                                                                                                                               |
-                                    (1. User Action Captured) |
-                                                                                                                               |
+                                                                                  |
+                       (1. User Action Captured)
+                                                                                  |
 -------------------------------------|---------------------------------------------
 |                                    |                                            |
-|   :karl-core (KMP)                 |  [ DataSource Impl ]                        |
-|   (Defines Contracts & Models)     |  (Implements :karl-core's DataSource)       |
+|   :karl-core (KMP)                 |  [ DataSource Impl ]                       |
+|   (Defines Contracts & Models)     |  (Implements :karl-core's DataSource)      |
 |                                    |                                            |
 |   +--------------------------------V----------------------------------------+   |
 |   |                                                                         |   |
 |   |   KarlAPI.forUser("...").build() ---> [ KarlContainer Instance ]        |   |
 |   |   (Orchestrator)                                                        |   |
 |   |                                                                         |   |
-|   |   (2. processNewData())                                                 |   |
+|   |                   (2. processNewData())                                 |   |
 |   |      |                                                                  |   |
-|   |      +----------------------------------------------------------------- | -> (4. getPrediction())
+|   |      +----------------------------------------------------------------- |   |
 |   |      |                                                                  |   |
-|   |      | (3. trainStep(InteractionData))                                  |   |
+|   |      |            (3. trainStep(InteractionData))                       |   |
 |   |      V                                                                  |   |
-|   |   [ LearningEngine Interface ]                                          |   |
+|   |      +----------------------------------------------------------------- |   |
 |   |                                                                         |   |
+|   |                   [ LearningEngine Interface ]                          |   |
+|   |                                                                         |   |
+|   |      +----------------------------------------------------------------- |   |
+|   |                   (4. getPrediction())                                  |   |
+|   |      +----------------------------------------------------------------- |   |
 |   |      ^                                                                  |   |
-|   |      | (5. predict(...))                                                |   |
+|   |      |            (5. predict(...))                                     |   |
 |   |      |                                                                  |   |
-|   |      +----------------------------------------------------------------- | --+
+|   |      +----------------------------------------------------------------- |   |
 |   |      |                                                                  |   |
-|   |      | (6. saveState() / loadState())                                   |   |
+|   |      |            (6. saveState() / loadState())                        |   |
 |   |      V                                                                  |   |
-|   |   [ DataStorage Interface ]                                             |   |
+|   |                   [ DataStorage Interface ]                             |   |
 |   |                                                                         |   |
 |   +-------------------------------------------------------------------------+   |
 |                                                                                 |
----------------------------------------------------------------------------------
-|                      |                      |                      |
-| (Implementation)     | (Implementation)     | (Implementation)     |
-V                      V                      V                      V
-----------------+     +----------------+     +----------------+     +----------------+
-|                |     |                |     |                |     |                |
-| :karl-kldl     |     | :karl-room     |     | :karl-compose-ui|     | (Your App's    |
-| (Implements    |     | (Implements    |     | (Provides UI    |     |  DataSource)   |
-|  LearningEngine)|     |  DataStorage)  |     |  Components)   |     |                |
-|                |     |                |     |                |     |                |
-| +------------+ |     | +------------+ |     | +------------+ |     | +------------+ |
-| | KotlinDL   | |     | | Room DB    | |     | | Karl       | |     | | App Event  | |
-| | Model      | |     | | (SQLite)   | |     | | ContainerUI| |     | | Listener   | |
-| +------------+ |     | +------------+ |     | +------------+ |     | +------------+ |
-|                |     |                |     |                |     |                |
-----------------+     +----------------+     +----------------+     +----------------+
+-----------------------------------------------------------------------------------
+|                        |                      |                        |
+| (Implementation)       | (Implementation)     | (Implementation)       | (Implementation)
+V                        V                      V                        V
++------------------+     +----------------+     +------------------+     +----------------+
+|                  |     |                |     |                  |     |                |
+| :karl-kldl       |     | :karl-room     |     | :karl-compose-ui |     | (Your App's    |
+| (Implements      |     | (Implements    |     | (Provides UI     |     |  DataSource)   |
+|  LearningEngine) |     |  DataStorage)  |     |  Components)     |     |                |
+|                  |     |                |     |                  |     |                |
+| +------------+   |     | +------------+ |     | +------------+   |     | +------------+ |
+| | KotlinDL   |   |     | | Room DB    | |     | | Karl       |   |     | | App Event  | |
+| | Model      |   |     | | (SQLite)   | |     | | ContainerUI|   |     | | Listener   | |
+| +------------+   |     | +------------+ |     | +------------+   |     | +------------+ |
+|                  |     |                |     |                  |     |                |
+-------------------+     +----------------+     +------------------+     +----------------+
 ```
