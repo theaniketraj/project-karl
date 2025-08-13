@@ -1,164 +1,175 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version (semver, e.g. 0.1.0)'
-        required: true
-  push:
-    tags:
-      - 'v*'
+    workflow_dispatch:
+        inputs:
+            version:
+                description: "Version (semver, e.g. 0.1.0)"
+                required: true
+    push:
+        tags:
+            - "v*"
 
 # Explicit permissions so the action can create releases (403 without contents: write)
 permissions:
-  contents: write
+    contents: write
 
 jobs:
+    build-matrix:
+        name: Build (Desktop) / ${{ matrix.os }}
+        strategy:
+            matrix:
+                os: [ubuntu-latest, macos-latest, windows-latest]
+        runs-on: ${{ matrix.os }}
 
-  build-matrix:
-    name: Build (Desktop) / ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+            - name: Set up JDK 21
+              uses: actions/setup-java@v4
+              with:
+                  distribution: temurin
+                  java-version: "21"
+                  cache: gradle
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-            distribution: temurin
-            java-version: '21'
-            cache: gradle
+            - name: Configure version
+              if: ${{ github.event_name == 'workflow_dispatch' }}
+              run: |
+                  echo "${{ inputs.version }}" > VERSION
 
-      - name: Configure version
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: |
-          echo "${{ inputs.version }}" > VERSION
+            - name: Validate version consistency
+              shell: bash
+              run: |
+                  echo "VERSION file:" && cat VERSION
+                  if grep -q '^0\.' VERSION; then echo 'Version major must be > 0 for native distributions' >&2; exit 1; fi
+                  if ! grep -Eq '^[0-9]+(\.[0-9]+){0,2}$' VERSION; then echo 'Version must be MAJOR[.MINOR][.PATCH]' >&2; exit 1; fi
 
-      - name: Validate version consistency
-        shell: bash
-        run: |
-          echo "VERSION file:" && cat VERSION
-          if grep -q '^0\.' VERSION; then echo 'Version major must be > 0 for native distributions' >&2; exit 1; fi
-          if ! grep -Eq '^[0-9]+(\.[0-9]+){0,2}$' VERSION; then echo 'Version must be MAJOR[.MINOR][.PATCH]' >&2; exit 1; fi
+            - name: Grant execute permission for Gradle (Unix)
+              if: runner.os != 'Windows'
+              run: chmod +x gradlew
 
-      - name: Grant execute permission for Gradle (Unix)
-        if: runner.os != 'Windows'
-        run: chmod +x gradlew
+            - name: Build & package
+              run: ./gradlew --no-daemon prepareRelease
 
-      - name: Build & package
-        run: ./gradlew --no-daemon prepareRelease
+            - name: Archive desktop distributions
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  mkdir -p artifacts
+                  BASE_DIR="karl-example-desktop/build/compose/binaries"
+                  echo "Listing binaries tree (truncated):"
+                  find "$BASE_DIR" -maxdepth 4 -type f | head -100
+                  case "${{ matrix.os }}" in
+                    windows-latest)
+                      FILE=$(find "$BASE_DIR" -type f -name '*.msi' | head -1 || true)
+                      ;;
+                    macos-latest)
+                      FILE=$(find "$BASE_DIR" -type f -name '*.dmg' | head -1 || true)
+                      ;;
+                    ubuntu-latest)
+                      # Prefer RPM per user requirement; ignore DEB
+                      FILE=$(find "$BASE_DIR" -type f -name '*.rpm' | head -1 || true)
+                      ;;
+                    *) echo "Unknown OS matrix entry" >&2; exit 1;;
+                  esac
+                  if [[ -z "${FILE:-}" ]]; then
+                    echo "No expected installer file found" >&2
+                    find "$BASE_DIR" -type f -maxdepth 4 -print >&2
+                    exit 1
+                  fi
+                  cp "$FILE" artifacts/
+                  echo "Copied $(basename "$FILE")"
 
-      - name: Archive desktop distributions
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p artifacts
-          BASE_DIR="karl-example-desktop/build/compose/binaries"
-          echo "Listing binaries tree (truncated):"
-          find "$BASE_DIR" -maxdepth 4 -type f | head -100
-          case "${{ matrix.os }}" in
-            windows-latest)
-              FILE=$(find "$BASE_DIR" -type f -name '*.msi' | head -1 || true)
-              ;;
-            macos-latest)
-              FILE=$(find "$BASE_DIR" -type f -name '*.dmg' | head -1 || true)
-              ;;
-            ubuntu-latest)
-              # Prefer RPM per user requirement; ignore DEB
-              FILE=$(find "$BASE_DIR" -type f -name '*.rpm' | head -1 || true)
-              ;;
-            *) echo "Unknown OS matrix entry" >&2; exit 1;;
-          esac
-          if [[ -z "${FILE:-}" ]]; then
-            echo "No expected installer file found" >&2
-            find "$BASE_DIR" -type f -maxdepth 4 -print >&2
-            exit 1
-          fi
-          cp "$FILE" artifacts/
-          echo "Copied $(basename "$FILE")"
+            - name: Upload artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: installer-${{ matrix.os }}
+                  path: artifacts
+                  if-no-files-found: warn
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: installer-${{ matrix.os }}
-          path: artifacts
-          if-no-files-found: warn
+    create-release:
+        name: Create GitHub Release
+        needs: build-matrix
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
-  create-release:
-    name: Create GitHub Release
-    needs: build-matrix
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+            - name: Diagnose token permissions
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      try {
+                        const repo = await github.rest.repos.get({owner: context.repo.owner, repo: context.repo.repo});
+                        core.info(`Repo private: ${repo.data.private}`);
+                        const rels = await github.rest.repos.listReleases({owner: context.repo.owner, repo: context.repo.repo, per_page: 1});
+                        core.info(`Accessible releases count (sample): ${rels.data.length}`);
+                      } catch (e) {
+                        core.setFailed(`Token cannot list releases: ${e}`);
+                      }
 
-      - name: Diagnose token permissions
-        uses: actions/github-script@v7
-        with:
-          script: |
-            try {
-              const repo = await github.rest.repos.get({owner: context.repo.owner, repo: context.repo.repo});
-              core.info(`Repo private: ${repo.data.private}`);
-              const rels = await github.rest.repos.listReleases({owner: context.repo.owner, repo: context.repo.repo, per_page: 1});
-              core.info(`Accessible releases count (sample): ${rels.data.length}`);
-            } catch (e) {
-              core.setFailed(`Token cannot list releases: ${e}`);
-            }
+            - name: Download artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  path: dist
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: dist
+            - name: Determine version
+              id: ver
+              run: |
+                  if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+                    TAG="${GITHUB_REF_NAME}"   # e.g. v0.1.0
+                    VERSION="${TAG#v}"
+                  else
+                    VERSION=$(cat VERSION)
+                    TAG="v${VERSION}"
+                  fi
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+                  echo "tag=$TAG" >> $GITHUB_OUTPUT
+                  echo "Resolved version: $VERSION (tag: $TAG)"
+            - name: Collect & normalize installers
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  cd dist
+                  VERSION='${{ steps.ver.outputs.version }}'
+                  MSI=$(find . -type f -name '*.msi' | head -1 || true)
+                  DMG=$(find . -type f -name '*.dmg' | head -1 || true)
+                  RPM=$(find . -type f -name '*.rpm' | head -1 || true)
+                  echo "Found: MSI=$MSI DMG=$DMG RPM=$RPM"
+                  mkdir collected
+                  [ -n "$MSI" ] && cp "$MSI" "collected/KarlExampleApp-$VERSION.msi"
+                  [ -n "$DMG" ] && cp "$DMG" "collected/KarlExampleApp-$VERSION.dmg"
+                  [ -n "$RPM" ] && cp "$RPM" "collected/KarlExampleApp-$VERSION.rpm"
+                  mv collected/* .
+                  rmdir collected
+                  # Remove all original artifact subdirectories to avoid duplicate uploads
+                  find . -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
+                  ls -l
+                  # Generate checksums (skip missing types)
+                  sha256sum KarlExampleApp-$VERSION.* > SHA256SUMS.txt 2>/dev/null || true
+                  echo "Checksum file contents:" && cat SHA256SUMS.txt || true
 
-      - name: Determine version
-        id: ver
-        run: |
-          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
-            TAG="${GITHUB_REF_NAME}"   # e.g. v0.1.0
-            VERSION="${TAG#v}"
-          else
-            VERSION=$(cat VERSION)
-            TAG="v${VERSION}"
-          fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-          echo "Resolved version: $VERSION (tag: $TAG)"
+            - name: Create Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: ${{ steps.ver.outputs.tag }}
+                  name: "Project KARL ${{ steps.ver.outputs.version }}"
+                  generate_release_notes: true
+                  draft: false
+                  prerelease: false
+                  files: |
+                      dist/KarlExampleApp-*.msi
+                      dist/KarlExampleApp-*.dmg
+                      dist/KarlExampleApp-*.rpm
+                      dist/SHA256SUMS.txt
+              env:
+                  # Prefer a PAT with repo scope if provided (GH_RELEASE_TOKEN), else fall back to default GITHUB_TOKEN
+                  GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN != '' && secrets.GH_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
-      - name: Generate checksums
-        shell: bash
-        run: |
-          cd dist
-          # Keep only installer artifacts (safety if other artifacts slip in)
-          find . -type f \( -name '*.msi' -o -name '*.dmg' -o -name '*.rpm' \) -print > installer_list.txt
-          mkdir filtered
-          while read -r f; do cp "$f" filtered/; done < installer_list.txt
-          mv filtered/* .
-          rmdir filtered || true
-          rm -f installer_list.txt
-          sha256sum *.msi *.dmg *.rpm > SHA256SUMS.txt || true
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.ver.outputs.tag }}
-          name: "Project KARL ${{ steps.ver.outputs.version }}"
-          generate_release_notes: true
-          draft: false
-          prerelease: false
-          files: |
-            dist/**
-        env:
-          # Prefer a PAT with repo scope if provided (GH_RELEASE_TOKEN), else fall back to default GITHUB_TOKEN
-          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN != '' && secrets.GH_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
-
-      - name: Summary
-        run: echo "Release ${{ steps.ver.outputs.version }} published."
+            - name: Summary
+              run: echo "Release ${{ steps.ver.outputs.version }} published."
