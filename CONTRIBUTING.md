@@ -57,7 +57,7 @@ Use the "Bug Report" issue template if available.
 
 We welcome suggestions for new features and improvements! Before submitting:
 
-1. Check the existing [GitHub Issues](https://github.com/your-username/project-karl/issues) and [Discussions](https://github.com/your-username/project-karl/discussions) (if enabled) to see if your idea has already been discussed.
+1. Check the existing [GitHub Issues](https://github.com/theaniketraj/project-karl/issues) and [Discussions](https://github.com/theaniketraj/project-karl/discussions) (if enabled) to see if your idea has already been discussed.
 2. Consider the project's core philosophy (privacy-first, local learning, composable). Does your suggestion align with these principles?
 
 When submitting an enhancement suggestion, please include:
@@ -71,37 +71,46 @@ Use the "Feature Request" issue template if available.
 
 ## Your First Code Contribution
 
-Unsure where to begin? Look for issues tagged `good first issue` or `help wanted` in the [GitHub Issues](https://github.com/your-username/project-karl/issues). These are typically smaller, well-defined tasks suitable for newcomers.
+Unsure where to begin? Look for issues tagged `good first issue` or `help wanted` in the [GitHub Issues](https://github.com/theaniketraj/project-karl/issues). These are typically smaller, well-defined tasks suitable for newcomers.
 
 Don't hesitate to ask questions on an issue thread if you need clarification before starting work!
 
 ## Setting Up Your Development Environment
 
-1.   **Prerequisites:**
-  *   Git
-  *   JDK (Java Development Kit) - Version 11 or later recommended (check project requirements).
-  *   IntelliJ IDEA (Community or Ultimate) with the Kotlin plugin is the recommended IDE.
-2.    **Fork the Repository:** Click the "Fork" button on the top right of the [Project KARL repository page](https://github.com/your-username/project-karl).
-3.    **Clone Your Fork:**
-   ```bash
+1. **Prerequisites:**
+
+- Git
+- JDK (Java Development Kit) - Version 11 or later recommended (check project requirements).
+- IntelliJ IDEA (Community or Ultimate) with the Kotlin plugin is the recommended IDE.
+
+2. **Fork the Repository:** Click the "Fork" button on the top right of the [Project KARL repository page](https://github.com/theaniketraj/project-karl).
+
+3. **Clone Your Fork:**
+
+```bash
   git clone https://github.com/theaniketraj/project-karl.git
   cd project-karl
   ```
-1.  **Add Upstream Remote:**
+
+1. **Add Upstream Remote:**
+
     ```bash
     git remote add upstream https://github.com/theaniketraj/project-karl.git
     ```
-    *(Replace `your-username` with the actual owner of the main repository if it's not you)*
-2.  **Import into IntelliJ IDEA:** Open IntelliJ IDEA and select "Open", then navigate to the cloned `project-karl` directory. IntelliJ should automatically detect the Gradle project. Allow it to sync and download dependencies.
-3.  **Build the Project:** Verify your setup by running the build from the terminal or IDE:
+
+    *(Replace `theaniketraj` with the actual owner of the main repository if it's not you)*
+2. **Import into IntelliJ IDEA:** Open IntelliJ IDEA and select "Open", then navigate to the cloned `project-karl` directory. IntelliJ should automatically detect the Gradle project. Allow it to sync and download dependencies.
+3. **Build the Project:** Verify your setup by running the build from the terminal or IDE:
+
     ```bash
     ./gradlew build
     ```
 
 ## Pull Request Process
 
-1.  **Ensure an Issue Exists:** For non-trivial changes (bug fixes, features), ensure there's a corresponding GitHub Issue discussing the problem or enhancement. Assign yourself or comment that you're working on it.
-2.  **Create a Feature Branch:** Create a new branch off the `main` branch (or `develop` if that's the primary development branch) for your changes:
+1. **Ensure an Issue Exists:** For non-trivial changes (bug fixes, features), ensure there's a corresponding GitHub Issue discussing the problem or enhancement. Assign yourself or comment that you're working on it.
+2. **Create a Feature Branch:** Create a new branch off the `main` branch (or `develop` if that's the primary development branch) for your changes:
+
     ```bash
     # Fetch latest changes from upstream
     git fetch upstream
@@ -113,43 +122,50 @@ Don't hesitate to ask questions on an issue thread if you need clarification bef
     # Or for bug fixes:
     # git checkout -b fix/issue-123-description # e.g., fix/issue-123-preview-import
     ```
-3.  **Implement Your Changes:**
-    *   Write clear, maintainable code following the [Coding Style Guidelines](#coding-style-guidelines).
-    *   Add necessary tests ([Testing](#testing)).
-    *   Update documentation if needed.
-4.  **Test Your Changes:** Ensure all existing tests pass and your new tests cover your changes:
+
+3. **Implement Your Changes:**
+    - Write clear, maintainable code following the [Coding Style Guidelines](#coding-style-guidelines).
+    - Add necessary tests ([Testing](#testing)).
+    - Update documentation if needed.
+4. **Test Your Changes:** Ensure all existing tests pass and your new tests cover your changes:
+
     ```bash
     ./gradlew check
     ```
-5.  **Commit Your Changes:** Use clear and descriptive commit messages. Consider using [Conventional Commits](https://www.conventionalcommits.org/) if you're comfortable with it.
+
+5. **Commit Your Changes:** Use clear and descriptive commit messages. Consider using [Conventional Commits](https://www.conventionalcommits.org/) if you're comfortable with it.
+
     ```bash
     git add .
     git commit -m "feat: Add basic RNN implementation for LearningEngine"
     # Or: git commit -m "fix: Correct import path for Prediction model"
     ```
-6.  **Push Your Branch:** Push your changes to your fork:
+
+6. **Push Your Branch:** Push your changes to your fork:
+
     ```bash
     git push origin feature/your-descriptive-feature-name
     ```
-7.  **Open a Pull Request (PR):**
-    *   Go to your fork on GitHub.
-    *   Click the "Compare & pull request" button for your new branch.
-    *   Ensure the base repository and branch (`main` or `develop`) are correct.
-    *   Provide a clear title and description for your PR:
-        *   Link to the relevant GitHub Issue (e.g., "Closes #123").
-        *   Summarize the changes made.
-        *   Explain *why* these changes are needed.
-        *   Describe how you tested the changes.
-    *   Submit the PR.
-8.  **Code Review:** Project maintainers will review your PR. Address any feedback or requested changes by pushing new commits to your feature branch. The PR will update automatically.
-9.  **Merging:** Once approved, a maintainer will merge your PR. Congratulations! 🎉
+
+7. **Open a Pull Request (PR):**
+    - Go to your fork on GitHub.
+    - Click the "Compare & pull request" button for your new branch.
+    - Ensure the base repository and branch (`main` or `develop`) are correct.
+    - Provide a clear title and description for your PR:
+        - Link to the relevant GitHub Issue (e.g., "Closes #123").
+        - Summarize the changes made.
+        - Explain *why* these changes are needed.
+        - Describe how you tested the changes.
+    - Submit the PR.
+8. **Code Review:** Project maintainers will review your PR. Address any feedback or requested changes by pushing new commits to your feature branch. The PR will update automatically.
+9. **Merging:** Once approved, a maintainer will merge your PR. Congratulations! 🎉
 
 ## Coding Style Guidelines
 
-* Follow the official [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html).
-* Use the IntelliJ IDEA Kotlin formatter (usually configured by default).
-* Write clear, concise, and well-commented code where necessary. Focus on readability.
-* Follow existing patterns and conventions within the codebase.
+- Follow the official [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html).
+- Use the IntelliJ IDEA Kotlin formatter (usually configured by default).
+- Write clear, concise, and well-commented code where necessary. Focus on readability.
+- Follow existing patterns and conventions within the codebase.
 
 ## Testing
 
