@@ -6,33 +6,31 @@ This document provides a multi‑view representation of the Project KARL archite
 
 ```mermaid
 flowchart LR
-       %% Simplified for GitHub Mermaid compatibility (no \n in labels)
-       subgraph APP[Your Application / Example Desktop]
-              UI[Compose UI / ViewModel]
-              DSImpl[DataSource Impl]
+       %% Further simplified for GitHub Mermaid renderer
+       subgraph APP["Your Application / Example Desktop"]
+              UI["Compose UI / ViewModel"]
+              DSImpl["DataSource Impl"]
        end
-
-       subgraph CORE[karl-core]
-              API[KarlAPI]
-              KC[KarlContainer / Orchestrator]
-              LEI[[LearningEngine Interface]]
-              DSI[[DataStorage Interface]]
+       subgraph CORE["karl-core"]
+              API["KarlAPI"]
+              KC["KarlContainer / Orchestrator"]
+              LEI["LearningEngine Interface"]
+              DSI["DataStorage Interface"]
        end
-
-       subgraph IMPLS[Pluggable Implementations]
-              KLDL[karl-kldl / KotlinDL]
-              ROOM[karl-room / Room DB]
-              UIKIT[karl-compose-ui / UI Kit]
+       subgraph IMPLS["Implementations"]
+              KLDL["karl-kldl / KotlinDL"]
+              ROOM["karl-room / Room DB"]
+              UIKIT["karl-compose-ui / UI Kit"]
        end
-
        UI -->|User Interaction| DSImpl -->|InteractionData| API --> KC
-       KC -->|processNewData()| LEI
+       KC -->|processNewData| LEI
        KC -->|save/load| DSI
-       LEI -->|predict()| KC -->|Prediction| UI
-       LEI <-->|trainStep()| KC
+       LEI -->|predict| KC
+       KC -->|prediction| UI
+       LEI -->|trainStep| KC
        KLDL --- LEI
        ROOM --- DSI
-       UIKIT -. consumes APIs .- UI
+       UIKIT -.-> UI
 ```
 
 ### Responsibilities
@@ -76,11 +74,11 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-       %% Simplified linear flow & labels for compatibility
-       Evt[Raw UI Event] --> Filter[Filter / Anonymize] --> Data[InteractionData]
-       Data --> Queue[(In-Memory Buffer)] --> Train[trainStep] --> ModelState[(Model State)]
-       ModelState --> Serialize[serializeState] --> DB[(Room / SQLite)]
-       Context[Prediction Context] --> Predict[predict()] --> Result[(Prediction Result)]
+       %% Simplified node labels & shapes
+       Evt["Raw UI Event"] --> Filter["Filter / Anonymize"] --> Data["InteractionData"]
+       Data --> Queue["Buffer"] --> Train["trainStep"] --> ModelState["Model State"]
+       ModelState --> Serialize["serializeState"] --> DB["Room / SQLite"]
+       Context["Prediction Context"] --> Predict["predict"] --> Result["Prediction Result"]
        ModelState --> Predict
        DB -->|loadState| ModelState
 ```
