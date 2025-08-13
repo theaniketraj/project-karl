@@ -74,8 +74,6 @@
 // karl-project/build.gradle.kts
 
 import java.net.URL
-import java.util.Properties
-import java.io.ByteArrayOutputStream
 
 /*
  * ========================================
@@ -310,16 +308,17 @@ tasks.register("bumpVersion") {
     group = "release"
     description = "Bumps the VERSION file. Use -PnewVersion=X.Y.Z to set explicitly."
     doLast {
-        val newVersion = (project.findProperty("newVersion") as String?) ?: run {
-            // simple semantic patch bump
-            val parts = frameworkVersion.split('.')
-            if (parts.size == 3) {
-                val (maj, min, patch) = parts
-                listOf(maj, min, (patch.toInt() + 1).toString()).joinToString(".")
-            } else {
-                throw GradleException("Current version '$frameworkVersion' not semantic (x.y.z); supply -PnewVersion=")
+        val newVersion =
+            (project.findProperty("newVersion") as String?) ?: run {
+                // simple semantic patch bump
+                val parts = frameworkVersion.split('.')
+                if (parts.size == 3) {
+                    val (maj, min, patch) = parts
+                    listOf(maj, min, (patch.toInt() + 1).toString()).joinToString(".")
+                } else {
+                    throw GradleException("Current version '$frameworkVersion' not semantic (x.y.z); supply -PnewVersion=")
+                }
             }
-        }
         versionFile.writeText(newVersion + "\n")
         println("Version bumped: $frameworkVersion -> $newVersion")
     }

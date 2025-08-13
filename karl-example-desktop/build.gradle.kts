@@ -306,7 +306,7 @@ compose.desktop {
 
             // Package version follows unified framework version
             packageVersion = project.version.toString()
-            
+
             /*
              * JVM Runtime Configuration
              *
@@ -316,7 +316,7 @@ compose.desktop {
              */
             modules("java.base", "java.desktop", "java.logging", "java.naming", "java.sql", "jdk.crypto.ec")
             includeAllModules = true
-            
+
             /*
              * JPackage Options for Better Compatibility
              *
@@ -325,21 +325,22 @@ compose.desktop {
              */
             description = "KARL (Kotlin Adaptive Reasoning Learner) Desktop Example Application"
             vendor = "KARL Development Team"
-            
+
             /*
              * Additional JVM Arguments for Improved Compatibility
-             * 
+             *
              * These arguments help ensure proper JVM startup in packaged applications
              * and may resolve "Failed to launch JVM" errors.
              */
-            jvmArgs += listOf(
-                "-Djava.system.class.loader=null",
-                "-Dfile.encoding=UTF-8",
-                "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
-                "--add-opens=java.desktop/java.awt.peer=ALL-UNNAMED"
-            )
+            jvmArgs +=
+                listOf(
+                    "-Djava.system.class.loader=null",
+                    "-Dfile.encoding=UTF-8",
+                    "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
+                    "--add-opens=java.desktop/java.awt.peer=ALL-UNNAMED",
+                )
         }
-        
+
         /*
          * Build Types Configuration
          *
