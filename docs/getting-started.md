@@ -105,4 +105,4 @@ The :karl-example-desktop module provides a complete, runnable demonstration of 
 ./gradlew :karl-example-desktop:run
 ```
 
-→ We highly recommend exploring the source code of the [example application](https://github.com/theaniketraj/project-karl/blob/main/karl-example-desktop/src/main/kotlin/com/karl/example/DesktopExampleApp.kt) to see a practical implementation.
+→ We highly recommend exploring the source code of the [Example Application](https://github.com/theaniketraj/project-karl/blob/main/karl-example-desktop/src/main/kotlin/com/karl/example/DesktopExampleApp.kt) to see a practical implementation.

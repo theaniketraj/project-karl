@@ -2,9 +2,9 @@
 
 [![Build Status](https://github.com/theaniketraj/project-karl/actions/workflows/build.yml/badge.svg)](https://github.com/theaniketraj/project-karl/actions/workflows/build.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
-[![Kotlin Version](https://img.shields.io/badge/Kotlin-1.9.23%2B-blue.svg?style=flat-square)](https://kotlinlang.org)
+[![Kotlin Version](https://img.shields.io/badge/Kotlin-2.0.21%2B-blue.svg?style=flat-square)](https://kotlinlang.org)
 [![Platforms](https://img.shields.io/badge/Platform-JVM%20%7C%20Multiplatform%20Core-orange?style=flat-square)](#project-structure-)
-[![Version](https://img.shields.io/badge/Version-x.y.z%20(Alpha)-yellow?style=flat-square)](<!-- Link to Releases/Tags -->)
+[![Version](https://img.shields.io/badge/Version-x.y.z%20(Alpha)-yellow?style=flat-square)](https://github.com/theaniketraj/project-karl/releases)
 
 ![KARL-EXAMPLE-DESKTOP](https://github.com/theaniketraj/project-karl/blob/main/assets/karl-example-desktop.gif)
 
@@ -60,7 +60,9 @@ While initially conceived as the foundation for a Proprietary SaaS Application, 
 
 Please refer to the [Getting Started Guide](https://github.com/theaniketraj/project-karl/blob/main/GETTING_STARTED.md).
 
-For more details, see the [Full Documentation](https://karldocs.netlify.app/).
+For more details, see the [Full Documentation](https://karldocs.netlify.app/docs).
+
+For details on the System Architecture, see the [Architecture Overview](https://github.com/theaniketraj/project-karl/blob/main/SYSTEM_ARCHITECTURE_DIAGRAM.md).
 
 ## Example Application 🖥️
 
@@ -113,7 +115,7 @@ The key is any application where personalization is desired, but sending behavio
 
 ## Documentation 📚
 
-Detailed documentation covering concepts, integration, API reference, and contribution guidelines can be found in the `/docs` directory or at [KARL-AI DOCS](https://karldocs.netlify.app/).
+Detailed documentation covering concepts, integration, API reference, and contribution guidelines can be found in the `/docs` directory or at [KARL-AI DOCS](https://karldocs.netlify.app/docs).
 
 ## Contributing ❤️
 
