@@ -334,7 +334,6 @@ compose.desktop {
              */
             jvmArgs +=
                 listOf(
-                    "-Djava.system.class.loader=null",
                     "-Dfile.encoding=UTF-8",
                     "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
                     "--add-opens=java.desktop/java.awt.peer=ALL-UNNAMED",
